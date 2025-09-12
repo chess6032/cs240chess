@@ -13,7 +13,14 @@ public class ChessPosition {
     private final int row;
     private final int column;
 
+    public static final int MIN_POS = 1;
+    public static final int MAX_POS = 8;
+
     public ChessPosition(int row, int col) {
+        if (row < MIN_POS || row > MAX_POS || col < MIN_POS || col > MAX_POS)
+            throw new IndexOutOfBoundsException("row and/or col out of range: inputted row = " + row +
+                                                                ", inputted column = " + col);
+
         this.row = row;
         column = col;
     }
