@@ -73,13 +73,10 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        // TODO: this thing is broken :(
-//        char pieceChar = pieceTranslation.get(PieceType.KING);
-//        if (team == TeamColor.BLACK) // capitalize character if piece is black.
-//            pieceChar = Character.toUpperCase(pieceChar);
-//        return String.valueOf(pieceChar); // convert char to string and return it.
-
-        return type.toString();
+        char pieceChar = pieceTranslation.get(type);
+        if (team == TeamColor.BLACK) // capitalize character if piece is black.
+            pieceChar = Character.toUpperCase(pieceChar);
+        return String.valueOf(pieceChar); // convert char to string and return it.
     }
 
     @Override

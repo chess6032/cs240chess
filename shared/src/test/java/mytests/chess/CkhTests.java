@@ -19,7 +19,12 @@ public class CkhTests {
         CkhChessBoardTests.testResetBoard();
     }
 
+    private static void chessPieceTests() {
+        CkhChessPieceTests.checkChessPrint();
+    }
+
     public static void main(String[] args) {
         chessBoardTests();
+//        chessPieceTests();
     }
 }

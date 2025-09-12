@@ -49,11 +49,18 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+//        for (int i = 0; i < BOARD_WIDTH; ++i) {
+//            grid[0][i] = new ChessPiece(TeamColor.BLACK, edgeRows[i]) ; // top row (black)
+//            grid[BOARD_WIDTH-1][i] = new ChessPiece(TeamColor.WHITE, edgeRows[i]) ; // bottom row (white)
+//            grid[1][i] = new ChessPiece(TeamColor.BLACK, PieceType.PAWN); // black pawns
+//            grid[BOARD_WIDTH-2][i] = new ChessPiece(TeamColor.WHITE, PieceType.PAWN); // white pawns
+//        }
         for (int i = 0; i < BOARD_WIDTH; ++i) {
-            grid[0][i] = new ChessPiece(TeamColor.BLACK, edgeRows[i]) ; // top row (black)
-            grid[BOARD_WIDTH-1][i] = new ChessPiece(TeamColor.WHITE, edgeRows[i]) ; // bottom row (white)
-            grid[1][i] = new ChessPiece(TeamColor.BLACK, PieceType.PAWN); // black pawns
-            grid[BOARD_WIDTH-2][i] = new ChessPiece(TeamColor.WHITE, PieceType.PAWN); // white pawns
+            addPiece(new ChessPosition(BOARD_WIDTH, i+1), new ChessPiece(TeamColor.BLACK, edgeRows[i])); // top row (black)
+            addPiece(new ChessPosition(BOARD_WIDTH-1, i+1), new ChessPiece(TeamColor.BLACK, PieceType.PAWN)); // black pawns
+
+            addPiece(new ChessPosition(1, i+1), new ChessPiece(TeamColor.WHITE, edgeRows[i])); // bottom row (white)
+            addPiece(new ChessPosition(2, i+1), new ChessPiece(TeamColor.WHITE, PieceType.PAWN)); // black pawns
         }
     }
 
@@ -66,14 +73,23 @@ public class ChessBoard {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("   1 2 3 4 5 6 7 8\n");
 //        System.out.println("GRID LENGTH: " + grid.length);
         for (int i = 0; i < BOARD_WIDTH; ++i) {
+            int row = BOARD_WIDTH - i;
 //            System.out.println("grid[" + i + "].length = " + grid[i].length);
+            sb.append(row);
+            sb.append(" ");
             for (int j = 0; j < BOARD_WIDTH; ++j) {
 //                System.out.println("i: " + i + ", j: " + j);
-                sb.append(grid[i][j]);
-                sb.append(" ");
+                sb.append("|");
+                ChessPiece piece = getPiece(new ChessPosition(row, j+1));
+                String pieceStr = " ";
+                if (piece != null)
+                    pieceStr = piece.toString();
+                sb.append(pieceStr);
             }
+            sb.append("|");
             if (i < BOARD_WIDTH - 1)
                 sb.append("\n");
         }
