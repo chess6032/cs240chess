@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
@@ -94,5 +95,44 @@ public class ChessBoard {
                 sb.append("\n"); // don't add newline on last row
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (this == o) {
+            return true; // TODO: do I need this?
+        }
+
+        ChessBoard that = (ChessBoard) o;
+//        if (grid.length != that.grid.length) {
+//            // these should never be different, but just in case...
+//            throw new RuntimeException("uhhh... somehow two chessboards have different # of rows???\n"
+//                                        + "this: " + grid.length + "\n"
+//                                        + "that: " + that.grid.length);
+//        }
+//        for (int i = 0; i < grid.length; ++i) {
+//            if (grid[i].length != that.grid[i].length) {
+//                // these should never be different, but just in case...
+//                throw new RuntimeException("uhhh... somehow two chessboards' rows have different # of columns???\n"
+//                                            + "this[" + i + "]: " + grid[i].length + "\n"
+//                                            + "that[" + i + "]: " + that.grid[i].length);
+//            }
+//
+//            for (int j = 0; j < grid[i].length; ++j) {
+//                if (grid[i][j] != that.grid[i][j]) return false;
+//            }
+//        }
+//        return true;
+
+        // TODO: this is lazy but ig it works...
+        return toString().equals(that.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Arrays.deepHashCode(grid), Arrays.hashCode(edgeRows));
     }
 }
