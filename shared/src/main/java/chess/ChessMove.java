@@ -1,5 +1,9 @@
 package chess;
 
+import chess.ChessPiece.PieceType;
+
+import java.util.Objects;
+
 /**
  * Represents moving a chess piece on a chessboard
  * <p>
@@ -8,22 +12,29 @@ package chess;
  */
 public class ChessMove {
 
+    private final ChessPosition startPosition;
+    private final ChessPosition endPosition;
+    private final PieceType promotionPiece;
+
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        this.startPosition = startPosition;
+        this.endPosition = endPosition;
+        this.promotionPiece = promotionPiece;
     }
 
     /**
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
-        throw new RuntimeException("Not implemented");
+        return startPosition;
     }
 
     /**
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-        throw new RuntimeException("Not implemented");
+        return endPosition;
     }
 
     /**
@@ -33,6 +44,34 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        return promotionPiece;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessMove{" +
+                "start: " + startPosition +
+                ", end: " + endPosition +
+                " | promote: " + promotionPiece +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessMove that = (ChessMove) o;
+        return Objects.equals(startPosition, that.startPosition)
+            && Objects.equals(endPosition, that.endPosition)
+            && promotionPiece == that.promotionPiece;
+                        //    ^ I tried to use promotionPiece.equals(that.promotionPiece) and it didn't work...
+                        //      ...I wonder why == did.
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startPosition, endPosition, promotionPiece);
+        // FIXME: Does hashing promotionPiece (a ChessPiece.PieceType) work?
     }
 }
