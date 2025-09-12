@@ -18,7 +18,7 @@ public class ChessBoard {
     private static final int BOARD_WIDTH = 8;
 
     public ChessBoard() {
-        grid = new ChessPiece[8][8];
+        grid = new ChessPiece[BOARD_WIDTH][BOARD_WIDTH];
         // TODO: do I have to initialize everything as null?
     }
 
@@ -50,22 +50,19 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-//        for (int i = 0; i < BOARD_WIDTH; ++i) {
-//            grid[0][i] = new ChessPiece(TeamColor.BLACK, edgeRows[i]) ; // top row (black)
-//            grid[BOARD_WIDTH-1][i] = new ChessPiece(TeamColor.WHITE, edgeRows[i]) ; // bottom row (white)
-//            grid[1][i] = new ChessPiece(TeamColor.BLACK, PieceType.PAWN); // black pawns
-//            grid[BOARD_WIDTH-2][i] = new ChessPiece(TeamColor.WHITE, PieceType.PAWN); // white pawns
-//        }
         for (int i = 0; i < BOARD_WIDTH; ++i) {
+            // black starting pieces:
             addPiece(new ChessPosition(BOARD_WIDTH, i+1), new ChessPiece(TeamColor.BLACK, edgeRows[i])); // top row (black)
             addPiece(new ChessPosition(BOARD_WIDTH-1, i+1), new ChessPiece(TeamColor.BLACK, PieceType.PAWN)); // black pawns
 
+            // white starting pieces:
             addPiece(new ChessPosition(1, i+1), new ChessPiece(TeamColor.WHITE, edgeRows[i])); // bottom row (white)
-            addPiece(new ChessPosition(2, i+1), new ChessPiece(TeamColor.WHITE, PieceType.PAWN)); // black pawns
+            addPiece(new ChessPosition(2, i+1), new ChessPiece(TeamColor.WHITE, PieceType.PAWN)); // white pawns
         }
     }
 
-    private final PieceType[] edgeRows = {
+    private static final PieceType[] edgeRows = {
+            // piece arrangement for top & bottom row:
             PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP,
                 PieceType.QUEEN, PieceType.KING,
             PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK
@@ -103,36 +100,15 @@ public class ChessBoard {
             return false;
         }
         if (this == o) {
-            return true; // TODO: do I need this?
+            return true; // TODO: do I need this? (Rodham put it in his equals override, but Jensen didn't...)
         }
 
         ChessBoard that = (ChessBoard) o;
-//        if (grid.length != that.grid.length) {
-//            // these should never be different, but just in case...
-//            throw new RuntimeException("uhhh... somehow two chessboards have different # of rows???\n"
-//                                        + "this: " + grid.length + "\n"
-//                                        + "that: " + that.grid.length);
-//        }
-//        for (int i = 0; i < grid.length; ++i) {
-//            if (grid[i].length != that.grid[i].length) {
-//                // these should never be different, but just in case...
-//                throw new RuntimeException("uhhh... somehow two chessboards' rows have different # of columns???\n"
-//                                            + "this[" + i + "]: " + grid[i].length + "\n"
-//                                            + "that[" + i + "]: " + that.grid[i].length);
-//            }
-//
-//            for (int j = 0; j < grid[i].length; ++j) {
-//                if (grid[i][j] != that.grid[i][j]) return false;
-//            }
-//        }
-//        return true;
-
-        // TODO: this is lazy but ig it works...
-        return toString().equals(that.toString());
+        return toString().equals(that.toString()); // FIXME: this is lazy but it works so...
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.deepHashCode(grid), Arrays.hashCode(edgeRows));
+        return Objects.hash(Arrays.deepHashCode(grid));
     }
 }

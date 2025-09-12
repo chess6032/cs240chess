@@ -57,12 +57,13 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        // TODO: Figure out wtf a Collection is.
+        // TODO: Figure out wtf a Collection is. Then implement this.
         throw new RuntimeException("Not implemented");
     }
 
     private static final Map<PieceType, Character> pieceTranslation = new HashMap<>();
     static {
+        // TODO: is there a better way to do this?
         pieceTranslation.put(PieceType.KING, 'k');
         pieceTranslation.put(PieceType.QUEEN, 'q');
         pieceTranslation.put(PieceType.BISHOP, 'b');
@@ -73,7 +74,7 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        char pieceChar = pieceTranslation.get(type);
+        char pieceChar = pieceTranslation.get(type); // get char corresponding to piece type.
         if (team == TeamColor.BLACK) // capitalize character if piece is black.
             pieceChar = Character.toUpperCase(pieceChar);
         return String.valueOf(pieceChar); // convert char to string and return it.

@@ -72,6 +72,6 @@ public class ChessMove {
     @Override
     public int hashCode() {
         return Objects.hash(startPosition, endPosition, promotionPiece);
-        // FIXME: Does hashing promotionPiece (a ChessPiece.PieceType) work?
+        // FIXME: Does hashing promotionPiece (a ChessPiece.PieceType) work? (since it's an enum)
     }
 }
