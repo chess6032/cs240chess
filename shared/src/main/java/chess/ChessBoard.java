@@ -73,25 +73,25 @@ public class ChessBoard {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("   1 2 3 4 5 6 7 8\n");
-//        System.out.println("GRID LENGTH: " + grid.length);
+        sb.append("   1 2 3 4 5 6 7 8\n"); // column key
+
         for (int i = 0; i < BOARD_WIDTH; ++i) {
             int row = BOARD_WIDTH - i;
-//            System.out.println("grid[" + i + "].length = " + grid[i].length);
-            sb.append(row);
+            sb.append(row); // row key
             sb.append(" ");
+
+            // convert row to string:
             for (int j = 0; j < BOARD_WIDTH; ++j) {
-//                System.out.println("i: " + i + ", j: " + j);
+                int col = j+1;
                 sb.append("|");
-                ChessPiece piece = getPiece(new ChessPosition(row, j+1));
-                String pieceStr = " ";
-                if (piece != null)
-                    pieceStr = piece.toString();
-                sb.append(pieceStr);
+                ChessPiece piece = getPiece(new ChessPosition(row, col));
+                sb.append((piece != null ? piece.toString() : " ")); // null reference means space is empty
             }
+
             sb.append("|");
+
             if (i < BOARD_WIDTH - 1)
-                sb.append("\n");
+                sb.append("\n"); // don't add newline on last row
         }
         return sb.toString();
     }
