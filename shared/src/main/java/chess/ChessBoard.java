@@ -1,5 +1,7 @@
 package chess;
 
+import chess.ChessPiece.PieceType;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -20,11 +22,15 @@ public class ChessBoard {
         }
 
         public ChessPiece getPieceAtColumn(int column) {
-            return squares[column - 1];
+            return squares[column];
         }
 
         public void setPieceAtColumn(int column, ChessPiece piece) {
-            squares[column - 1] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+            squares[column] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+        }
+
+        public void setPieceAtColumn(int column, ChessGame.TeamColor team, PieceType type) {
+            squares[column] = new ChessPiece(team, type);
         }
 
         @Override
@@ -39,8 +45,8 @@ public class ChessBoard {
             if (o == null || getClass() != o.getClass())
                 return false;
 
-            Row row = (Row) o;
-            return Objects.deepEquals(squares, row.squares);
+            Row that = (Row) o;
+            return Arrays.equals(squares, that.squares);
         }
 
         @Override
@@ -53,7 +59,7 @@ public class ChessBoard {
 
     public ChessBoard() {
         rows = new Row[8]; // initializes array of null Row references
-        // fill rows array w/ empty Rows:
+        // fill with empty rows:
         for (int i = 0; i < rows.length; ++i) {
             rows[i] = new Row();
         }
@@ -66,7 +72,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        rows[position.getRow()-1].setPieceAtColumn(position.getColumn()-1, piece);
     }
 
     /**
@@ -77,7 +83,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        return rows[position.getRow()-1].getPieceAtColumn(position.getColumn()-1);
     }
 
     /**
@@ -85,6 +91,47 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        // fill rows array w/ empty Rows:
+        for (int i = 0; i < rows.length; ++i) {
+            rows[i] = new Row();
+        }
+
+        PieceType[] backRow = {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP,
+                                PieceType.QUEEN, PieceType.KING,
+                                PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+
+        for (int i = 0; i < 8; ++i) {
+            // top & bottom row:
+            rows[0].setPieceAtColumn(i, ChessGame.TeamColor.WHITE, backRow[i]);
+            rows[rows.length-1].setPieceAtColumn(i, ChessGame.TeamColor.BLACK, backRow[i]);
+
+            // pawn rows:
+            rows[1].setPieceAtColumn(i, ChessGame.TeamColor.WHITE, PieceType.PAWN);
+            rows[rows.length-2].setPieceAtColumn(i, ChessGame.TeamColor.BLACK, PieceType.PAWN);
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < rows.length; ++i) {
+            sb.append(rows[i].toString());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Arrays.equals(rows, that.rows);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(rows);
     }
 }
