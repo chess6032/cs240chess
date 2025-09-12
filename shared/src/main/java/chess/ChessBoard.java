@@ -1,9 +1,9 @@
 package chess;
 
-import chess.ChessPiece.PieceType;
-
 import java.util.Arrays;
-import java.util.Objects;
+
+import chess.ChessPiece.PieceType;
+import chess.ChessGame.TeamColor;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -13,56 +13,12 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private class Row {
-        private final ChessPiece[] squares; // TODO: this might not be final actually
-
-        Row() {
-            squares = new ChessPiece[8];
-            // TODO: do I have to initialize every element as null?
-        }
-
-        public ChessPiece getPieceAtColumn(int column) {
-            return squares[column];
-        }
-
-        public void setPieceAtColumn(int column, ChessPiece piece) {
-            squares[column] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
-        }
-
-        public void setPieceAtColumn(int column, ChessGame.TeamColor team, PieceType type) {
-            squares[column] = new ChessPiece(team, type);
-        }
-
-        @Override
-        public String toString() {
-            return "Row{" +
-                    "squares=" + Arrays.toString(squares) +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass())
-                return false;
-
-            Row that = (Row) o;
-            return Arrays.equals(squares, that.squares);
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(squares);
-        }
-    }
-
-    private final Row[] rows;
+    private final ChessPiece[][] grid;
+    private static final int BOARD_WIDTH = 8;
 
     public ChessBoard() {
-        rows = new Row[8]; // initializes array of null Row references
-        // fill with empty rows:
-        for (int i = 0; i < rows.length; ++i) {
-            rows[i] = new Row();
-        }
+        grid = new ChessPiece[8][8];
+        // TODO: do I have to initialize everything as null?
     }
 
     /**
@@ -72,7 +28,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        rows[position.getRow()-1].setPieceAtColumn(position.getColumn()-1, piece);
+        grid[position.getRow()-1][position.getColumn()-1] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+        // TODO: could I just set it to `piece` instead?? idk how tf Java works, man.
     }
 
     /**
@@ -83,7 +40,8 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return rows[position.getRow()-1].getPieceAtColumn(position.getColumn()-1);
+        return grid[position.getRow()-1][position.getColumn()-1];
+        // TODO: should I return a copy??
     }
 
     /**
@@ -91,47 +49,34 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        // fill rows array w/ empty Rows:
-        for (int i = 0; i < rows.length; ++i) {
-            rows[i] = new Row();
-        }
-
-        PieceType[] backRow = {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP,
-                                PieceType.QUEEN, PieceType.KING,
-                                PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
-
-        for (int i = 0; i < 8; ++i) {
-            // top & bottom row:
-            rows[0].setPieceAtColumn(i, ChessGame.TeamColor.WHITE, backRow[i]);
-            rows[rows.length-1].setPieceAtColumn(i, ChessGame.TeamColor.BLACK, backRow[i]);
-
-            // pawn rows:
-            rows[1].setPieceAtColumn(i, ChessGame.TeamColor.WHITE, PieceType.PAWN);
-            rows[rows.length-2].setPieceAtColumn(i, ChessGame.TeamColor.BLACK, PieceType.PAWN);
+        for (int i = 0; i < BOARD_WIDTH; ++i) {
+            grid[0][i] = new ChessPiece(TeamColor.BLACK, edgeRows[i]) ; // top row (black)
+            grid[BOARD_WIDTH-1][i] = new ChessPiece(TeamColor.WHITE, edgeRows[i]) ; // bottom row (white)
+            grid[1][i] = new ChessPiece(TeamColor.BLACK, PieceType.PAWN); // black pawns
+            grid[BOARD_WIDTH-2][i] = new ChessPiece(TeamColor.WHITE, PieceType.PAWN); // white pawns
         }
     }
+
+    private final PieceType[] edgeRows = {
+            PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP,
+                PieceType.QUEEN, PieceType.KING,
+            PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK
+    };
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < rows.length; ++i) {
-            sb.append(rows[i].toString());
-            sb.append("\n");
+//        System.out.println("GRID LENGTH: " + grid.length);
+        for (int i = 0; i < BOARD_WIDTH; ++i) {
+//            System.out.println("grid[" + i + "].length = " + grid[i].length);
+            for (int j = 0; j < BOARD_WIDTH; ++j) {
+//                System.out.println("i: " + i + ", j: " + j);
+                sb.append(grid[i][j]);
+                sb.append(" ");
+            }
+            if (i < BOARD_WIDTH - 1)
+                sb.append("\n");
         }
         return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ChessBoard that = (ChessBoard) o;
-        return Arrays.equals(rows, that.rows);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(rows);
     }
 }
