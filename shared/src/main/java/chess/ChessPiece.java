@@ -1,9 +1,11 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import chess.ChessGame.TeamColor;
-import chess.ChessPiece.PieceType;
 
 /**
  * Represents a single chess piece
@@ -13,12 +15,12 @@ import chess.ChessPiece.PieceType;
  */
 public class ChessPiece {
 
-    private final TeamColor teamColor;
-    private final PieceType pieceType;
+    private final TeamColor team;
+    private final PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        teamColor = pieceColor;
-        pieceType = type;
+        team = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -37,14 +39,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return teamColor;
+        return team;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        return pieceType;
+        return type;
     }
 
     /**
@@ -55,6 +57,41 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        // TODO: Figure out wtf a Collection is.
         throw new RuntimeException("Not implemented");
     }
+
+    private static final Map<PieceType, Character> pieceTranslation = new HashMap<>();
+    static {
+        pieceTranslation.put(PieceType.KING, 'k');
+        pieceTranslation.put(PieceType.QUEEN, 'q');
+        pieceTranslation.put(PieceType.BISHOP, 'b');
+        pieceTranslation.put(PieceType.KNIGHT, 'n');
+        pieceTranslation.put(PieceType.ROOK, 'r');
+        pieceTranslation.put(PieceType.PAWN, 'p');
+    }
+
+    @Override
+    public String toString() {
+        char pieceChar = pieceTranslation.get(PieceType.KING);
+        if (team == TeamColor.BLACK) // capitalize character if piece is black.
+            pieceChar = Character.toUpperCase(pieceChar);
+        return String.valueOf(pieceChar); // convert char to string and return it.
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (getClass() != o.getClass()) return false;
+
+        ChessPiece that = (ChessPiece) o;
+        return team == that.team
+            && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(team, type);
+    }
+
 }
