@@ -17,9 +17,9 @@ public class ChessPosition {
     public static final int MAX_POS = 8;
 
     public ChessPosition(int row, int col) {
-        if (row < MIN_POS || row > MAX_POS || col < MIN_POS || col > MAX_POS)
-            throw new IndexOutOfBoundsException("row and/or col out of range: inputted row = " + row +
-                                                                ", inputted column = " + col);
+//        if (row < MIN_POS || row > MAX_POS || col < MIN_POS || col > MAX_POS)
+//            throw new IndexOutOfBoundsException("(ChessPosition) row and/or col out of range: inputted row = " + row +
+//                                                                ", inputted column = " + col);
 
         this.row = row;
         column = col;
@@ -43,10 +43,10 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "ChessPosition{" +
-                "row=" + row +
-                ", column=" + column +
-                '}';
+        return "(" +
+                "row: " + row +
+                ", col: " + column +
+                ')';
     }
 
     @Override

@@ -23,8 +23,11 @@ public class CkhTests {
         CkhChessPieceTests.checkChessPrint();
     }
 
+    private static void movesCalculatorTests() {
+        CkhMovesCalculatorTests.testKingMovesCalculator();
+    }
+
     public static void main(String[] args) {
-        chessBoardTests();
-//        chessPieceTests();
+        movesCalculatorTests();
     }
 }

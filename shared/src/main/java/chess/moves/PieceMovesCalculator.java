@@ -67,6 +67,7 @@ public class PieceMovesCalculator {
 
     // "space available" = space is empty OR occupied by OPPONENT team's piece.
     protected boolean addMoveIfSpaceAvailable(ChessPosition newPosition) {
+
         if (board.isPositionOutOfBounds(newPosition))
             return false;
 
