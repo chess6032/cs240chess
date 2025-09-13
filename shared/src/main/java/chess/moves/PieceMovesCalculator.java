@@ -16,7 +16,7 @@ public class PieceMovesCalculator {
     private final ChessPosition position;
     private final TeamColor team;
 
-    private final ChessPiece.PieceType promotionPiece; // only the subclass for the Pawn will use this.
+    protected ChessPiece.PieceType promotionPiece; // only the subclass for the Pawn will use this.
 
     private final HashSet<ChessMove> possibleMoves;
 
@@ -27,6 +27,21 @@ public class PieceMovesCalculator {
         possibleMoves = new HashSet<ChessMove>();
 
         promotionPiece = null; // TODO: override this for pawn.
+    }
+
+    protected boolean amIWhite() {
+        // for pawn to tell which way is forward.
+        return team == TeamColor.WHITE;
+    }
+
+    protected boolean canIBounce() {
+        // for pawns to tell if they can move forward 2 spaces.
+        return position.getRow() == 2 || position.getRow() == ChessBoard.getBoardWidth() - 2;
+        // NOTE: I'm just checking if pawn is on 2nd row or 2nd-to-last row,
+        //       instead of checking if the pawn has moved.
+        //       This should work fine because if a pawn is on the 2nd-to-last row,
+        //       when it calculates its moves, the forward-2-spaces moves
+        //       will be out of bounds.
     }
 
     public Collection<ChessMove> getPossibleMoves() {
@@ -106,6 +121,19 @@ public class PieceMovesCalculator {
         int i = 0;
         int j = 0;
         while (addMoveIfRelativeSpaceAvailable(i += dRow, j += dCol));
+    }
+
+    protected boolean addMoveIfRelativeSpaceCapturable(int dRow, int dCol) {
+        ChessPosition position = calculateRelativePosition(dRow, dCol);
+        if (board.isPositionOutOfBounds(position))
+            return false;
+
+        ChessPiece pieceAtPos = board.getPiece(position);
+        if (pieceAtPos != null && pieceAtPos.getTeamColor() != team) {
+            addMove(position);
+            return true;
+        }
+        return false;
     }
 
     @Override

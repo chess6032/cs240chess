@@ -18,11 +18,14 @@ public class ChessBoard {
     private final ChessPiece[][] grid;
     private static final int BOARD_WIDTH = 8;
 
+    public static int getBoardWidth() {
+        return BOARD_WIDTH;
+    }
+
     public ChessBoard() {
         grid = new ChessPiece[BOARD_WIDTH][BOARD_WIDTH];
         // TODO: do I have to initialize everything as null?
     }
-
     /**
      * Adds a chess piece to the chessboard
      *
