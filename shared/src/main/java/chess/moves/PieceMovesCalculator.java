@@ -44,7 +44,7 @@ public class PieceMovesCalculator {
 
     public ChessPosition calculateRelativePosition(int dRow, int dCol) {
         ChessPosition relative = new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
-        System.out.println(position + " + (" + dRow + ", " + dCol + ") = " + relative);
+//        System.out.println(position + " + (" + dRow + ", " + dCol + ") = " + relative);
         return relative;
     }
 
@@ -93,13 +93,19 @@ public class PieceMovesCalculator {
             return false; // (sus)
         }
 
-        System.out.println("Move not added: " + newPosition);
+//        System.out.println("Move not added: " + newPosition);
 
         return false;
     }
 
     protected boolean addMoveIfRelativeSpaceAvailable(int dRow, int dCol) {
         return addMoveIfSpaceAvailable(calculateRelativePosition(dRow, dCol));
+    }
+
+    protected void walkAndAddMoves(int dRow, int dCol) {
+        int i = 0;
+        int j = 0;
+        while (addMoveIfRelativeSpaceAvailable(i += dRow, j += dCol));
     }
 
     @Override

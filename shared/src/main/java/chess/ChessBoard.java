@@ -53,12 +53,12 @@ public class ChessBoard {
     }
 
     public boolean isPositionOutOfBounds(ChessPosition position) {
-        if (position.getRow() < 1 || position.getRow() > BOARD_WIDTH
+        if (   position.getRow()    < 1 || position.getRow()    > BOARD_WIDTH
             || position.getColumn() < 1 || position.getColumn() > BOARD_WIDTH)
         {
-            System.out.println("Position IS out of bounds: " + position);
+//            System.out.println("Position IS out of bounds: " + position);
             return true;
-        };
+        }
         return false;
     }
 

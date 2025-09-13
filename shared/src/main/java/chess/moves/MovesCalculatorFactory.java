@@ -14,6 +14,7 @@ public class MovesCalculatorFactory {
         return switch (type) {
             case PieceType.KING -> new KingMovesCalculator(board, position, team);
             case PieceType.ROOK -> new RookMovesCalculator(board, position, team);
+            case PieceType.BISHOP -> new BishopMovesCalculator(board, position, team);
             default ->
                     throw new RuntimeException("(MovesCalculatorFactory) No MovesCalculator class matched inputted ChessPiece.PieceType");
         };
