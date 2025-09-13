@@ -60,7 +60,8 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         PieceMovesCalculator calculator = MovesCalculatorFactory.returnPieceMovesCalculator(type, board, myPosition, team);
-        return calculator.calculateMoves();
+        calculator.calculateMoves();
+        return calculator.getPossibleMoves();
     }
 
     private static final Map<PieceType, Character> pieceTranslation = new HashMap<>();

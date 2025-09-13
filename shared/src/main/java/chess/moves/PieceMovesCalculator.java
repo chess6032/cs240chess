@@ -12,13 +12,13 @@ import java.util.Objects;
 
 public class PieceMovesCalculator {
 
-    protected final ChessBoard board;
-    protected final ChessPosition position;
-    protected final TeamColor team;
+    private final ChessBoard board;
+    private final ChessPosition position;
+    private final TeamColor team;
 
-    protected final ChessPiece.PieceType promotionPiece; // only the subclass for the Pawn will use this.
+    private final ChessPiece.PieceType promotionPiece; // only the subclass for the Pawn will use this.
 
-    protected final ArrayList<ChessMove> possibleMoves;
+    private final ArrayList<ChessMove> possibleMoves;
 
     public PieceMovesCalculator(ChessBoard board, ChessPosition position, TeamColor team) {
         this.board = board;
@@ -29,11 +29,16 @@ public class PieceMovesCalculator {
         promotionPiece = null; // TODO: override this for pawn.
     }
 
+    public ArrayList<ChessMove> getPossibleMoves() {
+        return possibleMoves;
+        // TODO: return copy???
+    }
+
     public ChessPosition calculateRelativePosition(int dRow, int dCol) {
         return new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
     }
 
-    public Collection<ChessMove> calculateMoves() {
+    public void calculateMoves() {
         // OVERRIDE THIS IN SUBCLASSES
         throw new RuntimeException("calculateMoves invoked on PieceMovesCalculator (the move calculator superclass). " +
                 "Did you use MoveCalculatorFactory to get your PieceMovesCalculator?" +
@@ -49,28 +54,5 @@ public class PieceMovesCalculator {
 
     protected void addMoveIfRelativeSpaceEmpty(int dRow, int dCol) {
         addMoveIfSpaceEmpty(calculateRelativePosition(dRow, dCol));
-    }
-
-    @Override
-    public String toString() {
-        return "PieceMovesCalculator{" +
-                "board=" + board +
-                ", position=" + position +
-                ", team=" + team +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        PieceMovesCalculator that = (PieceMovesCalculator) o;
-        return Objects.equals(board, that.board) && Objects.equals(position, that.position) && team == that.team;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(board, position, team);
     }
 }
