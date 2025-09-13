@@ -34,6 +34,14 @@ public class PieceMovesCalculator {
         // TODO: return copy???
     }
 
+    public static Collection<ChessPosition> getFinalPositions(Collection<ChessMove> moves) {
+        HashSet<ChessPosition> positions = new HashSet<>();
+        for (ChessMove move : moves) {
+            positions.add(move.getEndPosition());
+        }
+        return (Collection<ChessPosition>) positions;
+    }
+
     public ChessPosition calculateRelativePosition(int dRow, int dCol) {
         return new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
     }

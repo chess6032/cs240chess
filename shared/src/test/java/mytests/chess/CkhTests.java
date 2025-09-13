@@ -17,6 +17,8 @@ public class CkhTests {
         CkhChessBoardTests.testChessBoardConstructor();
         System.out.println("Testing resetBoard...");
         CkhChessBoardTests.testResetBoard();
+        System.out.println("Testing displaying possible moves...");
+        CkhChessBoardTests.testDisplayingMoves();
     }
 
     private static void chessPieceTests() {
@@ -28,6 +30,8 @@ public class CkhTests {
     }
 
     public static void main(String[] args) {
-        CkhMovesCalculatorTests.test();
+//        CkhMovesCalculatorTests.test();
+        chessBoardTests();
     }
+
 }

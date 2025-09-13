@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 import chess.ChessPiece.PieceType;
@@ -29,6 +30,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+        if (isPositionOutOfBounds(position))
+            throw new RuntimeException("bro >:(");
         grid[position.getRow()-1][position.getColumn()-1] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
         // TODO: could I just set it to `piece` instead?? idk how tf Java works, man.
     }
@@ -41,6 +44,9 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
+        if (isPositionOutOfBounds(position)) {
+            throw new RuntimeException("bruh wtf");
+        }
         return grid[position.getRow()-1][position.getColumn()-1];
         // TODO: should I return a copy??
     }
@@ -75,6 +81,10 @@ public class ChessBoard {
 
     @Override
     public String toString() {
+        return toString((Collection<ChessPosition>) null);
+    }
+
+    public String toString(Collection<ChessPosition> positions) {
         StringBuilder sb = new StringBuilder();
         sb.append("   1 2 3 4 5 6 7 8\n"); // column key
 
@@ -87,8 +97,21 @@ public class ChessBoard {
             for (int j = 0; j < BOARD_WIDTH; ++j) {
                 int col = j+1;
                 sb.append("|");
-                ChessPiece piece = getPiece(new ChessPosition(row, col));
-                sb.append((piece != null ? piece.toString() : " ")); // null reference means space is empty
+                ChessPosition square = new ChessPosition(row, col);
+                ChessPiece piece = getPiece(square);
+
+                String squareString = " ";
+                if (positions != null && positions.contains(square)) {
+                    squareString = "_";
+                    if (piece != null)
+                        squareString = "X";
+                } else {
+                    if (piece != null)
+                        squareString = piece.toString();
+                }
+                sb.append(squareString);
+
+//                sb.append((piece != null ? piece.toString() : " ")); // null reference means space is empty
             }
 
             sb.append("|");
