@@ -30,8 +30,7 @@ public class CkhTests {
     }
 
     public static void main(String[] args) {
-//        CkhMovesCalculatorTests.test();
-        chessBoardTests();
+        CkhMovesCalculatorTests.testRookMovesCalculator();
     }
 
 }

@@ -43,7 +43,9 @@ public class PieceMovesCalculator {
     }
 
     public ChessPosition calculateRelativePosition(int dRow, int dCol) {
-        return new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
+        ChessPosition relative = new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
+        System.out.println(position + " + (" + dRow + ", " + dCol + ") = " + relative);
+        return relative;
     }
 
     public void calculateMoves() {
@@ -58,7 +60,7 @@ public class PieceMovesCalculator {
             possibleMoves.add(new ChessMove(position, newPosition, promotionPiece));
     }
 
-    protected boolean addMoveIfSpaceEmpty(ChessPosition newPosition) {
+    private boolean addMoveIfSpaceEmpty(ChessPosition newPosition) {
         if (board.isPositionOutOfBounds(newPosition))
             return false;
 
@@ -75,7 +77,7 @@ public class PieceMovesCalculator {
     }
 
     // "space available" = space is empty OR occupied by OPPONENT team's piece.
-    protected boolean addMoveIfSpaceAvailable(ChessPosition newPosition) {
+    private boolean addMoveIfSpaceAvailable(ChessPosition newPosition) {
 
         if (board.isPositionOutOfBounds(newPosition))
             return false;
@@ -99,6 +101,19 @@ public class PieceMovesCalculator {
 
     @Override
     public String toString() {
+        return displayOnBoard() + "\n" + displayMovesAsList();
+    }
+
+    public String displayOnBoard() {
         return board.toString(PieceMovesCalculator.getFinalPositions(possibleMoves));
+    }
+
+    public String displayMovesAsList() {
+        StringBuilder sb = new StringBuilder(" ");
+        for (ChessMove move : possibleMoves) {
+            sb.append(move.getEndPosition());
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

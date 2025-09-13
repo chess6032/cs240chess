@@ -52,6 +52,26 @@ public class CkhMovesCalculatorTests {
         printPossibleMoves(calculator);
     }
 
+    public static void testRookMovesCalculator() {
+        ChessBoard board = new ChessBoard();
+        board.addPiece(new ChessPosition(4, 4), new ChessPiece(TeamColor.WHITE, PieceType.ROOK));
+        RookMovesCalculator calc = new RookMovesCalculator(board, new ChessPosition(4, 4), TeamColor.WHITE);
+        calc.calculateMoves();
+        System.out.println(calc);
+
+
+//                | | | | | | | | |
+//                | | | | | | | | |
+//                | | | | | | | | |
+//                |N| | | | | | | |
+//                |r| | | | |B| | |
+//                | | | | | | | | |
+//                |q| | | | | | | |
+//                | | | | | | | | |
+
+
+    }
+
     public static void test() {
         ChessBoard board = new ChessBoard();
         ChessPiece king = new ChessPiece(TeamColor.WHITE, PieceType.KING);

@@ -78,7 +78,7 @@ public class ChessPiece {
     @Override
     public String toString() {
         char pieceChar = pieceTranslation.get(type); // get char corresponding to piece type.
-        if (team == TeamColor.BLACK) // capitalize character if piece is black.
+        if (team == TeamColor.WHITE) // capitalize character if piece is black.
             pieceChar = Character.toUpperCase(pieceChar);
         return String.valueOf(pieceChar); // convert char to string and return it.
     }

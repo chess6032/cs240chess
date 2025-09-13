@@ -11,12 +11,12 @@ public class MovesCalculatorFactory {
 
     // return instance of appropriate piece moves calculator class.
     public static PieceMovesCalculator returnPieceMovesCalculator(PieceType type, ChessBoard board, ChessPosition position, TeamColor team) {
-        switch (type) {
-            case PieceType.KING:
-                return new KingMovesCalculator(board, position, team);
-            default:
-                throw new RuntimeException("(MovesCalculatorFactory) No MovesCalculator class matched inputted ChessPiece.PieceType");
-        }
+        return switch (type) {
+            case PieceType.KING -> new KingMovesCalculator(board, position, team);
+            case PieceType.ROOK -> new RookMovesCalculator(board, position, team);
+            default ->
+                    throw new RuntimeException("(MovesCalculatorFactory) No MovesCalculator class matched inputted ChessPiece.PieceType");
+        };
 
     }
 }

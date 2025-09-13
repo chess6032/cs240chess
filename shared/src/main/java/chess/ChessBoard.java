@@ -30,8 +30,9 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        if (isPositionOutOfBounds(position))
+        if (isPositionOutOfBounds(position)){
             throw new RuntimeException("bro >:(");
+        }
         grid[position.getRow()-1][position.getColumn()-1] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
         // TODO: could I just set it to `piece` instead?? idk how tf Java works, man.
     }
@@ -52,8 +53,13 @@ public class ChessBoard {
     }
 
     public boolean isPositionOutOfBounds(ChessPosition position) {
-        return position.getRow() < 1 || position.getRow() > BOARD_WIDTH
-            || position.getColumn() < 1 || position.getColumn() > BOARD_WIDTH;
+        if (position.getRow() < 1 || position.getRow() > BOARD_WIDTH
+            || position.getColumn() < 1 || position.getColumn() > BOARD_WIDTH)
+        {
+            System.out.println("Position IS out of bounds: " + position);
+            return true;
+        };
+        return false;
     }
 
     /**
