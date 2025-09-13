@@ -20,13 +20,14 @@ public class QueenMovesCalculator extends PieceMovesCalculator {
 
     @Override
     public void calculateMoves() {
-        bishop.calculateMoves();
-        rook.calculateMoves();
-        for (ChessMove move : bishop.getPossibleMoves()) {
-            addMoveIfSpaceAvailable(move.getEndPosition());
-        }
-        for (ChessMove move : rook.getPossibleMoves()) {
-            addMoveIfSpaceAvailable(move.getEndPosition());
-        }
+        walkAndAddMoves(1, 0); // up
+        walkAndAddMoves(-1, 0); // down
+        walkAndAddMoves(0, -1); // left
+        walkAndAddMoves(0, 1); // right
+
+        walkAndAddMoves(1, 1); // up-right
+        walkAndAddMoves(-1, 1); // down-right
+        walkAndAddMoves(1, -1); // up-left
+        walkAndAddMoves(-1, -1); // down-left
     }
 }
