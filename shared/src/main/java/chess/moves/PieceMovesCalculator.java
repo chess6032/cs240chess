@@ -96,4 +96,9 @@ public class PieceMovesCalculator {
     protected boolean addMoveIfRelativeSpaceAvailable(int dRow, int dCol) {
         return addMoveIfSpaceAvailable(calculateRelativePosition(dRow, dCol));
     }
+
+    @Override
+    public String toString() {
+        return board.toString(PieceMovesCalculator.getFinalPositions(possibleMoves));
+    }
 }

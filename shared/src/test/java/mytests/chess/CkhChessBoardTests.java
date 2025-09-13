@@ -29,7 +29,7 @@ public class CkhChessBoardTests {
         board.addPiece(position, piece);
         KingMovesCalculator calculator = new KingMovesCalculator(board, position, TeamColor.BLACK);
         calculator.calculateMoves();
-        System.out.println(board.toString(KingMovesCalculator.getFinalPositions(calculator.getPossibleMoves())));
+        System.out.println(calculator);
 
         System.out.println();
         System.out.println();
@@ -41,7 +41,7 @@ public class CkhChessBoardTests {
 
         calculator = new KingMovesCalculator(board, position, TeamColor.BLACK);
         calculator.calculateMoves();
-        System.out.println(board.toString(KingMovesCalculator.getFinalPositions(calculator.getPossibleMoves())));
+        System.out.println(calculator);
 
         System.out.println();
         System.out.println();
@@ -51,6 +51,6 @@ public class CkhChessBoardTests {
         board.addPiece(position, piece);
         calculator = new KingMovesCalculator(board, position, TeamColor.WHITE);
         calculator.calculateMoves();
-        System.out.println(board.toString(KingMovesCalculator.getFinalPositions(calculator.getPossibleMoves())));
+        System.out.println(calculator);
     }
 }
