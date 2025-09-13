@@ -78,7 +78,7 @@ public class PieceMovesCalculator {
 
     // returns true ONLY IF SPACE WAS EMPTY
     // yes that's kind of sus, but it makes things really easy for rook, bishop, & queen.
-    private boolean addMoveIfSpaceAvailable(ChessPosition newPosition) {
+    protected boolean addMoveIfSpaceAvailable(ChessPosition newPosition) {
 
         if (board.isPositionOutOfBounds(newPosition))
             return false;
