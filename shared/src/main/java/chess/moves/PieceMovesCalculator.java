@@ -76,7 +76,8 @@ public class PieceMovesCalculator {
         return addMoveIfSpaceEmpty(calculateRelativePosition(dRow, dCol));
     }
 
-    // "space available" = space is empty OR occupied by OPPONENT team's piece.
+    // returns true ONLY IF SPACE WAS EMPTY
+    // yes that's kind of sus, but it makes things really easy for rook, bishop, & queen.
     private boolean addMoveIfSpaceAvailable(ChessPosition newPosition) {
 
         if (board.isPositionOutOfBounds(newPosition))
@@ -89,8 +90,10 @@ public class PieceMovesCalculator {
         if (that.getTeamColor() != team && that.getPieceType() != PieceType.KING) {
             // TODO: do I even need to check if opposing piece is King? (is that handled by ChessGame??)
             addMove(newPosition);
-            return true;
+            return false; // (sus)
         }
+
+        System.out.println("Move not added: " + newPosition);
 
         return false;
     }
