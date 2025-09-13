@@ -7,6 +7,7 @@ import chess.ChessPiece.PieceType;
 import chess.ChessPosition;
 import chess.ChessGame.TeamColor;
 
+import java.util.Collection;
 import java.util.HashSet;
 
 public class PieceMovesCalculator {
@@ -28,7 +29,7 @@ public class PieceMovesCalculator {
         promotionPiece = null; // TODO: override this for pawn.
     }
 
-    public HashSet<ChessMove> getPossibleMoves() {
+    public Collection<ChessMove> getPossibleMoves() {
         return possibleMoves;
         // TODO: return copy???
     }

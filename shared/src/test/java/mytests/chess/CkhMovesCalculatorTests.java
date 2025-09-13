@@ -5,13 +5,18 @@ import chess.moves.*;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
 
+import java.util.Collection;
 import java.util.HashSet;
 
 public class CkhMovesCalculatorTests {
 
     private static void printPossibleMoves(PieceMovesCalculator calculator) {
         calculator.calculateMoves();
-        HashSet<ChessMove> possibleMoves = calculator.getPossibleMoves();
+        HashSet<ChessMove> possibleMoves = (HashSet<ChessMove>) calculator.getPossibleMoves();
+        printMovesCollection(calculator.getPossibleMoves());
+    }
+
+    private static void printMovesCollection(Collection<ChessMove> possibleMoves) {
         System.out.println("Possible moves: " + possibleMoves.size());
         for (ChessMove move : possibleMoves) {
             System.out.println(move.getEndPosition());
@@ -45,5 +50,16 @@ public class CkhMovesCalculatorTests {
         calculator = new KingMovesCalculator(board, position, TeamColor.WHITE);
         System.out.println(board.toString());
         printPossibleMoves(calculator);
+    }
+
+    public static void test() {
+        ChessBoard board = new ChessBoard();
+        ChessPiece king = new ChessPiece(TeamColor.WHITE, PieceType.KING);
+        ChessPosition position = new ChessPosition(4, 4);
+
+        board.addPiece(position, king);
+        System.out.println(board);
+
+        printMovesCollection(king.pieceMoves(board, position));
     }
 }

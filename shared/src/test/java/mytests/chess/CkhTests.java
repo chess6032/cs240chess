@@ -28,6 +28,6 @@ public class CkhTests {
     }
 
     public static void main(String[] args) {
-        movesCalculatorTests();
+        CkhMovesCalculatorTests.test();
     }
 }
