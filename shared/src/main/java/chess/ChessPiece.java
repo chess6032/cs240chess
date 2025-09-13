@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import chess.ChessGame.TeamColor;
+import chess.moves.MovesCalculatorFactory;
+import chess.moves.PieceMovesCalculator;
 
 /**
  * Represents a single chess piece
@@ -57,8 +59,8 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        // TODO: Figure out wtf a Collection is. Then implement this.
-        throw new RuntimeException("Not implemented");
+        PieceMovesCalculator calculator = MovesCalculatorFactory.returnPieceMovesCalculator(type, board, myPosition, team);
+        return calculator.calculateMoves();
     }
 
     private static final Map<PieceType, Character> pieceTranslation = new HashMap<>();
