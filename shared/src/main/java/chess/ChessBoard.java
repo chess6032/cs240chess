@@ -45,8 +45,9 @@ public class ChessBoard {
         // TODO: should I return a copy??
     }
 
-    public boolean isSquareEmpty(ChessPosition position) {
-        return getPiece(position) == null;
+    public boolean isPositionOutOfBounds(ChessPosition position) {
+        return position.getRow() < 1 || position.getRow() > BOARD_WIDTH
+            || position.getColumn() < 1 || position.getColumn() > BOARD_WIDTH;
     }
 
     /**

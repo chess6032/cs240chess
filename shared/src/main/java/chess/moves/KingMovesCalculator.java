@@ -13,11 +13,11 @@ public class KingMovesCalculator extends PieceMovesCalculator {
     public void calculateMoves() {
         for (int i = -1; i <= 1; ++i) {
             // check for empty spaces on row above and below King:
-            addMoveIfRelativeSpaceEmpty(1, i);
-            addMoveIfRelativeSpaceEmpty(-1, i);
+            addMoveIfRelativeSpaceAvailable(1, i);
+            addMoveIfRelativeSpaceAvailable(-1, i);
         }
         // check for empty spaces to the left & right of King:
-        addMoveIfRelativeSpaceEmpty(0, 1);
-        addMoveIfRelativeSpaceEmpty(0, -1);
+        addMoveIfRelativeSpaceAvailable(0, 1);
+        addMoveIfRelativeSpaceAvailable(0, -1);
     }
 }
