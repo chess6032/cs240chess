@@ -45,6 +45,10 @@ public class ChessBoard {
         // TODO: should I return a copy??
     }
 
+    public boolean isSquareEmpty(ChessPosition position) {
+        return getPiece(position) == null;
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
