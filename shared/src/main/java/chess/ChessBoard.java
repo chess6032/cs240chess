@@ -38,7 +38,8 @@ public class ChessBoard {
         }
 
         if (piece == null) {
-            throw new RuntimeException("ChessBoard.addPiece: piece is null (how did this happen?)");
+            return;
+//            throw new RuntimeException("ChessBoard.addPiece: inputted chess piece is null (how did this happen?)");
         }
 
         grid[position.getRow()-1][position.getColumn()-1] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
