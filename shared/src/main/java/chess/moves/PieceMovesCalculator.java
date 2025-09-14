@@ -16,8 +16,6 @@ public class PieceMovesCalculator {
     private final ChessPosition position;
     private final TeamColor team;
 
-    protected ChessPiece.PieceType promotionPiece; // only the subclass for the Pawn will use this.
-
     private final HashSet<ChessMove> possibleMoves;
 
     public PieceMovesCalculator(ChessBoard board, ChessPosition position, TeamColor team) {
@@ -25,23 +23,10 @@ public class PieceMovesCalculator {
         this.position = position;
         this.team = team;
         possibleMoves = new HashSet<ChessMove>();
-
-        promotionPiece = null; // TODO: override this for pawn.
     }
 
-    protected boolean amIWhite() {
-        // for pawn to tell which way is forward.
-        return team == TeamColor.WHITE;
-    }
-
-    protected boolean canIBounce() {
-        // for pawns to tell if they can move forward 2 spaces.
-        return position.getRow() == 2 || position.getRow() == ChessBoard.getBoardWidth() - 2;
-        // NOTE: I'm just checking if pawn is on 2nd row or 2nd-to-last row,
-        //       instead of checking if the pawn has moved.
-        //       This should work fine because if a pawn is on the 2nd-to-last row,
-        //       when it calculates its moves, the forward-2-spaces moves
-        //       will be out of bounds.
+    protected ChessBoard getMyBoard() {
+        return board;
     }
 
     public Collection<ChessMove> getPossibleMoves() {
@@ -57,92 +42,60 @@ public class PieceMovesCalculator {
         return (Collection<ChessPosition>) positions;
     }
 
-    public ChessPosition calculateRelativePosition(int dRow, int dCol) {
-        ChessPosition relative = new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
+    protected ChessPosition calculateRelativePosition(int dRow, int dCol) {
 //        System.out.println(position + " + (" + dRow + ", " + dCol + ") = " + relative);
-        return relative;
+        return new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
     }
 
     public void calculateMoves() {
         // OVERRIDE THIS IN SUBCLASSES
-        throw new RuntimeException("calculateMoves invoked on PieceMovesCalculator (the move calculator superclass). " +
-                "Did you use MoveCalculatorFactory to get your PieceMovesCalculator?" +
-                "(If so, check that MoveCalculatorFactory is working properly. " +
-                "It should return a SUBCLASS of PieceMovesCalculator.)");
+        throw new RuntimeException("calculateMoves not overridden, " +
+                "or calculateMoves invoked on PieceMovesCalculator superclass.");
     }
 
-    private void addMove(ChessPosition newPosition) {
-        possibleMoves.add(new ChessMove(position, newPosition, promotionPiece));
+    protected void addMove(ChessPosition newPosition, PieceType promotion) {
+        possibleMoves.add(new ChessMove(position, newPosition, promotion));
     }
 
-    private boolean addMoveIfSpaceEmpty(ChessPosition newPosition) {
-
-        if (this instanceof PawnMovesCalculator && board.isPositionOutOfBounds(newPosition)) {
-            System.out.println("ooooh how exciting! I might get to promote! " + position.toString());
-            if (newPosition.getRow() == 1 || newPosition.getRow() == ChessBoard.getBoardWidth()) {
-                promotionPiece = PieceType.QUEEN; // TODO: do I need to implement promoting to rook as well?
-            }
-        }
-
-        if (board.isPositionOutOfBounds(newPosition))
-            return false;
-
-        if (board.getPiece(newPosition) == null){
-            addMove(newPosition);
-            return true;
-        }
-
-        return false;
+    protected void addMove(ChessPosition newPosition) {
+        addMove(newPosition, null);
     }
 
     protected boolean addMoveIfRelativeSpaceEmpty(int dRow, int dCol) {
-        return addMoveIfSpaceEmpty(calculateRelativePosition(dRow, dCol));
-    }
-
-    // returns true ONLY IF SPACE WAS EMPTY
-    // yes that's kind of sus, but it makes things really easy for rook, bishop, & queen.
-    protected boolean addMoveIfSpaceAvailable(ChessPosition newPosition) {
-
-        if (board.isPositionOutOfBounds(newPosition))
+        ChessPosition position = calculateRelativePosition(dRow, dCol);
+        if (ChessBoard.isPositionOutOfBounds(position))
             return false;
 
-        if (addMoveIfSpaceEmpty(newPosition))
+        if (board.getPiece(position) == null){
+            addMove(position);
             return true;
-
-        ChessPiece that = board.getPiece(newPosition);
-        if (that.getTeamColor() != team && that.getPieceType() != PieceType.KING) {
-            // TODO: do I even need to check if opposing piece is King? (is that handled by ChessGame??)
-            addMove(newPosition);
-            return false; // (sus)
         }
-
-//        System.out.println("Move not added: " + newPosition);
 
         return false;
     }
 
     protected boolean addMoveIfRelativeSpaceAvailable(int dRow, int dCol) {
-        return addMoveIfSpaceAvailable(calculateRelativePosition(dRow, dCol));
+        ChessPosition position = calculateRelativePosition(dRow, dCol);
+        if (ChessBoard.isPositionOutOfBounds(position))
+            return false;
+
+        ChessPiece pieceAtPos = board.getPiece(position);
+        if (pieceAtPos == null || pieceAtPos.getTeamColor() != team) {
+            addMove(position);
+            return true;
+        }
+
+        return false;
     }
 
     protected void walkAndAddMoves(int dRow, int dCol) {
         int i = 0;
         int j = 0;
-        while (addMoveIfRelativeSpaceAvailable(i += dRow, j += dCol));
+        while (addMoveIfRelativeSpaceEmpty(i += dRow, j += dCol)); // walk until space occupied.
+        addMoveIfRelativeSpaceAvailable(i, j); // see if space is capturable.
     }
 
-    protected boolean addMoveIfRelativeSpaceCapturable(int dRow, int dCol) {
-        ChessPosition position = calculateRelativePosition(dRow, dCol);
-        if (board.isPositionOutOfBounds(position))
-            return false;
 
-        ChessPiece pieceAtPos = board.getPiece(position);
-        if (pieceAtPos != null && pieceAtPos.getTeamColor() != team) {
-            addMove(position);
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public String toString() {

@@ -8,27 +8,55 @@ import chess.ChessPiece.PieceType;
 import chess.ChessPosition;
 
 public class PawnMovesCalculator extends PieceMovesCalculator{
+
+    private final ChessPosition myPosition;
+    private final TeamColor myTeam;
+
     public PawnMovesCalculator(ChessBoard board, ChessPosition position, ChessGame.TeamColor team) {
         super(board, position, team);
-//        promotionPiece = PieceType.QUEEN; // promote to queen by default.
+        myTeam = team;
+        myPosition = position;
+
     }
 
-    public void setPromotionPiece(PieceType newType) {
-        promotionPiece = newType;
-        // I have no idea when the player decides what to promote the pawn to,
-        // so for now I'm going to leave it available as a setter method, usable whenever.
+    protected void addMoveIfDiagonalCapture(int dRow, int dCol) {
+        ChessPosition position = calculateRelativePosition(dRow, dCol);
+        if (ChessBoard.isPositionOutOfBounds(position))
+            return;
+
+        ChessPiece pieceAtPos = getMyBoard().getPiece(position);
+        if (pieceAtPos != null && pieceAtPos.getTeamColor() != myTeam) {
+            addMove(position);
+        }
+    }
+
+    @Override
+    protected void addMove(ChessPosition newPosition) {
+        if (newPosition.getRow() == 1 || newPosition.getRow() == ChessBoard.getBoardWidth()) { // can promote?
+            // add all possible promotions
+            for (PieceType type : PieceType.values()) {
+                if (type != PieceType.KING && type != PieceType.PAWN)
+                    super.addMove(newPosition, type);
+            }
+            return;
+        }
+
+        super.addMove(newPosition, null);
     }
 
     @Override
     public void calculateMoves() {
-        int forward = amIWhite() ? 1 : -1;
+        int forward = myTeam == TeamColor.WHITE ? 1 : -1; // forward = up if white, down if black.
 
-        addMoveIfRelativeSpaceEmpty(forward, 0); // forward 1
-        if (canIBounce())
-            addMoveIfRelativeSpaceEmpty(forward * 2, 0); // forward 2
+        if (addMoveIfRelativeSpaceEmpty(forward, 0)) { // forward one space.
+            if (myPosition.getRow() == 2 || myPosition.getRow() == ChessBoard.getBoardWidth() - 1) {
+                addMoveIfRelativeSpaceEmpty(forward * 2, 0); // forward two spaces.
+            }
+        }
 
-        addMoveIfRelativeSpaceCapturable(forward, -1); // capture forward-left
-        addMoveIfRelativeSpaceCapturable(forward, 1); // capture forward-right
+        addMoveIfDiagonalCapture(forward, -1); // capture forward-left.
+        addMoveIfDiagonalCapture(forward, 1); // capture forward-right.
+
+        System.out.println(this);
     }
-
 }

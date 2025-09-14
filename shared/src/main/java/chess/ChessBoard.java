@@ -49,13 +49,14 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         if (isPositionOutOfBounds(position)) {
-            throw new RuntimeException("bruh wtf");
+            throw new RuntimeException("ChessPiece.getPiece: Position out of bounds: " + position.toString());
+//            return new ChessPiece(null, null);
         }
         return grid[position.getRow()-1][position.getColumn()-1];
         // TODO: should I return a copy??
     }
 
-    public boolean isPositionOutOfBounds(ChessPosition position) {
+    public static boolean isPositionOutOfBounds(ChessPosition position) {
         if (   position.getRow()    < 1 || position.getRow()    > BOARD_WIDTH
             || position.getColumn() < 1 || position.getColumn() > BOARD_WIDTH)
         {
