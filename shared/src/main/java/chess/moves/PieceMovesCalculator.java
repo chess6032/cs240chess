@@ -92,7 +92,7 @@ public class PieceMovesCalculator {
         int i = 0;
         int j = 0;
         while (addMoveIfRelativeSpaceEmpty(i += dRow, j += dCol)); // walk until space occupied.
-        addMoveIfRelativeSpaceAvailable(i, j); // see if space is capturable.
+        addMoveIfRelativeSpaceAvailable(i, j); // see if occupied space is capturable.
     }
 
 

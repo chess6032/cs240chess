@@ -16,7 +16,6 @@ public class PawnMovesCalculator extends PieceMovesCalculator{
         super(board, position, team);
         myTeam = team;
         myPosition = position;
-
     }
 
     protected void addMoveIfDiagonalCapture(int dRow, int dCol) {

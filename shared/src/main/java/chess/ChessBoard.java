@@ -34,8 +34,13 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         if (isPositionOutOfBounds(position)){
-            throw new RuntimeException("bro >:(");
+            throw new RuntimeException("ChessBoard.addPiece: position out of bounds: " + position);
         }
+
+        if (piece == null) {
+            throw new RuntimeException("ChessBoard.addPiece: piece is null (how did this happen?)");
+        }
+
         grid[position.getRow()-1][position.getColumn()-1] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
         // TODO: could I just set it to `piece` instead?? idk how tf Java works, man.
     }
