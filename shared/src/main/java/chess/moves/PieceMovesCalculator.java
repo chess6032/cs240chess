@@ -72,10 +72,18 @@ public class PieceMovesCalculator {
     }
 
     private void addMove(ChessPosition newPosition) {
-            possibleMoves.add(new ChessMove(position, newPosition, promotionPiece));
+        possibleMoves.add(new ChessMove(position, newPosition, promotionPiece));
     }
 
     private boolean addMoveIfSpaceEmpty(ChessPosition newPosition) {
+
+        if (this instanceof PawnMovesCalculator && board.isPositionOutOfBounds(newPosition)) {
+            System.out.println("ooooh how exciting! I might get to promote! " + position.toString());
+            if (newPosition.getRow() == 1 || newPosition.getRow() == ChessBoard.getBoardWidth()) {
+                promotionPiece = PieceType.QUEEN; // TODO: do I need to implement promoting to rook as well?
+            }
+        }
+
         if (board.isPositionOutOfBounds(newPosition))
             return false;
 
