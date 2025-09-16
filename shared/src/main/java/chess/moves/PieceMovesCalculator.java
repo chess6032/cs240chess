@@ -10,7 +10,7 @@ import chess.ChessGame.TeamColor;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class PieceMovesCalculator {
+public abstract class PieceMovesCalculator {
 
     private final ChessBoard board;
     private final ChessPosition position;
@@ -18,11 +18,26 @@ public class PieceMovesCalculator {
 
     private final HashSet<ChessMove> possibleMoves;
 
+    // return instance of appropriate piece moves calculator class.
+    public static PieceMovesCalculator movesCalculatorFactory(PieceType type, ChessBoard board, ChessPosition position, TeamColor team) {
+        return switch (type) {
+            case PieceType.KING -> new KingMovesCalculator(board, position, team);
+            case PieceType.ROOK -> new RookMovesCalculator(board, position, team);
+            case PieceType.BISHOP -> new BishopMovesCalculator(board, position, team);
+            case PieceType.QUEEN -> new QueenMovesCalculator(board, position, team);
+            case PieceType.KNIGHT -> new KnightMovesCalculator(board, position, team);
+            case PieceType.PAWN -> new PawnMovesCalculator(board, position, team);
+            default ->
+                    throw new RuntimeException("(MovesCalculatorFactory) No MovesCalculator class matched inputted ChessPiece.PieceType");
+        };
+    }
+
     public PieceMovesCalculator(ChessBoard board, ChessPosition position, TeamColor team) {
         this.board = board;
         this.position = position;
         this.team = team;
         possibleMoves = new HashSet<ChessMove>();
+        calculateMoves();
     }
 
     protected ChessBoard getMyBoard() {
@@ -35,6 +50,7 @@ public class PieceMovesCalculator {
     }
 
     public static Collection<ChessPosition> getFinalPositions(Collection<ChessMove> moves) {
+        // This is mainly used for testing.
         HashSet<ChessPosition> positions = new HashSet<>();
         for (ChessMove move : moves) {
             positions.add(move.getEndPosition());
@@ -49,8 +65,9 @@ public class PieceMovesCalculator {
 
     public void calculateMoves() {
         // OVERRIDE THIS IN SUBCLASSES
-        throw new RuntimeException("calculateMoves not overridden, " +
-                "or calculateMoves invoked on PieceMovesCalculator superclass.");
+
+        //throw new RuntimeException("calculateMoves not overridden, " +
+        //        "or calculateMoves invoked on PieceMovesCalculator superclass.");
     }
 
     protected void addMove(ChessPosition newPosition, PieceType promotion) {
@@ -94,8 +111,6 @@ public class PieceMovesCalculator {
         while (addMoveIfRelativeSpaceEmpty(i += dRow, j += dCol)); // walk until space occupied.
         addMoveIfRelativeSpaceAvailable(i, j); // see if occupied space is capturable.
     }
-
-
 
     @Override
     public String toString() {

@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import chess.ChessGame.TeamColor;
-import chess.moves.MovesCalculatorFactory;
 import chess.moves.PieceMovesCalculator;
 
 /**
@@ -59,9 +58,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        PieceMovesCalculator calculator = MovesCalculatorFactory.returnPieceMovesCalculator(type, board, myPosition, team);
-        calculator.calculateMoves();
-        return calculator.getPossibleMoves();
+        return PieceMovesCalculator.movesCalculatorFactory(type, board, myPosition, team).getPossibleMoves();
     }
 
     private static final Map<PieceType, Character> pieceTranslation = new HashMap<>();
