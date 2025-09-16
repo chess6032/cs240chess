@@ -1,13 +1,12 @@
-package chess.moves;
+package chess.moves.concrete;
 
 import chess.ChessBoard;
 import chess.ChessGame;
-import chess.ChessMove;
 import chess.ChessPosition;
+import chess.moves.PieceMovesCalculator;
+import chess.moves.WalkerMovesCalculator;
 
-import java.util.HashSet;
-
-public class QueenMovesCalculator extends PieceMovesCalculator {
+public class QueenMovesCalculator extends WalkerMovesCalculator {
 
     private final BishopMovesCalculator bishop;
     private final RookMovesCalculator rook;

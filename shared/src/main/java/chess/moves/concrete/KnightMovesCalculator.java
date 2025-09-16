@@ -1,10 +1,12 @@
-package chess.moves;
+package chess.moves.concrete;
 
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPosition;
+import chess.moves.AbstractMovesCalculator;
+import chess.moves.PieceMovesCalculator;
 
-public class KnightMovesCalculator extends PieceMovesCalculator {
+public class KnightMovesCalculator extends AbstractMovesCalculator {
     public KnightMovesCalculator(ChessBoard board, ChessPosition position, ChessGame.TeamColor team) {
         super(board, position, team);
     }

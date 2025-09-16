@@ -35,6 +35,7 @@ public class ChessBoard {
     public void addPiece(ChessPosition position, ChessPiece piece) {
         if (isPositionOutOfBounds(position)){
             throw new RuntimeException("ChessBoard.addPiece: position out of bounds: " + position);
+//            return;
         }
 
         if (piece == null) {
