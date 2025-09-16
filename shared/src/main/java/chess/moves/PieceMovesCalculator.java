@@ -40,11 +40,11 @@ public abstract class PieceMovesCalculator {
         calculateMoves();
     }
 
-    protected ChessBoard getMyBoard() {
+    protected final ChessBoard getMyBoard() {
         return board;
     }
 
-    public Collection<ChessMove> getPossibleMoves() {
+    public final Collection<ChessMove> getPossibleMoves() {
         return possibleMoves;
         // TODO: return copy???
     }
@@ -58,17 +58,16 @@ public abstract class PieceMovesCalculator {
         return (Collection<ChessPosition>) positions;
     }
 
-    protected ChessPosition calculateRelativePosition(int dRow, int dCol) {
+    protected final ChessPosition calculateRelativePosition(int dRow, int dCol) {
 //        System.out.println(position + " + (" + dRow + ", " + dCol + ") = " + relative);
         return new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
     }
 
-    public void calculateMoves() {
+    public abstract void calculateMoves();
         // OVERRIDE THIS IN SUBCLASSES
 
         //throw new RuntimeException("calculateMoves not overridden, " +
         //        "or calculateMoves invoked on PieceMovesCalculator superclass.");
-    }
 
     protected void addMove(ChessPosition newPosition, PieceType promotion) {
         possibleMoves.add(new ChessMove(position, newPosition, promotion));
@@ -78,7 +77,7 @@ public abstract class PieceMovesCalculator {
         addMove(newPosition, null);
     }
 
-    protected boolean addMoveIfRelativeSpaceEmpty(int dRow, int dCol) {
+    protected final boolean addMoveIfRelativeSpaceEmpty(int dRow, int dCol) {
         ChessPosition position = calculateRelativePosition(dRow, dCol);
         if (ChessBoard.isPositionOutOfBounds(position))
             return false;
@@ -91,7 +90,7 @@ public abstract class PieceMovesCalculator {
         return false;
     }
 
-    protected boolean addMoveIfRelativeSpaceAvailable(int dRow, int dCol) {
+    protected final boolean addMoveIfRelativeSpaceAvailable(int dRow, int dCol) {
         ChessPosition position = calculateRelativePosition(dRow, dCol);
         if (ChessBoard.isPositionOutOfBounds(position))
             return false;
@@ -105,7 +104,7 @@ public abstract class PieceMovesCalculator {
         return false;
     }
 
-    protected void walkAndAddMoves(int dRow, int dCol) {
+    protected final void walkAndAddMoves(int dRow, int dCol) {
         int i = 0;
         int j = 0;
         while (addMoveIfRelativeSpaceEmpty(i += dRow, j += dCol)); // walk until space occupied.
