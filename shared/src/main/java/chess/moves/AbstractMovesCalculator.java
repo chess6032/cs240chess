@@ -12,38 +12,42 @@ import java.util.HashSet;
 
 public abstract class AbstractMovesCalculator implements PieceMovesCalculator {
 
-    private final ChessBoard board;
-    private final ChessPosition position;
+    protected final ChessBoard board;
+    protected final ChessPosition position;
     private final TeamColor team;
 
-    private final HashSet<ChessMove> possibleMoves;
+    protected final HashSet<ChessMove> possibleMoves;
 
-    public AbstractMovesCalculator(ChessBoard board, ChessPosition position, TeamColor team) {
+    protected AbstractMovesCalculator(ChessBoard board, ChessPosition position, TeamColor team) {
         this.board = board;
+        System.out.println("AbstractMovesCalculator position: " + position);
         this.position = new ChessPosition(position.getRow(), position.getColumn());
         this.team = team;
 
         possibleMoves = new HashSet<>();
-
-        calculateMoves();
     }
 
     public final Collection<ChessMove> getPossibleMoves() {
+        calculateMoves();
         return possibleMoves;
     }
 
     protected abstract void calculateMoves();
 
-    private ChessPosition calculateRelativePosition(int dRow, int dCol) {
+    protected ChessPosition calculateRelativePosition(int dRow, int dCol) {
         return new ChessPosition(position.getRow() + dRow, position.getColumn() + dCol);
     }
 
-    private boolean addMove(ChessPosition newPosition) {
+    protected boolean addMove(ChessPosition newPosition) {
+        return addMove(newPosition, null);
+    }
+
+    protected boolean addMove(ChessPosition newPosition, PieceType promotion) {
         if (ChessBoard.isPositionOutOfBounds(newPosition)) {
             return false;
         }
 
-        possibleMoves.add(new ChessMove(position, newPosition, null));
+        possibleMoves.add(new ChessMove(position, newPosition, promotion));
         return true;
     }
 
