@@ -70,7 +70,6 @@ public abstract class AbstractMovesCalculator implements PieceMovesCalculator {
             return true; // space is empty
         }
 
-
         ChessPosition position = calculateRelativePosition(dRow, dCol);
         if (ChessBoard.isPositionOutOfBounds(position)) {
             return false;

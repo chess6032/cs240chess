@@ -17,16 +17,15 @@ public class QueenMovesCalculator extends WalkerMovesCalculator {
         rook = new RookMovesCalculator(board, position, team);
     }
 
+    private void addMovesToMine(PieceMovesCalculator piece) {
+        for (ChessPosition position : PieceMovesCalculator.getFinalPositions(piece)) {
+            addMove(position);
+        }
+    }
+
     @Override
     public void calculateMoves() {
-        walkAndAddMoves(1, 0); // up
-        walkAndAddMoves(-1, 0); // down
-        walkAndAddMoves(0, -1); // left
-        walkAndAddMoves(0, 1); // right
-
-        walkAndAddMoves(1, 1); // up-right
-        walkAndAddMoves(-1, 1); // down-right
-        walkAndAddMoves(1, -1); // up-left
-        walkAndAddMoves(-1, -1); // down-left
+        addMovesToMine(bishop);
+        addMovesToMine(rook);
     }
 }
