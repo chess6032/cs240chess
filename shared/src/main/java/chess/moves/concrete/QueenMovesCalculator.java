@@ -2,6 +2,7 @@ package chess.moves.concrete;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import chess.moves.PieceMovesCalculator;
 import chess.moves.WalkerMovesCalculator;
@@ -15,6 +16,11 @@ public class QueenMovesCalculator extends WalkerMovesCalculator {
         super(board, position, team);
         bishop = new BishopMovesCalculator(board, position, team);
         rook = new RookMovesCalculator(board, position, team);
+    }
+
+    @Override
+    public ChessPiece.PieceType getPieceType() {
+        return ChessPiece.PieceType.QUEEN;
     }
 
     private void addMovesToMine(PieceMovesCalculator piece) {

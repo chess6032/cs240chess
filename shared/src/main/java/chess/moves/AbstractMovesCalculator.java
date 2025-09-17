@@ -1,7 +1,6 @@
 package chess.moves;
 
 import chess.ChessBoard;
-import chess.ChessPiece;
 import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
 import chess.ChessMove;
@@ -20,7 +19,6 @@ public abstract class AbstractMovesCalculator implements PieceMovesCalculator {
 
     protected AbstractMovesCalculator(ChessBoard board, ChessPosition position, TeamColor team) {
         this.board = board;
-        System.out.println("AbstractMovesCalculator position: " + position);
         this.position = new ChessPosition(position.getRow(), position.getColumn());
         this.team = team;
 
@@ -32,6 +30,8 @@ public abstract class AbstractMovesCalculator implements PieceMovesCalculator {
         return possibleMoves;
     }
 
+    public abstract PieceType getPieceType();
+
     protected abstract void calculateMoves();
 
     protected ChessPosition calculateRelativePosition(int dRow, int dCol) {
@@ -42,7 +42,7 @@ public abstract class AbstractMovesCalculator implements PieceMovesCalculator {
         return addMove(newPosition, null);
     }
 
-    protected boolean addMove(ChessPosition newPosition, PieceType promotion) {
+    protected final boolean addMove(ChessPosition newPosition, PieceType promotion) {
         if (ChessBoard.isPositionOutOfBounds(newPosition)) {
             return false;
         }
@@ -51,7 +51,7 @@ public abstract class AbstractMovesCalculator implements PieceMovesCalculator {
         return true;
     }
 
-    protected boolean addMoveIfRelativeSpaceEmpty(int dRow, int dCol) {
+    protected final boolean addMoveIfRelativeSpaceEmpty(int dRow, int dCol) {
         ChessPosition position = calculateRelativePosition(dRow, dCol);
         if (ChessBoard.isPositionOutOfBounds(position)) {
             return false;
@@ -65,7 +65,7 @@ public abstract class AbstractMovesCalculator implements PieceMovesCalculator {
         return false; // space is filled.
     }
 
-    protected boolean addMoveIfRelativeSpaceAvailable(int dRow, int dCol) {
+    protected final boolean addMoveIfRelativeSpaceAvailable(int dRow, int dCol) {
         if (addMoveIfRelativeSpaceEmpty(dRow, dCol)) {
             return true; // space is empty
         }

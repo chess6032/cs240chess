@@ -2,8 +2,8 @@ package chess.moves.concrete;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.ChessPosition;
-import chess.moves.PieceMovesCalculator;
 import chess.moves.WalkerMovesCalculator;
 
 public class RookMovesCalculator extends WalkerMovesCalculator {
@@ -12,6 +12,10 @@ public class RookMovesCalculator extends WalkerMovesCalculator {
         super(board, position, team);
     }
 
+    @Override
+    public ChessPiece.PieceType getPieceType() {
+        return ChessPiece.PieceType.ROOK;
+    }
 
 
     @Override

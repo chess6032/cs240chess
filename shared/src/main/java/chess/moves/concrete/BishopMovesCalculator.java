@@ -2,13 +2,18 @@ package chess.moves.concrete;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.ChessPosition;
-import chess.moves.PieceMovesCalculator;
 import chess.moves.WalkerMovesCalculator;
 
 public class BishopMovesCalculator extends WalkerMovesCalculator {
     public BishopMovesCalculator(ChessBoard board, ChessPosition position, ChessGame.TeamColor team) {
         super(board, position, team);
+    }
+
+    @Override
+    public ChessPiece.PieceType getPieceType() {
+        return ChessPiece.PieceType.BISHOP;
     }
 
     @Override

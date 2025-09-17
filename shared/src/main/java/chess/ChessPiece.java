@@ -58,7 +58,8 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return PieceMovesCalculator.movesCalculatorFactory(type, board, myPosition, team).getPossibleMoves();
+        PieceMovesCalculator calculator = PieceMovesCalculator.movesCalculatorFactory(type, board, myPosition, team);
+        return calculator.getPossibleMoves();
     }
 
     private static final Map<PieceType, Character> pieceTranslation = new HashMap<>();

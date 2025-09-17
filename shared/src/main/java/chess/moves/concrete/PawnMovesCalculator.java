@@ -19,6 +19,11 @@ public class PawnMovesCalculator extends AbstractMovesCalculator {
         myPosition = position;
     }
 
+    @Override
+    public PieceType getPieceType() {
+        return PieceType.PAWN;
+    }
+
     private void addMoveIfDiagonalCapture(int dRow, int dCol) {
         ChessPosition position = calculateRelativePosition(dRow, dCol);
         if (ChessBoard.isPositionOutOfBounds(position))
