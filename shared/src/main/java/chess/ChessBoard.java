@@ -156,4 +156,16 @@ public class ChessBoard {
     public int hashCode() {
         return Objects.hash(Arrays.deepHashCode(grid));
     }
+
+    @Override
+    public ChessBoard clone() throws CloneNotSupportedException {
+        ChessBoard newBoard = new ChessBoard();
+        for (int row_idx = 0; row_idx < BOARD_WIDTH; ++row_idx) {
+            for (int col_idx = 0; col_idx < BOARD_WIDTH; ++col_idx) {
+                ChessPosition position = new ChessPosition(row_idx+1, col_idx+1);
+                newBoard.addPiece(position, getPiece(position));
+            }
+        }
+        return newBoard;
+    }
 }

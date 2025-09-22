@@ -58,8 +58,9 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        PieceMovesCalculator calculator = PieceMovesCalculator.movesCalculatorFactory(type, board, myPosition, team);
-        return calculator.getPossibleMoves();
+//        PieceMovesCalculator calculator = PieceMovesCalculator.movesCalculatorFactory(type, board, myPosition, team);
+//        return calculator.getPossibleMoves();
+        return PieceMovesCalculator.pieceMoves(type, board, myPosition, team);
     }
 
     private static final Map<PieceType, Character> pieceTranslation = new HashMap<>();
@@ -83,8 +84,12 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
 
         ChessPiece that = (ChessPiece) o;
         return team == that.team

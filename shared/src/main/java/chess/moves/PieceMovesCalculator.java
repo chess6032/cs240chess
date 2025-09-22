@@ -12,6 +12,11 @@ import java.util.HashSet;
 
 public interface PieceMovesCalculator {
 
+    static Collection<ChessMove> pieceMoves(PieceType type, ChessBoard board, ChessPosition position, TeamColor team) {
+        PieceMovesCalculator calculator = movesCalculatorFactory(type, board, position, team);
+        return calculator.getPossibleMoves();
+    }
+
     // return instance of appropriate piece moves calculator class.
     static PieceMovesCalculator movesCalculatorFactory(PieceType type, ChessBoard board, ChessPosition position, TeamColor team) {
         return switch(type) {
