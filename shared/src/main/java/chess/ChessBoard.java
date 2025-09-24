@@ -17,7 +17,7 @@ import chess.ChessGame.TeamColor;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard implements Iterable<ChessPiece>{
+public class ChessBoard implements Iterable<PiecePositionPair>{
 
     private final ChessPiece[][] grid;
     private static final int BOARD_WIDTH = 8;
@@ -188,7 +188,7 @@ public class ChessBoard implements Iterable<ChessPiece>{
     }
 
     @Override
-    public Iterator<ChessPiece> iterator() {
+    public Iterator<PiecePositionPair> iterator() {
         return new Iterator<>() {
             private int row_idx;
             private int col_idx;
@@ -220,12 +220,13 @@ public class ChessBoard implements Iterable<ChessPiece>{
              * @throws NoSuchElementException if there are no more elements.
              */
             @Override
-            public ChessPiece next() {
+            public PiecePositionPair next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
 
                 ChessPiece piece = grid[row_idx][col_idx];
+                ChessPosition position = new ChessPosition(row_idx+1, col_idx+1);
 
                 ++col_idx; // move to next col.
                 // move to next row if we reach end of row.
@@ -234,7 +235,7 @@ public class ChessBoard implements Iterable<ChessPiece>{
                     ++row_idx;
                 }
 
-                return piece;
+                return new PiecePositionPair(piece, position);
             }
         };
     }

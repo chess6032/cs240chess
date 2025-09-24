@@ -73,7 +73,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.getKingPosition(teamColor);
-
+        throw new RuntimeException("Not implemented");
     }
 
     /**

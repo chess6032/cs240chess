@@ -6,8 +6,8 @@ public class CkhChessBoardTests {
     private static void testChessBoardIterator() {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        for (var piece : board) {
-            System.out.println(piece);
+        for (var pair : board) {
+            System.out.println(pair);
         }
     }
 

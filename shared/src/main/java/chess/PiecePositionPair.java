@@ -1,3 +1,3 @@
 package chess;
 
-public record PiecePositionPair(ChessPosition position, ChessPiece piece) {}
+public record PiecePositionPair(ChessPiece piece, ChessPosition position) {}
