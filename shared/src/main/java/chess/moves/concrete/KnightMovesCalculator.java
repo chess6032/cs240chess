@@ -2,6 +2,7 @@ package chess.moves.concrete;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import chess.moves.AbstractMovesCalculator;
 import chess.moves.PieceMovesCalculator;
@@ -24,5 +25,10 @@ public class KnightMovesCalculator extends AbstractMovesCalculator {
 
         addMoveIfRelativeSpaceAvailable(-1, -2); // down 1, left 2
         addMoveIfRelativeSpaceAvailable(-1, 2); // down 1, right 2
+    }
+
+    @Override
+    public ChessPiece.PieceType getPieceType() {
+        return ChessPiece.PieceType.KNIGHT;
     }
 }

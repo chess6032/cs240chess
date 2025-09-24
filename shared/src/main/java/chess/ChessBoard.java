@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
 
@@ -13,7 +16,7 @@ import chess.ChessGame.TeamColor;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Iterable<ChessPiece>{
 
     private final ChessPiece[][] grid;
     private static final int BOARD_WIDTH = 8;
@@ -168,4 +171,58 @@ public class ChessBoard {
         }
         return newBoard;
     }
+
+    @Override
+    public Iterator<ChessPiece> iterator() {
+        return new Iterator<ChessPiece>() {
+            private int row_idx;
+            private int col_idx;
+
+
+            /**
+             * Checks if there is a next element to iterate over.
+             *
+             * @return true if there are more elements, false otherwise.
+             */
+            @Override
+            public boolean hasNext() {
+                if (row_idx > grid.length-1) {
+                    return false;
+                }
+                // if we've reached end of row,
+                // check if there's another row.
+                if (col_idx > grid[row_idx].length-1) {
+                    return row_idx + 1 < grid.length; // move row_idx to next row
+                }
+
+                return true;
+            }
+
+            /**
+             * Returns the next element in the iteration.
+             *
+             * @return The next integer element.
+             * @throws NoSuchElementException if there are no more elements.
+             */
+            @Override
+            public ChessPiece next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                ChessPiece piece = grid[row_idx][col_idx];
+
+                ++col_idx; // move to next col.
+                // move to next row if we reach end of row.
+                if (col_idx > grid[row_idx].length-1) {
+                    col_idx = 0;
+                    ++row_idx;
+                }
+
+                return piece;
+            }
+        };
+    }
+
+
 }
