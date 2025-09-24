@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import chess.ChessPiece.PieceType;
+import static chess.ChessPiece.PieceType.*;
 import chess.ChessGame.TeamColor;
 
 /**
@@ -20,6 +21,9 @@ public class ChessBoard implements Iterable<ChessPiece>{
 
     private final ChessPiece[][] grid;
     private static final int BOARD_WIDTH = 8;
+
+    private ChessPosition whiteKingPosition = null;
+    private ChessPosition blackKingPosition = null;
 
     public static int getBoardWidth() {
         return BOARD_WIDTH;
@@ -36,14 +40,25 @@ public class ChessBoard implements Iterable<ChessPiece>{
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        if (isPositionOutOfBounds(position)){
+        if (position == null) {
+            throw new RuntimeException("ChessBoard.addPiece: somehow, position is null??");
+        }
+
+        if (isPositionOutOfBounds(position)) {
             throw new RuntimeException("ChessBoard.addPiece: position out of bounds: " + position);
-//            return;
         }
 
         if (piece == null) {
             return;
 //            throw new RuntimeException("ChessBoard.addPiece: inputted chess piece is null (how did this happen?)");
+        }
+
+        if (piece.getPieceType() == KING) {
+            if (piece.getTeamColor() == TeamColor.WHITE) {
+                whiteKingPosition = new ChessPosition(position.getRow(), position.getColumn()); // TODO: do I need to do a copy like this?
+            } else {
+                blackKingPosition = new ChessPosition(position.getRow(), position.getColumn()); // TODO: do I need to do a copy like this?
+            }
         }
 
         grid[position.getRow()-1][position.getColumn()-1] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
@@ -95,7 +110,7 @@ public class ChessBoard implements Iterable<ChessPiece>{
     private static final PieceType[] edgeRows = {
             // piece arrangement for top & bottom row:
             PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP,
-                PieceType.QUEEN, PieceType.KING,
+                PieceType.QUEEN, KING,
             PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK
     };
 
@@ -174,7 +189,7 @@ public class ChessBoard implements Iterable<ChessPiece>{
 
     @Override
     public Iterator<ChessPiece> iterator() {
-        return new Iterator<ChessPiece>() {
+        return new Iterator<>() {
             private int row_idx;
             private int col_idx;
 
@@ -224,5 +239,13 @@ public class ChessBoard implements Iterable<ChessPiece>{
         };
     }
 
+    public ChessPosition getKingPosition(TeamColor team) {
+        ChessPosition kingPosition = team == TeamColor.WHITE ? whiteKingPosition : blackKingPosition;
+        ChessPiece shouldBeKing = getPiece(kingPosition);
+        if (shouldBeKing == null || shouldBeKing.getPieceType() != KING) {
+            throw new RuntimeException(team + "'s king position " + kingPosition + " does not hold king, instead holds: " + shouldBeKing );
+        }
+        return kingPosition;
+    }
 
 }
