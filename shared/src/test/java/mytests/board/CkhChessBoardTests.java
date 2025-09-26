@@ -1,20 +1,88 @@
 package mytests.board;
 
 import chess.*;
+import java.util.Random;
 
-import java.util.Iterator;
+
+import static chess.ChessPiece.PieceType.*;
+import chess.ChessPiece.PieceType;
+import chess.ChessGame.TeamColor;
 
 public class CkhChessBoardTests {
-    private static void testChessBoardIterator() {
+
+    private static PieceType createRandomPieceType(Random r) {
+        int i = r.nextInt(PieceType.values().length);
+        return PieceType.values()[i];
+    }
+
+    private static TeamColor createRandomTeamColor(Random r) {
+        int i = r.nextInt(TeamColor.values().length);
+        return TeamColor.values()[i];
+    }
+
+    private static ChessPiece createRandomPiece(Random r) {
+        return new ChessPiece(createRandomTeamColor(r), createRandomPieceType(r));
+    }
+
+    private static ChessBoard createRandomBoard(Random r) {
+        var board = new ChessBoard();
+        int numOfPieces = r.nextInt(10);
+        System.out.println("number of pieces: " + numOfPieces);
+        for (int i = 0; i < numOfPieces; ++i) {
+            var pos = new ChessPosition(r.nextInt(8)+1, r.nextInt(8)+1);
+            while (board.getPiece(pos) != null) {
+                pos = new ChessPosition(r.nextInt(8)+1, r.nextInt(8)+1);
+            }
+            board.addPiece(pos, createRandomPiece(r));
+        }
+        return board;
+
+
+    }
+
+    private static void testIteratorOnRandom() {
+        var board = createRandomBoard(new Random());
+        System.out.println(board);
+        System.out.println();
+
+        int i = 0;
+        for (var pair : board) {
+            System.out.println(++i + ": " + pair);
+        }
+    }
+
+    private static void testIteratorOnFull() {
+        var board = new ChessBoard();
+        var r = new Random();
+        for (int i = 0; i < ChessBoard.BOARD_WIDTH; ++i) {
+            for (int j = 0; j < ChessBoard.BOARD_WIDTH; ++j) {
+                board.addPiece(new ChessPosition(i+1, j+1), createRandomPiece(r));
+            }
+        }
+
+        System.out.println(board);
+        System.out.println();
+
+        int i = 0;
+        for (var pair : board) {
+            System.out.println(++i + ": " + pair);
+        }
+    }
+
+    private static void testIteratorOnEmpty() {
+        var board = new ChessBoard();
+        System.out.println(board);
+
+        for (var pair : board) {
+            System.out.println(pair);
+        }
+    }
+
+    private static void testIteratorOnReset() {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         System.out.println(board);
         System.out.println();
-//        int i = 0;
-//        for (var pair : board) {
-//            ++i;
-//            System.out.println(i + ": " + pair);
-//        }
 
         ChessBoard copy = new ChessBoard();
         for (var pair : board) {
@@ -35,6 +103,6 @@ public class CkhChessBoardTests {
     }
 
     public static void main(String args[]) {
-        testChessBoardIterator();
+        testIteratorOnFull();
     }
 }

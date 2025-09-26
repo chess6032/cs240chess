@@ -20,7 +20,7 @@ import chess.ChessGame.TeamColor;
 public class ChessBoard implements Iterable<PiecePositionPair> {
 
     private final ChessPiece[][] grid;
-    private static final int BOARD_WIDTH = 8;
+    public static final int BOARD_WIDTH = 8;
 
     private ChessPosition whiteKingPosition = null;
     private ChessPosition blackKingPosition = null;
