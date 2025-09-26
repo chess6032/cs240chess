@@ -30,6 +30,7 @@ public class PawnMovesCalculator extends AbstractMovesCalculator {
             return;
 
         ChessPiece pieceAtPos = board.getPiece(position);
+        System.out.println("PawnMovesCalculator.addMoveIfDiagonalCapture: " + pieceAtPos + " at " + position + ". FKM: " + board.getFauxKingMove());
         if (pieceAtPos != null && pieceAtPos.getTeamColor() != myTeam) {
             addMove(position);
         }
@@ -48,7 +49,7 @@ public class PawnMovesCalculator extends AbstractMovesCalculator {
 
         super.addMove(newPosition, null);
         return true;
-    }`
+    }
 
     @Override
     public void calculateMoves() {

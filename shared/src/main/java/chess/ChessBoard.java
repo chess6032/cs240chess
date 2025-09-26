@@ -20,10 +20,12 @@ import chess.ChessGame.TeamColor;
 public class ChessBoard implements Iterable<PiecePositionPair> {
 
     private final ChessPiece[][] grid;
-    public static final int BOARD_WIDTH = 8;
+    private static final int BOARD_WIDTH = 8;
 
     private ChessPosition whiteKingPosition = null;
     private ChessPosition blackKingPosition = null;
+
+    private PieceMovePair fauxKingMove = null;
 
     public static int getBoardWidth() {
         return BOARD_WIDTH;
@@ -74,9 +76,20 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
      */
     public ChessPiece getPiece(ChessPosition position) {
         if (isPositionOutOfBounds(position)) {
-            throw new RuntimeException("ChessPiece.getPiece: Position out of bounds: " + position.toString());
-//            return new ChessPiece(null, null);
+            throw new RuntimeException("ChessPiece.getPiece: Position out of bounds: " + position);
         }
+
+        if (fauxKingMove != null) { // we are testing a king move to see if it puts him in check
+//            System.out.println("ChessBoard.getPiece: " + position + " | " + fauxKingMove);
+            if (position == fauxKingMove.move().getStartPosition()) {
+                return null;
+            }
+            if (position == fauxKingMove.move().getEndPosition()) {
+                System.out.println("ChessBoard.getPiece: inputted position is same as FKM's end position: " + position);
+                return fauxKingMove.piece();
+            }
+        }
+
         return grid[position.getRow()-1][position.getColumn()-1];
         // TODO: should I return a copy??
     }
@@ -240,4 +253,22 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         return kingPosition;
     }
 
+    public void setFauxKingMove(ChessPiece kingPiece, ChessMove move) {
+        if (kingPiece.getPieceType() != PieceType.KING) {
+            return; // TODO: throw error?
+        }
+        fauxKingMove = new PieceMovePair(kingPiece, move);
+    }
+
+    public void eraseFauxKingMove() {
+        fauxKingMove = null;
+    }
+
+    // TODO: FOR TESTING ONLY. Delete this function once phase 1 is working.
+    public PieceMovePair getFauxKingMove() {
+        if (fauxKingMove == null) {
+            return null;
+        }
+        return new PieceMovePair(fauxKingMove.piece(), fauxKingMove.move());
+    }
 }

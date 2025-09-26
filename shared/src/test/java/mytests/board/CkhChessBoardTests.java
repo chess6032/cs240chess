@@ -54,8 +54,8 @@ public class CkhChessBoardTests {
     private static void testIteratorOnFull() {
         var board = new ChessBoard();
         var r = new Random();
-        for (int i = 0; i < ChessBoard.BOARD_WIDTH; ++i) {
-            for (int j = 0; j < ChessBoard.BOARD_WIDTH; ++j) {
+        for (int i = 0; i < ChessBoard.getBoardWidth(); ++i) {
+            for (int j = 0; j < ChessBoard.getBoardWidth(); ++j) {
                 board.addPiece(new ChessPosition(i+1, j+1), createRandomPiece(r));
             }
         }

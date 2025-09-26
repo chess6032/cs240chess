@@ -18,6 +18,9 @@ public class ChessMove {
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        if (startPosition.equals(endPosition)) {
+            throw new RuntimeException("ChessMove.ChessMove: start == end: " + startPosition);
+        }
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.promotionPiece = promotionPiece;
@@ -49,11 +52,11 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        return "ChessMove{" +
-                "start: " + startPosition +
-                ", end: " + endPosition +
-                " | promote: " + promotionPiece +
-                '}';
+        return "{" +
+                startPosition +
+                " -> " + endPosition +
+                " | <" + promotionPiece +
+                ">}";
     }
 
     @Override
