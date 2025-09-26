@@ -176,23 +176,34 @@ public class ChessBoard implements Iterable<PiecePositionPair>{
     }
 
     @Override
-    public ChessBoard clone() throws CloneNotSupportedException {
-        ChessBoard newBoard = new ChessBoard();
-        for (int row_idx = 0; row_idx < BOARD_WIDTH; ++row_idx) {
-            for (int col_idx = 0; col_idx < BOARD_WIDTH; ++col_idx) {
-                ChessPosition position = new ChessPosition(row_idx+1, col_idx+1);
-                newBoard.addPiece(position, getPiece(position));
-            }
-        }
-        return newBoard;
-    }
-
-    @Override
     public Iterator<PiecePositionPair> iterator() {
         return new Iterator<>() {
-            private int row_idx;
-            private int col_idx;
+            private int rowIdx = 0;
+            private int colIdx = 0;
+            private int nextRowIdx;
+            private int nextColIdx;
 
+            private boolean findNextNonNull() {
+                int r = rowIdx;
+                int c = colIdx+1;
+
+                while (r < grid.length) {
+                    while (c < grid[r].length) {
+                        if (grid[r][c] != null) {
+                            nextRowIdx = r;
+                            nextColIdx = c;
+                            return true;
+                        }
+                        ++c;
+                    }
+                    ++r;
+                    c = 0;
+                }
+
+//                nextRowIdx = -1;
+//                nextColIdx = -1;
+                return false;
+            }
 
             /**
              * Checks if there is a next element to iterate over.
@@ -201,16 +212,7 @@ public class ChessBoard implements Iterable<PiecePositionPair>{
              */
             @Override
             public boolean hasNext() {
-                if (row_idx > grid.length-1) {
-                    return false;
-                }
-                // if we've reached end of row,
-                // check if there's another row.
-                if (col_idx > grid[row_idx].length-1) {
-                    return row_idx + 1 < grid.length; // move row_idx to next row
-                }
-
-                return true;
+                return findNextNonNull();
             }
 
             /**
@@ -225,15 +227,11 @@ public class ChessBoard implements Iterable<PiecePositionPair>{
                     throw new NoSuchElementException();
                 }
 
-                ChessPiece piece = grid[row_idx][col_idx];
-                ChessPosition position = new ChessPosition(row_idx+1, col_idx+1);
+                ChessPiece piece = grid[rowIdx][colIdx];
+                ChessPosition position = new ChessPosition(rowIdx +1, colIdx +1);
 
-                ++col_idx; // move to next col.
-                // move to next row if we reach end of row.
-                if (col_idx > grid[row_idx].length-1) {
-                    col_idx = 0;
-                    ++row_idx;
-                }
+                rowIdx = nextRowIdx;
+                colIdx = nextColIdx;
 
                 return new PiecePositionPair(piece, position);
             }
