@@ -2,6 +2,7 @@ package chess.moves;
 
 import chess.ChessBoard;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPiece.PieceType;
 import chess.ChessPosition;
 import chess.ChessGame.TeamColor;
@@ -27,10 +28,6 @@ public interface PieceMovesCalculator {
             case PieceType.KNIGHT -> new KnightMovesCalculator(board, position, team);
             case PieceType.PAWN -> new PawnMovesCalculator(board, position, team);
         };
-    }
-
-    static Collection<ChessPosition> getFinalPositions(PieceMovesCalculator calculator) {
-        return getFinalPositions(calculator.getPossibleMoves());
     }
 
     static Collection<ChessPosition> getFinalPositions(Collection<ChessMove> moves) {

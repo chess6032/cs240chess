@@ -1,5 +1,8 @@
 package chess;
 
+import chess.ChessPiece.PieceType;
+import static chess.ChessPiece.PieceType.KING;
+
 import java.util.Collection;
 import java.util.Objects;
 
@@ -77,7 +80,31 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = board.getKingPosition(teamColor);
+        return kingPositionIsInCheck(teamColor, kingPosition);
+    }
+
+    private boolean kingPositionIsInCheck(TeamColor teamColor, ChessPosition kingPosition) {
+        for (var pair : board) {
+            if (pair.piece().getTeamColor() == teamColor) {
+                continue;
+            }
+            if (pair.piece().pieceMoveEndPositions(board, pair.position()).contains(kingPosition)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean allKingMovesPutInCheck(TeamColor teamColor) {
+        ChessPosition kingPosition = board.getKingPosition(teamColor);
+        ChessPiece king = new ChessPiece(teamColor, KING);
+        for (var position : king.pieceMoveEndPositions(board, kingPosition)) {
+            if (!kingPositionIsInCheck(teamColor, kingPosition)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -87,7 +114,10 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+        return allKingMovesPutInCheck(teamColor);
     }
 
     /**
@@ -98,7 +128,10 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            return false;
+        }
+        return allKingMovesPutInCheck(teamColor);
     }
 
     /**
