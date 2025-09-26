@@ -90,7 +90,6 @@ public class ChessGame {
                 continue;
             }
             if (pair.piece().pieceMovesEndPositions(board, pair.position()).contains(kingPosition)) {
-//                System.out.println(pair.piece() + " puts " + kingPosition + " in check");
                 return true;
             }
         }
@@ -100,11 +99,9 @@ public class ChessGame {
     private boolean allKingMovesPutInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.getKingPosition(teamColor);
         ChessPiece king = new ChessPiece(teamColor, KING);
-//        System.out.println("KING'S MOVES: " + king.pieceMoves(board, kingPosition));
-//        System.out.println("KING'S MOVES' END POSITIONS: " + king.pieceMovesEndPositions(board, kingPosition));
         for (var position : king.pieceMovesEndPositions(board, kingPosition)) {
-            System.out.println(position);
             if (!kingPositionIsInCheck(teamColor, position)) {
+                System.out.println("moving here puts king out of check: " + position);
                 return false;
             }
         }
@@ -136,14 +133,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        System.out.println("-------- IS IN STALEMATE? --------\n" + board + "\n");
-        if (isInCheck(teamColor)) {
-            System.out.println("false\n");
-            return false;
-        }
-        boolean bool = allKingMovesPutInCheck(teamColor);
-        System.out.println(bool + "\n");
-        return bool;
+        return false;
     }
 
     /**

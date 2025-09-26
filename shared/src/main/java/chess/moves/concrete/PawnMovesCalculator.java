@@ -48,7 +48,7 @@ public class PawnMovesCalculator extends AbstractMovesCalculator {
 
         super.addMove(newPosition, null);
         return true;
-    }
+    }`
 
     @Override
     public void calculateMoves() {
