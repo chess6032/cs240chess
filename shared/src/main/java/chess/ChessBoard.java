@@ -17,7 +17,7 @@ import chess.ChessGame.TeamColor;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard implements Iterable<PiecePositionPair>{
+public class ChessBoard implements Iterable<PiecePositionPair> {
 
     private final ChessPiece[][] grid;
     private static final int BOARD_WIDTH = 8;
@@ -178,32 +178,10 @@ public class ChessBoard implements Iterable<PiecePositionPair>{
     @Override
     public Iterator<PiecePositionPair> iterator() {
         return new Iterator<>() {
-            private int rowIdx = 0;
-            private int colIdx = 0;
-            private int nextRowIdx;
-            private int nextColIdx;
-
-            private boolean findNextNonNull() {
-                int r = rowIdx;
-                int c = colIdx+1;
-
-                while (r < grid.length) {
-                    while (c < grid[r].length) {
-                        if (grid[r][c] != null) {
-                            nextRowIdx = r;
-                            nextColIdx = c;
-                            return true;
-                        }
-                        ++c;
-                    }
-                    ++r;
-                    c = 0;
-                }
-
-//                nextRowIdx = -1;
-//                nextColIdx = -1;
-                return false;
-            }
+            private int searchRow = 0;
+            private int searchCol = 0;
+            private int savedRow;
+            private int savedCol;
 
             /**
              * Checks if there is a next element to iterate over.
@@ -212,7 +190,22 @@ public class ChessBoard implements Iterable<PiecePositionPair>{
              */
             @Override
             public boolean hasNext() {
-                return findNextNonNull();
+                int r = searchRow;
+                int c = searchCol;
+
+                while (r < grid.length) {
+                    while (c < grid[r].length) {
+                        if (grid[r][c] != null) {
+                            savedRow = r;
+                            savedCol = c;
+                            return true;
+                        }
+                        ++c;
+                    }
+                    ++r;
+                    c = 0;
+                }
+                return false;
             }
 
             /**
@@ -227,11 +220,11 @@ public class ChessBoard implements Iterable<PiecePositionPair>{
                     throw new NoSuchElementException();
                 }
 
-                ChessPiece piece = grid[rowIdx][colIdx];
-                ChessPosition position = new ChessPosition(rowIdx +1, colIdx +1);
+                ChessPiece piece = grid[savedRow][savedCol];
+                ChessPosition position = new ChessPosition(savedRow +1, savedCol +1);
 
-                rowIdx = nextRowIdx;
-                colIdx = nextColIdx;
+                searchRow = savedRow;
+                searchCol = savedCol+1;
 
                 return new PiecePositionPair(piece, position);
             }

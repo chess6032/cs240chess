@@ -10,23 +10,27 @@ public class CkhChessBoardTests {
         board.resetBoard();
         System.out.println(board);
         System.out.println();
-        int i = 0;
+//        int i = 0;
+//        for (var pair : board) {
+//            ++i;
+//            System.out.println(i + ": " + pair);
+//        }
+
+        ChessBoard copy = new ChessBoard();
         for (var pair : board) {
-            ++i;
-            System.out.println(i + ": " + pair);
+            copy.addPiece(pair.position(), pair.piece());
         }
+        System.out.println(board.equals(copy));
+        System.out.println(copy);
     }
 
     private static void testChessBoardIteratorHasNext() {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         var itr = board.iterator();
-        itr.hasNext();
-        itr.hasNext();
-        itr.hasNext();
-        itr.hasNext();
-        itr.hasNext();
-        itr.hasNext();
+        for (int i = 0; i < 5; ++i) {
+            itr.hasNext();
+        }
         System.out.println(itr.next());
     }
 
