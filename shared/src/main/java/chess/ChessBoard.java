@@ -81,12 +81,12 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
 
         if (fauxKingMove != null) { // we are testing a king move to see if it puts him in check
 //            System.out.println("ChessBoard.getPiece: " + position + " | " + fauxKingMove);
-            if (position == fauxKingMove.move().getStartPosition()) {
-                return null;
-            }
-            if (position == fauxKingMove.move().getEndPosition()) {
+            if (position.equals(fauxKingMove.move().getEndPosition())) {
                 System.out.println("ChessBoard.getPiece: inputted position is same as FKM's end position: " + position);
                 return fauxKingMove.piece();
+            }
+            if (position.equals(fauxKingMove.move().getStartPosition())) {
+                return null;
             }
         }
 
