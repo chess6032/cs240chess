@@ -3,7 +3,8 @@ package chess;
 import chess.moves.PieceMovesCalculator;
 
 import java.util.Collection;
-import java.util.HashSet;
+
+import static chess.ChessPiece.PieceType.KING;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -73,8 +74,19 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.getKingPosition(teamColor);
-        throw new RuntimeException("Not implemented");
+        for (PiecePositionPair pair : board) {
+            if (pair.piece() == null) {
+                continue;
+            }
+            for (ChessPosition position : PieceMovesCalculator.getFinalPositions(pair.piece().pieceMoves(board, pair.position()))) {
+                if (position == kingPosition) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
+
 
     /**
      * Determines if the given team is in checkmate
@@ -83,7 +95,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
     }
 
     /**
