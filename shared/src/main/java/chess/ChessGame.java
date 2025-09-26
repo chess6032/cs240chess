@@ -1,7 +1,7 @@
 package chess;
 
 import java.util.Collection;
-
+import java.util.Objects;
 
 
 /**
@@ -16,7 +16,8 @@ public class ChessGame {
     private ChessBoard board;
 
     public ChessGame() {
-
+        board = new ChessBoard();
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -61,7 +62,12 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+//        if (!validMoves(move.getStartPosition()).contains(move)) {
+//            throw new InvalidMoveException();
+//        }
+
+        board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        board.addPiece(move.getStartPosition(), null);
     }
 
     /**
@@ -111,5 +117,30 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{ " + teamTurn
+                + '\n'
+                + board
+                + "\n}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame that = (ChessGame) o;
+        if (board == null && that.board != null) {
+            return false;
+        }
+        return teamTurn == that.teamTurn && board.equals(that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamTurn, board);
     }
 }

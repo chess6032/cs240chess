@@ -167,12 +167,12 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         }
 
         ChessBoard that = (ChessBoard) o;
-        return toString().equals(that.toString()); // FIXME: this is lazy but it works so...
+        return Arrays.deepEquals(grid, that.grid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.deepHashCode(grid));
+        return Arrays.deepHashCode(grid);
     }
 
     @Override
