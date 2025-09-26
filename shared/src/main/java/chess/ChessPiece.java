@@ -61,7 +61,7 @@ public class ChessPiece {
         return PieceMovesCalculator.pieceMoves(type, board, myPosition, team);
     }
 
-    public Collection<ChessPosition> pieceMoveEndPositions(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessPosition> pieceMovesEndPositions(ChessBoard board, ChessPosition myPosition) {
         return PieceMovesCalculator.getFinalPositions(pieceMoves(board, myPosition));
     }
 
