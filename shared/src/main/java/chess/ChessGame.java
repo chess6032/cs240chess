@@ -69,11 +69,10 @@ public class ChessGame {
 //            throw new InvalidMoveException();
 //        }
 
-        board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
-        board.addPiece(move.getStartPosition(), null);
+        doMove(move);
     }
 
-    private void forceMove(ChessMove move) {
+    private void doMove(ChessMove move) {
         board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
         board.addPiece(move.getStartPosition(), null);
     }
@@ -85,75 +84,25 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition = board.getKingPosition(teamColor);
-        return kingPositionIsInCheck(teamColor, kingPosition);
-    }
-
-    private boolean kingPositionIsInCheck(TeamColor teamColor, ChessPosition kingPosition) {
-        boolean posIsInCheck = false;
-        ChessBoard boardSave = board.clone();
-
-        if (board.getKingPosition(teamColor) != kingPosition) {
-            forceMove(new ChessMove(board.getKingPosition(teamColor), kingPosition, null));
-        }
-
         for (var pair : board) {
             if (pair.piece().getTeamColor() == teamColor) {
                 continue;
             }
-            if (pair.piece().pieceMovesEndPositions(board, pair.position()).contains(kingPosition)) {
-                posIsInCheck = true;
-            }
-        }
-
-        board = boardSave;
-        return posIsInCheck;
-    }
-
-    private boolean allKingMovesPutInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition = board.getKingPosition(teamColor);
-        ChessPiece king = new ChessPiece(teamColor, KING);
-        for (var position : king.pieceMovesEndPositions(board, kingPosition)) {
-            if (!kingPositionIsInCheck(teamColor, position)) {
-                System.out.println("moving here puts king out of check: " + position);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean moveEscapesCheck(TeamColor teamColor, ChessMove move) {
-        boolean kingIsInCheck = true;
-        var boardSave = board.clone();
-        forceMove(move);
-        System.out.println(teamColor + "'s King position: " + board.getKingPosition(teamColor));
-        if (isInCheck(teamColor)) {
-            System.out.println("This move escapes check: " + move);
-        } else {
-            kingIsInCheck = false;
-        }
-        board = boardSave;
-        return kingIsInCheck;
-    }
-
-    private boolean canEscapeCheckmateByCapture(TeamColor teamColor) {
-        for (var pair : board) {
-            if (pair.piece().getTeamColor() != teamColor) {
-                continue;
-            }
-            if (pair.piece().getPieceType() == KING) {
-                continue;
-            }
-            var pieceMoves = pair.piece().pieceMoves(board, pair.position());
-            for (ChessMove move : pieceMoves) {
-                if (moveEscapesCheck(teamColor, move)) {
-                    System.out.println("this move escapes checkMATE: " + move);
-                    return true;
-                }
+            if (pair.piece().pieceMovesEndPositions(board, pair.position()).contains(board.getKingPosition(teamColor))) {
+                return true;
             }
         }
         return false;
     }
+
+    private boolean moveEscapesCheck(TeamColor teamColor, ChessMove move) {
+        ChessBoard savedBoard = board.clone();
+        doMove(move);
+        boolean ret = !isInCheck(teamColor);
+        board = savedBoard; // TODO: ??
+        return ret;
+    }
+
 
     /**
      * Determines if the given team is in checkmate
@@ -162,15 +111,20 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        System.out.println("-------- IS IN CHECKMATE? --------\n" + board);
         if (!isInCheck(teamColor)) {
-            System.out.println("false\n");
             return false;
         }
-        if (allKingMovesPutInCheck(teamColor)) {
-            return !canEscapeCheckmateByCapture(teamColor);
+        for (var pair : board) {
+            if (pair.piece().getTeamColor() != teamColor) {
+                continue;
+            }
+            for (ChessMove move : pair.piece().pieceMoves(board, pair.position())) {
+                if (moveEscapesCheck(teamColor, move)) {
+                    return false;
+                }
+            }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -181,6 +135,9 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        if (isInCheck(teamColor)) {
+            return false;
+        }
         return false;
     }
 
