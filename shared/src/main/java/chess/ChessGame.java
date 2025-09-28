@@ -121,7 +121,7 @@ public class ChessGame {
 
     private boolean canEscapeCheckmateByCapture(TeamColor teamColor) {
         // stub
-        return true;
+        return false;
     }
 
     /**
@@ -137,7 +137,7 @@ public class ChessGame {
             return false;
         }
         if (allKingMovesPutInCheck(teamColor)) {
-            return canEscapeCheckmateByCapture(teamColor);
+            return !canEscapeCheckmateByCapture(teamColor);
         }
         return false;
     }
