@@ -25,8 +25,6 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
     private ChessPosition whiteKingPosition = null;
     private ChessPosition blackKingPosition = null;
 
-    private PieceMovePair fauxKingMove = null;
-
     public static int getBoardWidth() {
         return BOARD_WIDTH;
     }
@@ -77,17 +75,6 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
     public ChessPiece getPiece(ChessPosition position) {
         if (isPositionOutOfBounds(position)) {
             throw new RuntimeException("ChessPiece.getPiece: Position out of bounds: " + position);
-        }
-
-        if (fauxKingMove != null) { // we are testing a king move to see if it puts him in check
-//            System.out.println("ChessBoard.getPiece: " + position + " | " + fauxKingMove);
-            if (position.equals(fauxKingMove.move().getEndPosition())) {
-                System.out.println("ChessBoard.getPiece: inputted position is same as FKM's end position: " + position);
-                return fauxKingMove.piece();
-            }
-            if (position.equals(fauxKingMove.move().getStartPosition())) {
-                return null;
-            }
         }
 
         return grid[position.getRow()-1][position.getColumn()-1];
@@ -253,22 +240,15 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         return kingPosition;
     }
 
-    public void setFauxKingMove(ChessPiece kingPiece, ChessMove move) {
-        if (kingPiece.getPieceType() != PieceType.KING) {
-            return; // TODO: throw error?
+    @Override
+    public ChessBoard clone(){
+        ChessBoard newBoard = new ChessBoard();
+        for (int i = 0; i < grid.length; ++i) {
+            for (int j = 0; j < grid[i].length; ++j) {
+                ChessPosition position = new ChessPosition(i+1, j+1);
+                newBoard.addPiece(position, getPiece(position));
+            }
         }
-        fauxKingMove = new PieceMovePair(kingPiece, move);
-    }
-
-    public void eraseFauxKingMove() {
-        fauxKingMove = null;
-    }
-
-    // TODO: FOR TESTING ONLY. Delete this function once phase 1 is working.
-    public PieceMovePair getFauxKingMove() {
-        if (fauxKingMove == null) {
-            return null;
-        }
-        return new PieceMovePair(fauxKingMove.piece(), fauxKingMove.move());
+        return newBoard;
     }
 }

@@ -40,6 +40,16 @@ public class CkhChessBoardTests {
 
     }
 
+    private static ChessBoard createFullBoard(Random r) {
+        var board = new ChessBoard();
+        for (int i = 0; i < ChessBoard.getBoardWidth(); ++i) {
+            for (int j = 0; j < ChessBoard.getBoardWidth(); ++j) {
+                board.addPiece(new ChessPosition(i+1, j+1), createRandomPiece(r));
+            }
+        }
+        return board;
+    }
+
     private static void testIteratorOnRandom() {
         var board = createRandomBoard(new Random());
         System.out.println(board);
@@ -52,13 +62,7 @@ public class CkhChessBoardTests {
     }
 
     private static void testIteratorOnFull() {
-        var board = new ChessBoard();
-        var r = new Random();
-        for (int i = 0; i < ChessBoard.getBoardWidth(); ++i) {
-            for (int j = 0; j < ChessBoard.getBoardWidth(); ++j) {
-                board.addPiece(new ChessPosition(i+1, j+1), createRandomPiece(r));
-            }
-        }
+        var board = createFullBoard(new Random());
 
         System.out.println(board);
         System.out.println();
@@ -102,7 +106,19 @@ public class CkhChessBoardTests {
         System.out.println(itr.next());
     }
 
+    private static void testChessBoardClone(ChessBoard board) {
+        var copy = board.clone();
+        System.out.println("board == clone: " + (board == copy));
+        System.out.println("board equals clone: " + (board.equals(copy)));
+        System.out.println("\nOriginal:");
+        System.out.println(board);
+        System.out.println("\nCopy:");
+        System.out.println(copy);
+    }
+
     public static void main(String args[]) {
-        testIteratorOnFull();
+        testChessBoardClone(createRandomBoard(new Random()));
+        System.out.println("-----------------------");
+        testChessBoardClone(createFullBoard(new Random()));
     }
 }

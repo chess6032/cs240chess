@@ -21,7 +21,6 @@ public class ChessGame {
         board = new ChessBoard();
         board.resetBoard();
         teamTurn = TeamColor.WHITE;
-        board.eraseFauxKingMove(); // just in case...but I really don't need this I don't think.
     }
 
     /**
@@ -87,9 +86,6 @@ public class ChessGame {
 
     private boolean kingPositionIsInCheck(TeamColor teamColor, ChessPosition kingPosition) {
         boolean is = false;
-        if (kingPosition != board.getKingPosition(teamColor)) {
-            board.setFauxKingMove(new ChessPiece(teamColor, KING), new ChessMove(board.getKingPosition(teamColor), kingPosition, null));
-        }
         for (var pair : board) {
             if (pair.piece().getTeamColor() == teamColor) {
                 continue;
@@ -98,7 +94,6 @@ public class ChessGame {
                 is = true;
             }
         }
-        board.eraseFauxKingMove();
         return is;
     }
 
