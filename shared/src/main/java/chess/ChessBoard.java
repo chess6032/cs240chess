@@ -182,10 +182,9 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
     @Override
     public Iterator<PiecePositionPair> iterator() {
         return new Iterator<>() {
-            private int searchRow = 0;
-            private int searchCol = 0;
-            private int savedRow;
-            private int savedCol;
+
+            private int row_idx = 0;
+            private int col_idx = 0;
 
             /**
              * Checks if there is a next element to iterate over.
@@ -194,22 +193,16 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
              */
             @Override
             public boolean hasNext() {
-                int r = searchRow;
-                int c = searchCol;
-
-                while (r < grid.length) {
-                    while (c < grid[r].length) {
-                        if (grid[r][c] != null) {
-                            savedRow = r;
-                            savedCol = c;
-                            return true;
-                        }
-                        ++c;
-                    }
-                    ++r;
-                    c = 0;
+                if (row_idx > grid.length-1) {
+                    return false;
                 }
-                return false;
+                // if we've reached end of row,
+                // check if there's another row.
+                if (col_idx > grid[row_idx].length-1) {
+                    return row_idx + 1 < grid.length; // move row_idx to next row
+                }
+
+                return true;
             }
 
             /**
@@ -224,11 +217,15 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
                     throw new NoSuchElementException();
                 }
 
-                ChessPiece piece = grid[savedRow][savedCol];
-                ChessPosition position = new ChessPosition(savedRow +1, savedCol +1);
+                ChessPiece piece = grid[row_idx][col_idx];
+                ChessPosition position = new ChessPosition(row_idx+1, col_idx+1);
 
-                searchRow = savedRow;
-                searchCol = savedCol+1;
+                ++col_idx; // move to next col.
+                // move to next row if we reach end of row.
+                if (col_idx > grid[row_idx].length-1) {
+                    col_idx = 0;
+                    ++row_idx;
+                }
 
                 return new PiecePositionPair(piece, position);
             }

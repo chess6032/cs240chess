@@ -70,7 +70,10 @@ public class ChessGame {
         doMove(move);
     }
 
-    private void doMove(ChessMove move) {
+    private void doMove(ChessMove move) throws NullPointerException {
+        if (board.getPiece(move.getStartPosition()) == null) {
+            throw new NullPointerException();
+        }
         board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
         board.removePiece(move.getStartPosition());
     }
@@ -83,7 +86,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         for (var pair : board) {
-            if (pair.piece().getTeamColor() == teamColor) {
+            if (pair.isNull() || pair.piece().getTeamColor() == teamColor) {
                 continue;
             }
             if (pair.piece().pieceMovesEndPositions(board, pair.position()).contains(board.getKingPosition(teamColor))) {
@@ -98,10 +101,14 @@ public class ChessGame {
         System.out.println("Current board:\n" + board);
         ChessBoard savedBoard = board.clone();
         System.out.println("Testing move: " + move);
+
         doMove(move);
+
         boolean ret = !isInCheck(teamColor);
         System.out.println("This move " + (ret ? "does" : "does NOT") + " escape check: " + move + "\n" + board);
+        assert !board.equals(savedBoard);
         board = savedBoard; // TODO: ??
+        assert board.equals(savedBoard);
         System.out.println("- - - - - - - - - - - - -");
         return ret;
     }
@@ -117,8 +124,11 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
+        int i = 0;
+        System.out.println(board.getPiece(new ChessPosition(4, 6)));
         for (var pair : board) {
-            if (pair.piece().getTeamColor() != teamColor) {
+            System.out.println(i++ + ": " + pair);
+            if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
                 continue;
             }
             for (ChessMove move : pair.piece().pieceMoves(board, pair.position())) {
@@ -127,6 +137,8 @@ public class ChessGame {
                         return false;
                     }
                 } catch (NullPointerException e) {
+                    System.out.println("***********");
+                    System.out.println(board);
                     System.out.println("This move inputted null into ChessBoard.addPiece: " +
                             pair.piece() + " at " + pair.position() + ": " + move);
                     throw e;

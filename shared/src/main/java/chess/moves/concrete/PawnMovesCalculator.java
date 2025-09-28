@@ -62,7 +62,5 @@ public class PawnMovesCalculator extends AbstractMovesCalculator {
 
         addMoveIfDiagonalCapture(forward, -1); // capture forward-left.
         addMoveIfDiagonalCapture(forward, 1); // capture forward-right.
-
-        System.out.println(this);
     }
 }
