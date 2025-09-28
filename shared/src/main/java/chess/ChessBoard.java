@@ -2,7 +2,6 @@ package chess;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Objects;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -39,7 +38,7 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
      * @param position where to add the piece to
      * @param piece    the piece to add
      */
-    public void addPiece(ChessPosition position, ChessPiece piece) {
+    public void addPiece(ChessPosition position, ChessPiece piece) throws NullPointerException {
         if (position == null) {
             throw new RuntimeException("ChessBoard.addPiece: somehow, position is null??");
         }
@@ -49,8 +48,9 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         }
 
         if (piece == null) {
-            grid[position.getRow()-1][position.getColumn()-1] = null;
-            return;
+//            throw new RuntimeException("ChessBoard.addPiece: inputted null piece for position " + position
+//                    + ". (Use ChessBoard.removePiece to set position to null.)");
+            throw new NullPointerException("ChessBoard.addPiece: tried to add null piece");
         }
 
         if (piece.getPieceType() == KING) {
@@ -63,6 +63,10 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
 
         grid[position.getRow()-1][position.getColumn()-1] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
         // TODO: could I just set it to `piece` instead?? idk how tf Java works, man.
+    }
+
+    public void removePiece(ChessPosition position) {
+        grid[position.getRow()-1][position.getColumn()-1] = null;
     }
 
     /**
@@ -237,7 +241,7 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         if (makeSureThisIsKing == null || makeSureThisIsKing.getPieceType() != KING) {
             throw new RuntimeException(team + "'s king position " + kingPosition + " does not hold king, instead holds: " + makeSureThisIsKing );
         }
-        System.out.println(team + "'s King pos: " + kingPosition);
+//        System.out.println(team + "'s King pos: " + kingPosition);
         return kingPosition;
     }
 
@@ -247,7 +251,10 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         for (int i = 0; i < grid.length; ++i) {
             for (int j = 0; j < grid[i].length; ++j) {
                 ChessPosition position = new ChessPosition(i+1, j+1);
-                newBoard.addPiece(position, getPiece(position));
+                ChessPiece piece = getPiece(position);
+                if (piece != null) {
+                    newBoard.addPiece(position, getPiece(position));
+                }
             }
         }
         return newBoard;

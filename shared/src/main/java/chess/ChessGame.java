@@ -1,7 +1,5 @@
 package chess;
 
-import static chess.ChessPiece.PieceType.KING;
-
 import java.util.Collection;
 import java.util.Objects;
 
@@ -74,7 +72,7 @@ public class ChessGame {
 
     private void doMove(ChessMove move) {
         board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
-        board.addPiece(move.getStartPosition(), null);
+        board.removePiece(move.getStartPosition());
     }
 
     /**
@@ -99,11 +97,12 @@ public class ChessGame {
         System.out.println("-----------------------");
         System.out.println("Current board:\n" + board);
         ChessBoard savedBoard = board.clone();
+        System.out.println("Testing move: " + move);
         doMove(move);
         boolean ret = !isInCheck(teamColor);
         System.out.println("This move " + (ret ? "does" : "does NOT") + " escape check: " + move + "\n" + board);
         board = savedBoard; // TODO: ??
-        System.out.println("-----------------------");
+        System.out.println("- - - - - - - - - - - - -");
         return ret;
     }
 
@@ -123,8 +122,14 @@ public class ChessGame {
                 continue;
             }
             for (ChessMove move : pair.piece().pieceMoves(board, pair.position())) {
-                if (moveEscapesCheck(teamColor, move)) {
-                    return false;
+                try {
+                    if (moveEscapesCheck(teamColor, move)) {
+                        return false;
+                    }
+                } catch (NullPointerException e) {
+                    System.out.println("This move inputted null into ChessBoard.addPiece: " +
+                            pair.piece() + " at " + pair.position() + ": " + move);
+                    throw e;
                 }
             }
         }
