@@ -73,6 +73,11 @@ public class ChessGame {
         board.addPiece(move.getStartPosition(), null);
     }
 
+    private void forceMove(ChessMove move) {
+        board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        board.addPiece(move.getStartPosition(), null);
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -85,16 +90,21 @@ public class ChessGame {
     }
 
     private boolean kingPositionIsInCheck(TeamColor teamColor, ChessPosition kingPosition) {
-        boolean is = false;
+        boolean posIsInCheck = false;
+        ChessBoard copy = board.clone();
+        if (board.getKingPosition(teamColor) != kingPosition) {
+            forceMove(new ChessMove(board.getKingPosition(teamColor), kingPosition, null));
+        }
         for (var pair : board) {
             if (pair.piece().getTeamColor() == teamColor) {
                 continue;
             }
             if (pair.piece().pieceMovesEndPositions(board, pair.position()).contains(kingPosition)) {
-                is = true;
+                posIsInCheck = true;
             }
         }
-        return is;
+        board = copy;
+        return posIsInCheck;
     }
 
     private boolean allKingMovesPutInCheck(TeamColor teamColor) {
@@ -106,6 +116,11 @@ public class ChessGame {
                 return false;
             }
         }
+        return true;
+    }
+
+    private boolean canEscapeCheckmateByCapture(TeamColor teamColor) {
+        // stub
         return true;
     }
 
@@ -121,9 +136,10 @@ public class ChessGame {
             System.out.println("false\n");
             return false;
         }
-        boolean bool = allKingMovesPutInCheck(teamColor);
-        System.out.println(bool + "\n");
-        return bool;
+        if (allKingMovesPutInCheck(teamColor)) {
+            return canEscapeCheckmateByCapture(teamColor);
+        }
+        return false;
     }
 
     /**
@@ -144,6 +160,7 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
+        // TODO: make it a copy????
     }
 
     /**
@@ -172,7 +189,7 @@ public class ChessGame {
         if (board == null && that.board != null) {
             return false;
         }
-        return teamTurn == that.teamTurn && board.equals(that.board);
+        return teamTurn == that.teamTurn && (board == null || board.equals(that.board));
     }
 
     @Override
