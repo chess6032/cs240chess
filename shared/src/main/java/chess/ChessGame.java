@@ -91,10 +91,12 @@ public class ChessGame {
 
     private boolean kingPositionIsInCheck(TeamColor teamColor, ChessPosition kingPosition) {
         boolean posIsInCheck = false;
-        ChessBoard copy = board.clone();
+        ChessBoard boardSave = board.clone();
+
         if (board.getKingPosition(teamColor) != kingPosition) {
             forceMove(new ChessMove(board.getKingPosition(teamColor), kingPosition, null));
         }
+
         for (var pair : board) {
             if (pair.piece().getTeamColor() == teamColor) {
                 continue;
@@ -103,7 +105,8 @@ public class ChessGame {
                 posIsInCheck = true;
             }
         }
-        board = copy;
+
+        board = boardSave;
         return posIsInCheck;
     }
 
@@ -119,8 +122,36 @@ public class ChessGame {
         return true;
     }
 
+    private boolean moveEscapesCheck(TeamColor teamColor, ChessMove move) {
+        boolean kingIsInCheck = true;
+        var boardSave = board.clone();
+        forceMove(move);
+        System.out.println(teamColor + "'s King position: " + board.getKingPosition(teamColor));
+        if (isInCheck(teamColor)) {
+            System.out.println("This move escapes check: " + move);
+        } else {
+            kingIsInCheck = false;
+        }
+        board = boardSave;
+        return kingIsInCheck;
+    }
+
     private boolean canEscapeCheckmateByCapture(TeamColor teamColor) {
-        // stub
+        for (var pair : board) {
+            if (pair.piece().getTeamColor() != teamColor) {
+                continue;
+            }
+            if (pair.piece().getPieceType() == KING) {
+                continue;
+            }
+            var pieceMoves = pair.piece().pieceMoves(board, pair.position());
+            for (ChessMove move : pieceMoves) {
+                if (moveEscapesCheck(teamColor, move)) {
+                    System.out.println("this move escapes checkMATE: " + move);
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
