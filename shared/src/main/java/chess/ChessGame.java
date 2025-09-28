@@ -96,10 +96,14 @@ public class ChessGame {
     }
 
     private boolean moveEscapesCheck(TeamColor teamColor, ChessMove move) {
+        System.out.println("-----------------------");
+        System.out.println("Current board:\n" + board);
         ChessBoard savedBoard = board.clone();
         doMove(move);
         boolean ret = !isInCheck(teamColor);
+        System.out.println("This move " + (ret ? "does" : "does NOT") + " escape check: " + move + "\n" + board);
         board = savedBoard; // TODO: ??
+        System.out.println("-----------------------");
         return ret;
     }
 

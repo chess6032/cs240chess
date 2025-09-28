@@ -49,8 +49,8 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         }
 
         if (piece == null) {
+            grid[position.getRow()-1][position.getColumn()-1] = null;
             return;
-//            throw new RuntimeException("ChessBoard.addPiece: inputted chess piece is null (how did this happen?)");
         }
 
         if (piece.getPieceType() == KING) {
@@ -233,10 +233,11 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
 
     public ChessPosition getKingPosition(TeamColor team) {
         ChessPosition kingPosition = team == TeamColor.WHITE ? whiteKingPosition : blackKingPosition;
-        ChessPiece shouldBeKing = getPiece(kingPosition);
-        if (shouldBeKing == null || shouldBeKing.getPieceType() != KING) {
-            throw new RuntimeException(team + "'s king position " + kingPosition + " does not hold king, instead holds: " + shouldBeKing );
+        ChessPiece makeSureThisIsKing = getPiece(kingPosition);
+        if (makeSureThisIsKing == null || makeSureThisIsKing.getPieceType() != KING) {
+            throw new RuntimeException(team + "'s king position " + kingPosition + " does not hold king, instead holds: " + makeSureThisIsKing );
         }
+        System.out.println(team + "'s King pos: " + kingPosition);
         return kingPosition;
     }
 
