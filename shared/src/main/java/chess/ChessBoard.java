@@ -48,9 +48,12 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         }
 
         if (piece == null) {
-//            throw new RuntimeException("ChessBoard.addPiece: inputted null piece for position " + position
-//                    + ". (Use ChessBoard.removePiece to set position to null.)");
-            throw new NullPointerException("ChessBoard.addPiece: tried to add null piece");
+//            throw new NullPointerException("ChessBoard.addPiece: inputted null piece for position " + position);
+            removePiece(position);
+            return;
+            // so turns out that the tests actually use addPiece(null).
+            // so make sure, when you submit your code, change it
+            // so that getPiece does NOT throw an exception from a null input.
         }
 
         if (piece.getPieceType() == KING) {
