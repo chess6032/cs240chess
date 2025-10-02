@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 
+import java.util.Stack;
 
 
 /**
@@ -14,7 +15,7 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     private ChessBoard board;
-    private ChessBoard savedBoard;
+    private Stack<ChessBoard> savedBoards;
 
     public ChessGame() {
         board = new ChessBoard();
@@ -22,7 +23,7 @@ public class ChessGame {
 
         teamTurn = TeamColor.WHITE;
 
-        savedBoard = null;
+        savedBoards = new Stack<>();
     }
 
     /**
@@ -51,16 +52,16 @@ public class ChessGame {
 
     private void saveBoard() {
         System.out.println("Saving board:\n" + board);
-        savedBoard = board.clone();
+        savedBoards.add(board);
     }
 
     private void revertBoard() {
-        if (savedBoard == null) {
-            throw new RuntimeException("ChessGame.revertBoard called but ChessGame.savedBoard is null");
+        if (savedBoards.empty()) {
+            throw new RuntimeException("ChessGame.revertBoard called but ChessGame.savedBoards is empty");
         }
-        board = savedBoard.clone();
+        board = savedBoards.peek();
+        savedBoards.pop();
         System.out.println("Reverted board:\n" + board);
-        savedBoard = null;
     }
 
     /**
@@ -153,7 +154,8 @@ public class ChessGame {
         }
         // for all pieces on my team...
 
-        for (var pair : board) { // <--- FIXME: IS THIS THE PROBLEM????
+        ChessBoard boardCopy = board.clone();
+        for (var pair : boardCopy) { // <--- FIXME: IS THIS THE PROBLEM????
             if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
                 continue;
             }
