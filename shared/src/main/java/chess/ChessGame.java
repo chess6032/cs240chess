@@ -14,10 +14,12 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     private ChessBoard board;
+    private ChessBoard savedBoard;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
+        savedBoard = null;
         teamTurn = TeamColor.WHITE;
     }
 
@@ -43,6 +45,28 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    /**
+     * Save a copy of the board.
+     */
+    private void saveBoard() {
+        System.out.println("Current board:\n" + board);
+        for (var pair : board) {
+            savedBoard.addPiece(pair.position(), pair.piece());
+        }
+    }
+
+    private void revertBoard() {
+        if (savedBoard == null) {
+            throw new RuntimeException("revertBoard called but savedBoard is null");
+        }
+        assert !board.equals(savedBoard);
+        for (var pair : savedBoard) {
+            board.addPiece(pair.position(), pair.piece());
+        }
+        assert board.equals(savedBoard);
+        savedBoard = null;
     }
 
     /**
@@ -98,17 +122,17 @@ public class ChessGame {
 
     private boolean moveEscapesCheck(TeamColor teamColor, ChessMove move) {
         System.out.println("-----------------------");
-        System.out.println("Current board:\n" + board);
-        ChessBoard savedBoard = board.clone();
-        System.out.println("Testing move: " + move);
 
+        saveBoard();
+
+        System.out.println("Testing move: " + move);
         doMove(move);
 
         boolean ret = !isInCheck(teamColor);
         System.out.println("This move " + (ret ? "does" : "does NOT") + " escape check: " + move + "\n" + board);
-        assert !board.equals(savedBoard);
-        board = savedBoard; // TODO: ??
-        assert board.equals(savedBoard);
+
+        revertBoard();
+
         System.out.println("- - - - - - - - - - - - -");
         return ret;
     }
