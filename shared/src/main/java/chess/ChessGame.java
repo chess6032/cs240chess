@@ -1,7 +1,7 @@
 package chess;
 
 import java.util.Collection;
-import java.util.Objects;
+
 
 
 /**
@@ -19,8 +19,10 @@ public class ChessGame {
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
-        savedBoard = null;
+
         teamTurn = TeamColor.WHITE;
+
+        savedBoard = null;
     }
 
     /**
@@ -47,25 +49,15 @@ public class ChessGame {
         BLACK
     }
 
-    /**
-     * Save a copy of the board.
-     */
     private void saveBoard() {
-        System.out.println("Current board:\n" + board);
-        for (var pair : board) {
-            savedBoard.addPiece(pair.position(), pair.piece());
-        }
+        savedBoard = board.clone();
     }
 
     private void revertBoard() {
         if (savedBoard == null) {
-            throw new RuntimeException("revertBoard called but savedBoard is null");
+            throw new RuntimeException("ChessGame.revertBoard called but ChessGame.savedBoard is null");
         }
-        assert !board.equals(savedBoard);
-        for (var pair : savedBoard) {
-            board.addPiece(pair.position(), pair.piece());
-        }
-        assert board.equals(savedBoard);
+        board = savedBoard.clone();
         savedBoard = null;
     }
 
@@ -87,19 +79,22 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-//        if (!validMoves(move.getStartPosition()).contains(move)) {
-//            throw new InvalidMoveException();
-//        }
-
-        doMove(move);
+        if (!validMoves(move.getStartPosition()).contains(move)) {
+            return;
+        }
+        throw new RuntimeException("Not implemented");
     }
 
-    private void doMove(ChessMove move) throws NullPointerException {
-        if (board.getPiece(move.getStartPosition()) == null) {
-            throw new NullPointerException();
-        }
-        board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+
+    /**
+     * Makes a move in a chess game WITHOUT checking if it's valid
+     *
+     * @param move chess move to perform
+     */
+    private void doMove(ChessMove move) {
+        ChessPiece movingPiece = board.getPiece(move.getStartPosition());
         board.removePiece(move.getStartPosition());
+        board.addPiece(move.getEndPosition(), movingPiece);
     }
 
     /**
@@ -109,34 +104,40 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition kingPosition = board.getKingPosition(teamColor);
         for (var pair : board) {
             if (pair.isNull() || pair.piece().getTeamColor() == teamColor) {
+                // skip if space is empty or occupied by peace on king's team
                 continue;
             }
-            if (pair.piece().pieceMovesEndPositions(board, pair.position()).contains(board.getKingPosition(teamColor))) {
+            // see if any of piece's moves end on the king's space
+            var opposingTeamEndPositions = pair.piece().pieceMovesEndPositions(board, pair.position());
+            if (opposingTeamEndPositions.contains(kingPosition)) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Sees if a move would put king out of checkmate. Does not change board.
+     *
+     * @param teamColor the team whose king is in check
+     * @param move the chess move being tested
+     * @return true if performing move does get king out of check, false otherwise
+     */
     private boolean moveEscapesCheck(TeamColor teamColor, ChessMove move) {
-        System.out.println("-----------------------");
-
+        boolean doesEscape = false;
         saveBoard();
 
-        System.out.println("Testing move: " + move);
         doMove(move);
-
-        boolean ret = !isInCheck(teamColor);
-        System.out.println("This move " + (ret ? "does" : "does NOT") + " escape check: " + move + "\n" + board);
+        if (!isInCheck(teamColor)) {
+            doesEscape = true;
+        }
 
         revertBoard();
-
-        System.out.println("- - - - - - - - - - - - -");
-        return ret;
+        return doesEscape;
     }
-
 
     /**
      * Determines if the given team is in checkmate
@@ -148,28 +149,20 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
-        int i = 0;
-        System.out.println(board.getPiece(new ChessPosition(4, 6)));
+        // for all pieces on my team...
         for (var pair : board) {
-            System.out.println(i++ + ": " + pair);
             if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
                 continue;
             }
-            for (ChessMove move : pair.piece().pieceMoves(board, pair.position())) {
-                try {
-                    if (moveEscapesCheck(teamColor, move)) {
-                        return false;
-                    }
-                } catch (NullPointerException e) {
-                    System.out.println("***********");
-                    System.out.println(board);
-                    System.out.println("This move inputted null into ChessBoard.addPiece: " +
-                            pair.piece() + " at " + pair.position() + ": " + move);
-                    throw e;
+            // ...look at all their moves...
+            for (var move : pair.piece().pieceMoves(board, pair.position())) {
+                // ...and see if one of them gets me out of checkmate.
+                if (moveEscapesCheck(teamColor, move)) {
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     /**
@@ -180,10 +173,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (isInCheck(teamColor)) {
-            return false;
-        }
-        return false;
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -192,8 +182,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        this.board = board;
-        // TODO: make it a copy????
+        this.board = board; // TODO: set to clone????
     }
 
     /**
@@ -202,31 +191,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        return board;
-    }
-
-    @Override
-    public String toString() {
-        return "ChessGame{ " + teamTurn
-                + '\n'
-                + board
-                + "\n}";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ChessGame that = (ChessGame) o;
-        if (board == null && that.board != null) {
-            return false;
-        }
-        return teamTurn == that.teamTurn && (board == null || board.equals(that.board));
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(teamTurn, board);
+        return board; // TODO: return copy????
     }
 }
