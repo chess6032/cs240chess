@@ -50,6 +50,7 @@ public class ChessGame {
     }
 
     private void saveBoard() {
+        System.out.println("Saving board:\n" + board);
         savedBoard = board.clone();
     }
 
@@ -58,6 +59,7 @@ public class ChessGame {
             throw new RuntimeException("ChessGame.revertBoard called but ChessGame.savedBoard is null");
         }
         board = savedBoard.clone();
+        System.out.println("Reverted board:\n" + board);
         savedBoard = null;
     }
 
@@ -150,7 +152,8 @@ public class ChessGame {
             return false;
         }
         // for all pieces on my team...
-        for (var pair : board) {
+
+        for (var pair : board) { // <--- FIXME: IS THIS THE PROBLEM????
             if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
                 continue;
             }
@@ -158,6 +161,8 @@ public class ChessGame {
             for (var move : pair.piece().pieceMoves(board, pair.position())) {
                 // ...and see if one of them gets me out of checkmate.
                 if (moveEscapesCheck(teamColor, move)) {
+                    System.out.println("This move escapes check: " + move + " by " + pair);
+
                     return true;
                 }
             }
@@ -173,7 +178,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            return false; // can't be in check to be in stalemate
+        }
+//        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     /**
