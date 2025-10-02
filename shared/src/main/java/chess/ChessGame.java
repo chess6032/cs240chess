@@ -62,7 +62,7 @@ public class ChessGame {
      *
      * @return last ChessBoard in savedBoards (i.e. board you just saved))
      */
-    private ChessBoard saveAndGetCopy() {
+    private ChessBoard saveBoardAndGetCopy() {
         saveBoard();
         return savedBoards.getLast();
     }
@@ -137,7 +137,7 @@ public class ChessGame {
     }
 
     /**
-     * Sees if a move would put king out of checkmate. Does not change board.
+     * Sees if a move would put king out of checkmate. Does not change board. Assumes King is already in check.
      *
      * @param teamColor the team whose king is in check
      * @param move the chess move being tested
@@ -157,6 +157,26 @@ public class ChessGame {
     }
 
     /**
+     * Sees if a move would put king into check.
+     *
+     * @param teamColor the team you're checking the check status for
+     * @param move the chess move being tested
+     * @return true if performing move puts king in check, false otherwise
+     */
+    private boolean movePutsKingInCheck(TeamColor teamColor, ChessMove move) {
+        saveBoard();
+
+        boolean doesPutInCheck = false;
+        doMove(move);
+        if (isInCheck(teamColor)) {
+            doesPutInCheck = true;
+        }
+
+        revertBoard();
+        return doesPutInCheck;
+    }
+
+    /**
      * Determines if the given team is in checkmate
      *
      * @param teamColor which team to check for checkmate
@@ -167,9 +187,8 @@ public class ChessGame {
             return false;
         }
 
-        ChessBoard copy = saveAndGetCopy();
         // for all pieces on my team...
-        for (var pair : copy) {
+        for (var pair : saveBoardAndGetCopy()) {
             if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
                 continue;
             }
@@ -193,11 +212,29 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (!isInCheck(teamColor)) {
-            return false; // can't be in check to be in stalemate
+        if (isInCheck(teamColor)) {
+            return false; // can't be in check to be in stalemate.
         }
 
-        return false;
+        ChessPosition kingStartPosition = board.getKingPosition(teamColor);
+        ChessPiece king = board.getPiece(kingStartPosition);
+
+        // for all pieces on my team...
+        for (var pair : saveBoardAndGetCopy()) {
+            if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
+                continue;
+            }
+            // ...look at all their moves...
+            var teammatePieceMoves = pair.piece().pieceMoves(board, pair.position());
+            for (ChessMove move : teammatePieceMoves) {
+                // ...and see if any of them can get me out of check.
+                if (moveEscapesCheck(teamColor, move)) {
+                    return false;
+                }
+            }
+        }
+        revertBoard();
+        return true;
     }
 
     /**
