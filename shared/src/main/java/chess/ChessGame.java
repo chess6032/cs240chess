@@ -51,17 +51,18 @@ public class ChessGame {
     }
 
     private void saveBoard() {
-        System.out.println("Saving board:\n" + board);
-        savedBoards.add(board);
+//        System.out.println("Saving board:\n" + board);
+        savedBoards.add(board.clone());
     }
 
     private void revertBoard() {
         if (savedBoards.empty()) {
             throw new RuntimeException("ChessGame.revertBoard called but ChessGame.savedBoards is empty");
         }
+        System.out.println("Reverting to:\n" + savedBoards.peek());
         board = savedBoards.peek();
         savedBoards.pop();
-        System.out.println("Reverted board:\n" + board);
+//        System.out.println("Reverted board:\n" + board);
     }
 
     /**
@@ -152,41 +153,48 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
-        // for all pieces on my team...
 
-        ChessBoard boardCopy = board.clone();
-
-        var itr = board.iterator();
-
-        System.out.println(board);
-        while(itr.hasNext()) {
-            var pair = itr.next();
-            if (!pair.isNull()) {
-                System.out.println("------------");
-                System.out.println(board);
-                doMove(new ChessMove(pair.position(), new ChessPosition(pair.position().getRow(), pair.position().getColumn()+1), null));
-                System.out.println(board);
-            }
-        }
-
-        return false;
-
-//        for (var pair : boardCopy) { // <--- FIXME: IS THIS THE PROBLEM????
-//            if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
-//                continue;
-//            }
-//            // ...look at all their moves...
-//            for (var move : pair.piece().pieceMoves(board, pair.position())) {
-//                // ...and see if one of them gets me out of checkmate.
-//                if (moveEscapesCheck(teamColor, move)) {
-//                    System.out.println("This move escapes check: " + move + " by " + pair);
+//        var itr = board.iterator();
 //
-//                    return true;
+//        saveBoard();
+//        System.out.println(board);
+//        while(itr.hasNext()) {
+//            var pair = itr.next();
+//            if (!pair.isNull()) {
+//                System.out.println("------------");
+//                System.out.println(board);
+//                try {
+//                    doMove(new ChessMove(pair.position(), new ChessPosition(pair.position().getRow(), pair.position().getColumn()+(pair.position().getColumn() < 8 ? 1 : -7)), null));
+//                } catch (NullPointerException e) {
+//
 //                }
+//                System.out.println(board);
 //            }
 //        }
 //        revertBoard();
+//        System.out.println("------------");
+//        System.out.println(board);
+//
 //        return false;
+
+
+        ChessBoard boardCopy = board.clone();
+        // for all pieces on my team...
+        for (var pair : boardCopy) { // <--- FIXME: IS THIS THE PROBLEM????
+            if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
+                continue;
+            }
+            // ...look at all their moves...
+            for (var move : pair.piece().pieceMoves(board, pair.position())) {
+                // ...and see if one of them gets me out of checkmate.
+                if (moveEscapesCheck(teamColor, move)) {
+                    System.out.println("This move escapes check: " + move + " by " + pair);
+
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
