@@ -50,10 +50,26 @@ public class ChessGame {
         BLACK
     }
 
+    /**
+     * Push a copy of board to savedBoards
+     */
     private void saveBoard() {
         savedBoards.add(board.clone());
     }
 
+    /**
+     * Get a copy of the board while also saving it.
+     *
+     * @return last ChessBoard in savedBoards (i.e. board you just saved))
+     */
+    private ChessBoard saveAndGetCopy() {
+        saveBoard();
+        return savedBoards.getLast();
+    }
+
+    /**
+     * Revert board to most recently saved ChessBoard
+     */
     private void revertBoard() {
         if (savedBoards.empty()) {
             throw new RuntimeException("ChessGame.revertBoard called but ChessGame.savedBoards is empty");
@@ -128,9 +144,9 @@ public class ChessGame {
      * @return true if performing move does get king out of check, false otherwise
      */
     private boolean moveEscapesCheck(TeamColor teamColor, ChessMove move) {
-        boolean doesEscape = false;
         saveBoard();
 
+        boolean doesEscape = false;
         doMove(move);
         if (!isInCheck(teamColor)) {
             doesEscape = true;
@@ -151,9 +167,9 @@ public class ChessGame {
             return false;
         }
 
-        ChessBoard boardCopy = board.clone();
+        ChessBoard copy = saveAndGetCopy();
         // for all pieces on my team...
-        for (var pair : boardCopy) { // <--- FIXME: IS THIS THE PROBLEM????
+        for (var pair : copy) {
             if (pair.isNull() || pair.piece().getTeamColor() != teamColor) {
                 continue;
             }
@@ -165,6 +181,7 @@ public class ChessGame {
                 }
             }
         }
+        revertBoard();
         return true;
     }
 
@@ -179,7 +196,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false; // can't be in check to be in stalemate
         }
-//        throw new RuntimeException("Not implemented");
+
         return false;
     }
 
