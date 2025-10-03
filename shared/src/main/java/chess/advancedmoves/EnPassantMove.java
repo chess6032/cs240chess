@@ -39,7 +39,7 @@ public class EnPassantMove extends ChessMove{
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), victimPawnPosition);
+        return super.hashCode();
     }
 
     @Override

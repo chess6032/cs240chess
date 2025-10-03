@@ -103,7 +103,7 @@ public class ChessGame {
         }
         TeamColor team = piece.getTeamColor();
         var moves = piece.pieceMoves(board, startPosition);
-        var valid = (ArrayList<ChessMove>) piece.pieceMoves(board, startPosition);
+        var valid = piece.pieceMoves(board, startPosition);
 
         for (ChessMove move : moves) {
             if (movePutsKingInCheck(team, move)) {
