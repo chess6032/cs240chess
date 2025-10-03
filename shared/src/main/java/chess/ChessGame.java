@@ -1,5 +1,7 @@
 package chess;
 
+import chess.advancedmoves.EnPassantHandler;
+
 import java.util.Collection;
 
 import java.util.Collections;
@@ -17,11 +19,15 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     private ChessBoard board;
-    private Stack<ChessBoard> savedBoards;
+    private final Stack<ChessBoard> savedBoards;
+
+    private final EnPassantHandler enPassHandler;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
+
+        enPassHandler = new EnPassantHandler(board);
 
         teamTurn = TeamColor.WHITE;
 
@@ -105,6 +111,17 @@ public class ChessGame {
                 valid.remove(move);
             }
         }
+
+        // EN PASSANTING
+
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            ChessMove enPassant = enPassHandler.enPassantMove(startPosition);
+            if (enPassant != null) {
+//                System.out.println(board);
+                valid.add(enPassant);
+            }
+        }
+
         return valid;
     }
 
@@ -124,8 +141,11 @@ public class ChessGame {
         if (!validMoves(move.getStartPosition()).contains(move)) {
             throw new InvalidMoveException();
         }
+
         doMove(move);
         swapTeam();
+
+        enPassHandler.setLastMove(move);
     }
 
 
