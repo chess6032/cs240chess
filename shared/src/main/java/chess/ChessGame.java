@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Stack;
 
+import chess.ChessPiece.PieceType;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -20,14 +21,15 @@ public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board;
     private final Stack<ChessBoard> savedBoards;
+    private ChessMove lastMove;
 
-    private final EnPassantHandler enPassHandler;
+//    private final EnPassantHandler enPassHandler;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
 
-        enPassHandler = new EnPassantHandler(board);
+//        enPassHandler = new EnPassantHandler(board);
 
         teamTurn = TeamColor.WHITE;
 
@@ -112,13 +114,23 @@ public class ChessGame {
             }
         }
 
-        // EN PASSANTING
+        // EN PASSANT
 
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            ChessMove enPassant = enPassHandler.enPassantMove(startPosition);
-            if (enPassant != null) {
-//                System.out.println(board);
-                valid.add(enPassant);
+            ChessPosition leftPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-1);
+            ChessPiece left = board.boundlessGetPiece(leftPosition);
+            if (left != null && left.getPieceType() == PieceType.PAWN && left.getTeamColor() != piece.getTeamColor()) {
+                if (lastMove.getEndPosition().equals(leftPosition)) {
+                    valid.add(new ChessMove(startPosition, leftPosition, null));
+                }
+            }
+
+            ChessPosition rightPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+1);
+            ChessPiece right = board.boundlessGetPiece(rightPosition);
+            if (right != null && right.getPieceType() == PieceType.PAWN && right.getTeamColor() != piece.getTeamColor()) {
+                if (lastMove.getEndPosition().equals(rightPosition)) {
+                    valid.add(new ChessMove(startPosition, rightPosition, null));
+                }
             }
         }
 
@@ -143,9 +155,9 @@ public class ChessGame {
         }
 
         doMove(move);
+        lastMove = move;
         swapTeam();
-
-        enPassHandler.setLastMove(move);
+//        enPassHandler.setLastMove(move);
     }
 
 

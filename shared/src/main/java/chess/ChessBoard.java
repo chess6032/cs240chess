@@ -88,6 +88,20 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
         // TODO: should I return a copy??
     }
 
+
+    /**
+     * Gets a chess piece on the chessboard, WITHOUT throwing an error if position is out of bounds.
+     * @param position The position to get the piece from
+     * @return Either piece at position, null if no piece is at position, or null if position was out of bounds.
+     */
+    public ChessPiece boundlessGetPiece(ChessPosition position) {
+        if (isPositionOutOfBounds(position)) {
+            return null;
+        }
+
+        return getPiece(position);
+    }
+
     public static boolean isPositionOutOfBounds(ChessPosition position) {
         if (   position.getRow()    < 1 || position.getRow()    > BOARD_WIDTH
             || position.getColumn() < 1 || position.getColumn() > BOARD_WIDTH)
