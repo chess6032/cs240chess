@@ -8,52 +8,44 @@ import static chess.ChessPiece.PieceType.PAWN;
 
 public class EnPassantHandler {
 
-    private final ChessBoard board;
-    private ChessMove lastMove;
-
-    public EnPassantHandler(ChessBoard board) {
-        this.board = board;
-    }
-
-    public void setLastMove(ChessMove move) {
-        lastMove = move;
-    }
-
-    private boolean lastMoveWasPawn() {
+    /**
+     * (Assumes piece at attackingPawnPosition is a pawn)
+     *
+     * @param board chess board
+     * @param lastMove last move made on board
+     * @param attackingPawnPosition (Assumes pawn is at attacking pawn position)
+     * @return en passant move if en passant doable, or null if not
+     */
+    public static EnPassantMove calculateEnPassantMove(ChessBoard board, ChessMove lastMove, ChessPosition attackingPawnPosition) {
         if (lastMove == null) {
-            return false;
-        }
-//        System.out.println(board);
-        System.out.println("Last move: " + lastMove);
-        return board.getPiece(lastMove.getEndPosition()).getPieceType() == PAWN;
-    }
-
-    private int forward(ChessPosition pawnPosition) {
-        ChessGame.TeamColor team = board.getPiece(pawnPosition).getTeamColor();
-        return team == ChessGame.TeamColor.WHITE ? 1 : -1;
-    }
-
-    public ChessMove enPassantMove(ChessPosition attackingPawnPosition) {
-        if (!lastMoveWasPawn()
-                || board.getPiece(attackingPawnPosition) == null
-                || board.getPiece(attackingPawnPosition).getPieceType() != PAWN) {
+//            System.out.println("calculateEnPassantMove: lastMove is null");
             return null;
         }
 
         ChessPosition victimPawnPosition = lastMove.getEndPosition();
         if (attackingPawnPosition.getRow() != victimPawnPosition.getRow()) {
+//            System.out.println("calculateEnPassantMove: attacker and victim not on same row");
+            return null;
+        }
+        if (attackingPawnPosition.getColumn() - 1 != victimPawnPosition.getColumn()
+                && attackingPawnPosition.getColumn() + 1 != victimPawnPosition.getColumn()) {
+//            System.out.println("calculateEnPassantMove: victim is not to left or right of attacker");
             return null;
         }
 
-        if (attackingPawnPosition.getColumn() - victimPawnPosition.getColumn() == 1
-            || attackingPawnPosition.getColumn() - victimPawnPosition.getColumn() == -1) {
-            return new ChessMove(attackingPawnPosition,
-                    new ChessPosition(
-                        victimPawnPosition.getRow() + forward(attackingPawnPosition),
-                        victimPawnPosition.getColumn()),
-                    null);
+        ChessPiece victimPawn = board.getPiece(victimPawnPosition);
+        ChessPiece attackingPawn = board.getPiece(attackingPawnPosition);
+
+        if (victimPawn.getPieceType() != PAWN) {
+            return null;
         }
 
-        return null;
+        if (victimPawn.getTeamColor() == attackingPawn.getTeamColor()) {
+//            System.out.println("calculateEnPassantMove: victim is not right piece");
+            return null;
+        }
+
+        int forward = attackingPawn.getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+        return new EnPassantMove(attackingPawnPosition, new ChessPosition(victimPawnPosition.getRow()+forward, victimPawnPosition.getColumn()), victimPawnPosition);
     }
 }

@@ -61,15 +61,13 @@ public class ChessMove {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof ChessMove)) {
             return false;
         }
         ChessMove that = (ChessMove) o;
         return Objects.equals(startPosition, that.startPosition)
             && Objects.equals(endPosition, that.endPosition)
             && promotionPiece == that.promotionPiece;
-                        //    ^ I tried to use promotionPiece.equals(that.promotionPiece) and it didn't work...
-                        //      ...I wonder why == did.
     }
 
     @Override

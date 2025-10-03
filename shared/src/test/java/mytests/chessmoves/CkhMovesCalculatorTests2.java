@@ -1,10 +1,10 @@
 package mytests.chessmoves;
 
-import chess.ChessBoard;
-import chess.ChessGame;
+
+import chess.*;
 import chess.ChessPiece.PieceType;
-import chess.ChessPosition;
 import chess.moves.PieceMovesCalculator;
+import chess.advancedmoves.EnPassantMove;
 
 public class CkhMovesCalculatorTests2 {
 
@@ -16,7 +16,15 @@ public class CkhMovesCalculatorTests2 {
         }
     }
 
+    private static void testEnPassantEquality() {
+        ChessMove a = new ChessMove(new ChessPosition(4, 8), new ChessPosition(3, 7), null);
+        EnPassantMove b = new EnPassantMove(new ChessPosition(4, 8), new ChessPosition(3, 7), new ChessPosition(3, 8));
+        System.out.println(a + " equals " + b + "? - " + (a.equals(b)));
+        System.out.println(b + " equals " + a + "? - " + (b.equals(a)));
+    }
+
     public static void main(String[] args) {
-        testPieceMovesCalcGetType();
+//        testPieceMovesCalcGetType();
+        testEnPassantEquality();
     }
 }

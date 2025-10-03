@@ -2,13 +2,10 @@ package chess;
 
 import chess.advancedmoves.EnPassantHandler;
 
-import java.util.Collection;
-
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
 
 import chess.ChessPiece.PieceType;
+import chess.advancedmoves.EnPassantMove;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -106,7 +103,7 @@ public class ChessGame {
         }
         TeamColor team = piece.getTeamColor();
         var moves = piece.pieceMoves(board, startPosition);
-        var valid = piece.pieceMoves(board, startPosition);
+        var valid = (ArrayList<ChessMove>) piece.pieceMoves(board, startPosition);
 
         for (ChessMove move : moves) {
             if (movePutsKingInCheck(team, move)) {
@@ -117,20 +114,9 @@ public class ChessGame {
         // EN PASSANT
 
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            ChessPosition leftPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-1);
-            ChessPiece left = board.boundlessGetPiece(leftPosition);
-            if (left != null && left.getPieceType() == PieceType.PAWN && left.getTeamColor() != piece.getTeamColor()) {
-                if (lastMove.getEndPosition().equals(leftPosition)) {
-                    valid.add(new ChessMove(startPosition, leftPosition, null));
-                }
-            }
-
-            ChessPosition rightPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn()+1);
-            ChessPiece right = board.boundlessGetPiece(rightPosition);
-            if (right != null && right.getPieceType() == PieceType.PAWN && right.getTeamColor() != piece.getTeamColor()) {
-                if (lastMove.getEndPosition().equals(rightPosition)) {
-                    valid.add(new ChessMove(startPosition, rightPosition, null));
-                }
+            EnPassantMove enPassant = EnPassantHandler.calculateEnPassantMove(board, lastMove, startPosition);
+            if (enPassant != null) {
+                valid.add(enPassant);
             }
         }
 
@@ -169,6 +155,11 @@ public class ChessGame {
     private void doMove(ChessMove move) {
         ChessPiece movingPiece = board.getPiece(move.getStartPosition());
         board.removePiece(move.getStartPosition());
+
+        if (move.getClass() == EnPassantMove.class) {
+            board.removePiece(((EnPassantMove) move).getVictimPawnPosition());
+        }
+
         if (movingPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (move.getEndPosition().getRow() == 1 || move.getEndPosition().getRow() == 8) {
                 board.addPiece(move.getEndPosition(), new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece()));
