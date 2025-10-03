@@ -140,6 +140,11 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
+        if (move.equals(EnPassantHandler.calculateEnPassantMove(board, lastMove, move.getStartPosition()))) {
+            move = EnPassantHandler.calculateEnPassantMove(board, lastMove, move.getStartPosition());
+            // FIXME: this is literally the dumbest solution but the move inside valid moves has extra info the move passed into makeMove doesn't
+        }
+
         doMove(move);
         lastMove = move;
         swapTeam();
