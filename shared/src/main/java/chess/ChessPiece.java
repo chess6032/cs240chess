@@ -65,22 +65,23 @@ public class ChessPiece {
         return PieceMovesCalculator.getFinalPositions(pieceMoves(board, myPosition));
     }
 
-    private static final Map<PieceType, Character> pieceTranslation = new HashMap<>();
+    private static final Map<PieceType, Character> PIECE_TRANSLATION = new HashMap<>();
     static {
         // TODO: is there a better way to do this?
-        pieceTranslation.put(PieceType.KING, 'k');
-        pieceTranslation.put(PieceType.QUEEN, 'q');
-        pieceTranslation.put(PieceType.BISHOP, 'b');
-        pieceTranslation.put(PieceType.KNIGHT, 'n');
-        pieceTranslation.put(PieceType.ROOK, 'r');
-        pieceTranslation.put(PieceType.PAWN, 'p');
+        PIECE_TRANSLATION.put(PieceType.KING, 'k');
+        PIECE_TRANSLATION.put(PieceType.QUEEN, 'q');
+        PIECE_TRANSLATION.put(PieceType.BISHOP, 'b');
+        PIECE_TRANSLATION.put(PieceType.KNIGHT, 'n');
+        PIECE_TRANSLATION.put(PieceType.ROOK, 'r');
+        PIECE_TRANSLATION.put(PieceType.PAWN, 'p');
     }
 
     @Override
     public String toString() {
-        char pieceChar = pieceTranslation.get(type); // get char corresponding to piece type.
-        if (team == TeamColor.WHITE) // capitalize character if piece is black.
+        char pieceChar = PIECE_TRANSLATION.get(type); // get char corresponding to piece type.
+        if (team == TeamColor.WHITE) { // capitalize character if piece is black.
             pieceChar = Character.toUpperCase(pieceChar);
+        }
         return String.valueOf(pieceChar); // convert char to string and return it.
     }
 

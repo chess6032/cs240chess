@@ -46,6 +46,7 @@ public class EnPassantHandler {
         }
 
         int forward = attackingPawn.getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
-        return new EnPassantMove(attackingPawnPosition, new ChessPosition(victimPawnPosition.getRow()+forward, victimPawnPosition.getColumn()), victimPawnPosition);
+        return new EnPassantMove(attackingPawnPosition, new ChessPosition(
+                victimPawnPosition.getRow()+forward, victimPawnPosition.getColumn()), victimPawnPosition);
     }
 }

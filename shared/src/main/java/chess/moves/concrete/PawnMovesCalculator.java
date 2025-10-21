@@ -26,8 +26,9 @@ public class PawnMovesCalculator extends AbstractMovesCalculator {
 
     private void addMoveIfDiagonalCapture(int dRow, int dCol) {
         ChessPosition position = calculateRelativePosition(dRow, dCol);
-        if (ChessBoard.isPositionOutOfBounds(position))
+        if (ChessBoard.isPositionOutOfBounds(position)) {
             return;
+        }
 
         ChessPiece pieceAtPos = board.getPiece(position);
         if (pieceAtPos != null && pieceAtPos.getTeamColor() != myTeam) {
@@ -40,8 +41,9 @@ public class PawnMovesCalculator extends AbstractMovesCalculator {
         if (newPosition.getRow() == 1 || newPosition.getRow() == ChessBoard.getBoardWidth()) { // can promote?
             // add all possible promotions
             for (PieceType type : PieceType.values()) {
-                if (type != PieceType.KING && type != PieceType.PAWN)
+                if (type != PieceType.KING && type != PieceType.PAWN) {
                     super.addMove(newPosition, type);
+                }
             }
             return false;
         }

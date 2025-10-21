@@ -119,16 +119,16 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
     public void resetBoard() {
         for (int i = 0; i < BOARD_WIDTH; ++i) {
             // black starting pieces:
-            addPiece(new ChessPosition(BOARD_WIDTH, i+1), new ChessPiece(TeamColor.BLACK, edgeRows[i])); // top row (black)
+            addPiece(new ChessPosition(BOARD_WIDTH, i+1), new ChessPiece(TeamColor.BLACK, EDGE_ROWS[i])); // top row (black)
             addPiece(new ChessPosition(BOARD_WIDTH-1, i+1), new ChessPiece(TeamColor.BLACK, PieceType.PAWN)); // black pawns
 
             // white starting pieces:
-            addPiece(new ChessPosition(1, i+1), new ChessPiece(TeamColor.WHITE, edgeRows[i])); // bottom row (white)
+            addPiece(new ChessPosition(1, i+1), new ChessPiece(TeamColor.WHITE, EDGE_ROWS[i])); // bottom row (white)
             addPiece(new ChessPosition(2, i+1), new ChessPiece(TeamColor.WHITE, PieceType.PAWN)); // white pawns
         }
     }
 
-    private static final PieceType[] edgeRows = {
+    private static final PieceType[] EDGE_ROWS = {
             // piece arrangement for top & bottom row:
             PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP,
                 PieceType.QUEEN, KING,
@@ -159,11 +159,13 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
                 String squareString = " ";
                 if (positions != null && positions.contains(square)) {
                     squareString = "_";
-                    if (piece != null)
+                    if (piece != null) {
                         squareString = "X";
+                    }
                 } else {
-                    if (piece != null)
+                    if (piece != null) {
                         squareString = piece.toString();
+                    }
                 }
                 sb.append(squareString);
 
@@ -172,8 +174,9 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
 
             sb.append("|");
 
-            if (i < BOARD_WIDTH - 1)
+            if (i < BOARD_WIDTH - 1) {
                 sb.append("\n"); // don't add newline on last row
+            }
         }
         return sb.toString();
     }
@@ -200,8 +203,8 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
     public Iterator<PiecePositionPair> iterator() {
         return new Iterator<>() {
 
-            private int row_idx = 0;
-            private int col_idx = 0;
+            private int rowIdx = 0;
+            private int colIdx = 0;
 
             /**
              * Checks if there is a next element to iterate over.
@@ -210,13 +213,13 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
              */
             @Override
             public boolean hasNext() {
-                if (row_idx > grid.length-1) {
+                if (rowIdx > grid.length-1) {
                     return false;
                 }
                 // if we've reached end of row,
                 // check if there's another row.
-                if (col_idx > grid[row_idx].length-1) {
-                    return row_idx + 1 < grid.length; // move row_idx to next row
+                if (colIdx > grid[rowIdx].length-1) {
+                    return rowIdx + 1 < grid.length; // move row_idx to next row
                 }
 
                 return true;
@@ -234,14 +237,14 @@ public class ChessBoard implements Iterable<PiecePositionPair> {
                     throw new NoSuchElementException();
                 }
 
-                ChessPiece piece = grid[row_idx][col_idx];
-                ChessPosition position = new ChessPosition(row_idx+1, col_idx+1);
+                ChessPiece piece = grid[rowIdx][colIdx];
+                ChessPosition position = new ChessPosition(rowIdx +1, colIdx +1);
 
-                ++col_idx; // move to next col.
+                ++colIdx; // move to next col.
                 // move to next row if we reach end of row.
-                if (col_idx > grid[row_idx].length-1) {
-                    col_idx = 0;
-                    ++row_idx;
+                if (colIdx > grid[rowIdx].length-1) {
+                    colIdx = 0;
+                    ++rowIdx;
                 }
 
                 return new PiecePositionPair(piece, position);
