@@ -13,7 +13,7 @@ public abstract class WalkerMovesCalculator extends AbstractMovesCalculator {
     protected final void walkAndAddMoves(int dRow, int dCol) {
         int i = 0;
         int j = 0;
-        while (addMoveIfRelativeSpaceEmpty(i += dRow, j += dCol)) {}; // walk until space occupied.
+        while (addMoveIfRelativeSpaceEmpty(i += dRow, j += dCol)) {} // walk until space occupied.
         addMoveIfRelativeSpaceAvailable(i, j); // see if occupied space is capturable.
     }
 }
