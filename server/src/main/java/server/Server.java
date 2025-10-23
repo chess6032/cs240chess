@@ -1,6 +1,7 @@
 package server;
 
 import chess.model.*;
+import service.*;
 import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -10,6 +11,7 @@ public class Server {
     private final Javalin javalin;
     private final Gson serializer = new Gson();
     // make a new DatabaseAccessObject ONCE.
+    private final UserDAO userDAO = new userDAO(); // I have no idea how this would work but...
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -28,16 +30,19 @@ public class Server {
         javalin.stop();
     }
 
-    public void register(Context ctx) {
-        System.out.println(ctx.header("Authorization")); // gets auth token
-        System.out.println(ctx.body()); // gets body (json)
-        RegisterRequest regReq = serializer.fromJson(ctx.body(), RegisterRequest.class); // imports Json fields into object. (FIELDS MUST BE THE **EXACT** SAME NAME)
-        System.out.println(regReq.username());
-        System.out.println(regReq.password());
-        System.out.println(regReq.email());
-        ctx.status(69); // sets status code in HTTP response.
-        ctx.json(serializer.toJson(regReq)); // sets HTTP response
-//        ctx.result("Donkey Kong");
+    // HANDLERS
 
+    public void register(Context ctx) {
+        RegisterRequest request = serializer.fromJson(ctx.body(), RegisterRequest.class);
+        AuthData authData;
+        try {
+            authData = RegisterService.register(request, userDAO);
+        } catch (UsernameAlreadyTakenException e) {
+            ctx.status(403);
+            ctx.json(serializer.toJson(new ErrorMessage("Error: username already taken")));
+            return;
+        }
+        ctx.status(200);
+        ctx.json(serializer.toJson(authData));
     }
 }
