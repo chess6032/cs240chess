@@ -6,7 +6,7 @@ import chess.model.UserData;
 
 public class RegisterService {
 
-    public static AuthData register(RegisterRequest request, UserDataAccess userDAO) throws UsernameAlreadyTakenException {
+    public static AuthData register(RegisterRequest request, UserDAO userDAO) throws UsernameAlreadyTakenException {
         if (userDAO.getUsername(request.username()) != null) {
             throw new AlreadyTakenException();
         }
