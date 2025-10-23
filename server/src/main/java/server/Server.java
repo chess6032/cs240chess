@@ -1,6 +1,8 @@
 package server;
 
 import chess.model.*;
+import dataaccess.UserDAO;
+import dataaccess.UsernameAlreadyTakenException;
 import service.*;
 import com.google.gson.Gson;
 import io.javalin.*;
@@ -10,8 +12,8 @@ public class Server {
 
     private final Javalin javalin;
     private final Gson serializer = new Gson();
-    // make a new DatabaseAccessObject ONCE.
-    private final UserDAO userDAO = new userDAO(); // I have no idea how this would work but...
+    // make each new DatabaseAccessObject ONLY ONCE.
+    private final UserDAO userDAO = new UserDAO();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -38,8 +40,8 @@ public class Server {
         try {
             authData = RegisterService.register(request, userDAO);
         } catch (UsernameAlreadyTakenException e) {
-            ctx.status(403);
-            ctx.json(serializer.toJson(new ErrorMessage("Error: username already taken")));
+            ctx.status(UsernameAlreadyTakenException.httpStatus);
+            ctx.json(serializer.toJson(e.getErrorMessage()));
             return;
         }
         ctx.status(200);
