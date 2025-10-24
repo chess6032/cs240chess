@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RegisterServiceTests {
@@ -35,6 +36,11 @@ public class RegisterServiceTests {
     static void stopServer() {
         server.stop();
         System.out.println("Test HTTP server closed.");
+    }
+
+    @BeforeEach
+    void clearApplication() {
+        sendRequestAndGetResponse("/db", null);
     }
 
     // UTILITY METHODS AND CLASSES
@@ -70,9 +76,33 @@ public class RegisterServiceTests {
     // TESTS
 
     @Test
-    @DisplayName("register: bad input")
-    public void registerBadInput() {
+    @DisplayName("clear application")
+    public void clear() {
+        var response = sendRequestAndGetResponse("/db", null);
+        Assertions.assertEquals(CommonExceptions.SUCCESS_STATUS, response.statusCode());
+        // TODO: Once HTTP GET requests are implemented, make sure that the databases are actually empty.
+    }
+
+    @Test
+    @DisplayName("register: bad input - completely wrong object")
+    public void registerBadInput1() {
         var response = sendRequestAndGetResponse("/user", new bogusInput("skibidi", 67));
+        assertErrorResponseEquals(CommonExceptions.BAD_REQUEST_STATUS, CommonExceptions.BAD_REQUEST_MSG, response);
+    }
+
+    @Test
+    @DisplayName("register: bad input - empty username")
+    public void registerBadInput2() {
+        RegisterRequest emptyUsernameRequest = new RegisterRequest("", "password", "email");
+        var response = sendRequestAndGetResponse("/user", emptyUsernameRequest);
+        assertErrorResponseEquals(CommonExceptions.BAD_REQUEST_STATUS, CommonExceptions.BAD_REQUEST_MSG, response);
+    }
+
+    @Test
+    @DisplayName("register: bad input - empty password")
+    public void registerBadInput3() {
+        RegisterRequest emptyPasswordRequest = new RegisterRequest("username", "", "email");
+        var response = sendRequestAndGetResponse("/user", emptyPasswordRequest);
         assertErrorResponseEquals(CommonExceptions.BAD_REQUEST_STATUS, CommonExceptions.BAD_REQUEST_MSG, response);
     }
 
@@ -90,5 +120,14 @@ public class RegisterServiceTests {
     public void registerEmptyInput() {
         var response = sendRequestAndGetResponse("/user", new JsonObject());
         assertErrorResponseEquals(CommonExceptions.BAD_REQUEST_STATUS, CommonExceptions.BAD_REQUEST_MSG, response);
+    }
+
+    @Test
+    @DisplayName("register: successful")
+    public void registerSuccessful() {
+        var requests = new ArrayList<RegisterRequest>();
+        requests.add(new RegisterRequest("username", "password", "email"));
+        requests.add(new RegisterRequest("username", "password", "email"));
+        requests.add(new RegisterRequest("username", "password", "email"));
     }
 }
