@@ -21,13 +21,14 @@ public class Server {
     private final AuthDAO authDataAccess = new MemoryAuthDAO();
     private final GameDAO gameDataAccess = new MemoryGameDAO();
 
+    private record ErrorMessage(String message) {}
+
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
         javalin.delete("/db", this::clear);
         javalin.post("/user", this::register);
-
     }
 
     public int run(int desiredPort) {
@@ -42,18 +43,20 @@ public class Server {
     // EXCEPTION HANDLING
 
     private void BadRequestResponse(Context ctx) {
-        ctx.status(ExceptionStatusCodes.BAD_REQUEST);
+        ctx.status(ExceptionStatusCodes.BAD_REQUEST); // 400
         ctx.json(serializer.toJson(new ErrorMessage("Error: bad request")));
     }
 
     private void AlreadyTakenResponse(Context ctx) {
-        ctx.status(ExceptionStatusCodes.ALREADY_TAKEN);
+        ctx.status(ExceptionStatusCodes.ALREADY_TAKEN); // 403
         ctx.json(serializer.toJson(new ErrorMessage("Error: already taken")));
     }
 
     // HANDLERS
 
     public void clear(Context ctx) {
+        // TODO: where to implement status code 500?
+
         UserService.clearUsers(userDataAccess);
         AuthService.clearAuths(authDataAccess);
         GameService.clearGames(gameDataAccess);
@@ -63,6 +66,7 @@ public class Server {
 
     public void register(Context ctx) {
         // TODO: where to implement status code 500?
+
         RegisterRequest request;
         try {
             request = serializer.fromJson(ctx.body(), RegisterRequest.class);
