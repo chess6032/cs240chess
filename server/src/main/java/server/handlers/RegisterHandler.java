@@ -5,7 +5,7 @@ import chess.model.http.RegisterResult;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.BadRequestException;
-import dataaccess.UsernameAlreadyTakenException;
+import dataaccess.AlreadyTakenException;
 import io.javalin.http.Context;
 import server.CommonExceptions;
 import service.UserService;
@@ -28,6 +28,7 @@ public class RegisterHandler implements HTTPRequestHandler {
     public void handleRequest(Context ctx) {
         // TODO: where to implement status code 500?
 
+        // deserialize request
         RegisterRequest userData;
         try {
             userData = serializer.fromJson(ctx.body(), RegisterRequest.class);
@@ -36,10 +37,11 @@ public class RegisterHandler implements HTTPRequestHandler {
             return;
         }
 
+        // fulfill request
         RegisterResult authData;
         try {
             authData = UserService.register(userData, userDAO, authDAO);
-        } catch (UsernameAlreadyTakenException e) {
+        } catch (AlreadyTakenException e) {
             AlreadyTakenResponse(ctx);
             return;
         } catch (BadRequestException e) {

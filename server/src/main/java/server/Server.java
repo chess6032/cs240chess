@@ -36,6 +36,7 @@ public class Server {
         // Register your endpoints and exception handlers here.
         javalin.delete("/db", this::clear);
         javalin.post("/user", this::register);
+        javalin.post("/session", this::login);
     }
 
     public int run(int desiredPort) {
@@ -47,8 +48,6 @@ public class Server {
         javalin.stop();
     }
 
-    // EXCEPTION HANDLING
-
     // HANDLERS
 
     public void clear(Context ctx) {
@@ -57,5 +56,9 @@ public class Server {
 
     public void register(Context ctx) {
         new RegisterHandler(userDAO, authDAO).handleRequest(ctx);
+    }
+
+    public void login(Context ctx) {
+        new LoginHandler(userDAO, authDAO).handleRequest(ctx);
     }
 }

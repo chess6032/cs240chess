@@ -1,12 +1,10 @@
 package service;
 
-import chess.model.UserData;
 import chess.model.http.RegisterRequest;
 import dataaccess.BadRequestException;
-import dataaccess.UsernameAlreadyTakenException;
+import dataaccess.AlreadyTakenException;
 
 import org.junit.jupiter.api.*;
-import server.CommonExceptions;
 
 import java.util.HashSet;
 
@@ -61,7 +59,7 @@ public class RegisterServiceTests extends ServiceTests {
         // add user
         try {
             UserService.register(user1, server.getUserDAO(), server.getAuthDAO());
-        } catch (UsernameAlreadyTakenException | BadRequestException e) {
+        } catch (AlreadyTakenException | BadRequestException e) {
             throw new RuntimeException(e);
         }
 
@@ -70,7 +68,7 @@ public class RegisterServiceTests extends ServiceTests {
             UserService.register(user2, server.getUserDAO(), server.getAuthDAO());
         } catch (Exception e) {
             // assert the correct exception was thrown
-            Assertions.assertEquals(UsernameAlreadyTakenException.class, e.getClass());
+            Assertions.assertEquals(AlreadyTakenException.class, e.getClass());
             printMsg(e);
         }
     }
@@ -115,7 +113,7 @@ public class RegisterServiceTests extends ServiceTests {
         for (var request : requests) {
             try {
                 UserService.register(request, server.getUserDAO(), server.getAuthDAO());
-            } catch (UsernameAlreadyTakenException | BadRequestException e) {
+            } catch (AlreadyTakenException | BadRequestException e) {
                 throw new RuntimeException(e);
             }
         }
