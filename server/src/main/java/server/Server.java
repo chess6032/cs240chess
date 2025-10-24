@@ -1,20 +1,12 @@
 package server;
 
-import chess.model.http.RegisterRequest;
-import chess.model.http.RegisterResult;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import io.javalin.*; // TODO: can't this just be import io.javalin.Javalin; ?
 import io.javalin.http.Context;
 
-import chess.model.*;
 import dataaccess.*;
 import dataaccess.MemoryDAO.*;
-import service.*;
-
-import static server.CommonExceptions.AlreadyTakenResponse;
-import static server.CommonExceptions.BadRequestResponse;
+import server.handlers.*;
 
 public class Server {
 
@@ -22,20 +14,20 @@ public class Server {
     private final Gson serializer = new Gson();
 
     // make each new DatabaseAccessObject ONLY ONCE.
-    private final UserDAO userDataAccess = new MemoryUserDAO();
-    private final AuthDAO authDataAccess = new MemoryAuthDAO();
-    private final GameDAO gameDataAccess = new MemoryGameDAO();
+    private final UserDAO userDAO = new MemoryUserDAO();
+    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final GameDAO gameDAO = new MemoryGameDAO();
 
     public UserDAO getUserDAO() {
-        return userDataAccess;
+        return userDAO;
     }
 
     public AuthDAO getAuthDAO() {
-        return authDataAccess;
+        return authDAO;
     }
 
     public GameDAO getGameDAO() {
-        return gameDataAccess;
+        return gameDAO;
     }
 
     public Server() {
@@ -60,41 +52,10 @@ public class Server {
     // HANDLERS
 
     public void clear(Context ctx) {
-        // TODO: where to implement status code 500?
-
-        UserService.clearUsers(userDataAccess);
-        AuthService.clearAuths(authDataAccess);
-        GameService.clearGames(gameDataAccess);
-        if (ctx == null) {
-            return; // for testing
-        }
-        ctx.status(CommonExceptions.SUCCESS_STATUS);
-        ctx.json(serializer.toJson(new JsonObject())); // empty JSON
+        new ClearHandler(userDAO, authDAO, gameDAO).handleRequest(ctx);
     }
 
     public void register(Context ctx) {
-        // TODO: where to implement status code 500?
-
-        RegisterRequest userData;
-        try {
-            userData = serializer.fromJson(ctx.body(), RegisterRequest.class);
-        } catch (JsonSyntaxException e) {
-            BadRequestResponse(ctx);
-            return;
-        }
-
-        RegisterResult authData;
-        try {
-            authData = UserService.register(userData, userDataAccess, authDataAccess);
-        } catch (UsernameAlreadyTakenException e) {
-            AlreadyTakenResponse(ctx);
-            return;
-        } catch (BadRequestException e) {
-            BadRequestResponse(ctx);
-            return;
-        }
-
-        ctx.status(CommonExceptions.SUCCESS_STATUS);
-        ctx.json(serializer.toJson(authData));
+        new RegisterHandler(userDAO, authDAO).handleRequest(ctx);
     }
 }
