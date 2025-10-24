@@ -23,6 +23,7 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
+        javalin.delete("/db", this::delete);
         javalin.post("/user", this::register);
 
     }
@@ -36,6 +37,8 @@ public class Server {
         javalin.stop();
     }
 
+    // EXCEPTION HANDLING
+
     private void ExceptionToResponse(Context ctx, Exception e) {
         ctx.status(ExceptionStatusCodes.getCorrespondingStatusCode(e)); // set status code associated w/ exception class
         ctx.json(serializer.toJson(new ErrorMessage(e.getMessage()))); // serialize exception's message to JSON.
@@ -46,7 +49,16 @@ public class Server {
         ctx.json(serializer.toJson(new ErrorMessage("Error: bad request")));
     }
 
+    private void AlreadyTakenResponse(Context ctx) {
+        ctx.status(ExceptionStatusCodes.ALREADY_TAKEN);
+        ctx.json(serializer.toJson(new ErrorMessage("Error: already taken")));
+    }
+
     // HANDLERS
+
+    public void delete(Context ctx) {
+
+    }
 
     public void register(Context ctx) {
         // TODO: where to implement status code 500?
@@ -62,7 +74,7 @@ public class Server {
         try {
             authData = UserService.register(request, userDAO, authDAO);
         } catch (UsernameAlreadyTakenException e) {
-            ExceptionToResponse(ctx, e);
+            AlreadyTakenResponse(ctx);
             return;
         } catch (BadRequestException e) {
             BadRequestResponse(ctx);
