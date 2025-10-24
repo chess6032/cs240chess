@@ -8,21 +8,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.HashSet;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RegisterServiceTests extends ServiceTests {
-
-
-    // UTILITY
-
-    private void printMsg(Exception e) {
-        if (e.getMessage().isBlank()) {
-            System.out.println("(exception had no message)");
-            return;
-        }
-        System.out.println(e.getMessage());
-    }
-
-    // TESTS
 
     @Test
     @DisplayName("register: bad input - empty username")

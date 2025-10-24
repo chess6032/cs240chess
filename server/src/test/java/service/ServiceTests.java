@@ -6,6 +6,16 @@ import server.Server;
 public class ServiceTests {
     protected static Server server;
 
+    // UTILITY
+
+    protected void printMsg(Exception e) {
+        if (e.getMessage().isBlank()) {
+            System.out.println("(exception had no message)");
+            return;
+        }
+        System.out.println(e.getMessage());
+    }
+
     @BeforeAll
     public static void init() {
         server = new Server();
@@ -23,4 +33,5 @@ public class ServiceTests {
     void clearApplication() {
         server.clear(null);
     }
+
 }

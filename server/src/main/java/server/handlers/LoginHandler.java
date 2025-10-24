@@ -24,6 +24,8 @@ public class LoginHandler implements HTTPRequestHandler {
 
     @Override
     public void handleRequest(Context ctx) {
+        // TODO: where to implement status code 500????
+
         // get user data from request
         LoginRequest userData;
         try {
@@ -38,10 +40,12 @@ public class LoginHandler implements HTTPRequestHandler {
         try {
             auth = UserService.login(userData, userDAO, authDAO);
         } catch (LoginFailException e) {
+            // username not found, or password incorrect
             ctx.status(CommonExceptions.UNAUTHORIZED_STATUS); // 401
             ctx.json(serializer.toJson(new ErrorMessage("Error: username or password incorrect.")));
             return;
         } catch (AlreadyTakenException e) {
+            // AuthData with username already exists
             ctx.status(CommonExceptions.BAD_REQUEST_STATUS); // TODO: ?
             ctx.json(serializer.toJson(new ErrorMessage("Error: user already signed in")));
             return;
