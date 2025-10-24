@@ -12,4 +12,9 @@ public class MemoryAuthDAO implements AuthDAO {
     public void createAuth(AuthData authData) {
         auths.add(authData);
     }
+
+    @Override
+    public void clearAuths() {
+        auths.clear();
+    }
 }

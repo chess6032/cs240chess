@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.javalin.*; // TODO: can't this just be import io.javalin.Javalin; ?
 import io.javalin.http.Context;
@@ -16,14 +17,15 @@ public class Server {
     private final Gson serializer = new Gson();
 
     // make each new DatabaseAccessObject ONLY ONCE.
-    private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final UserDAO userDataAccess = new MemoryUserDAO();
+    private final AuthDAO authDataAccess = new MemoryAuthDAO();
+    private final GameDAO gameDataAccess = new MemoryGameDAO();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
-        javalin.delete("/db", this::delete);
+        javalin.delete("/db", this::clear);
         javalin.post("/user", this::register);
 
     }
@@ -39,11 +41,6 @@ public class Server {
 
     // EXCEPTION HANDLING
 
-    private void ExceptionToResponse(Context ctx, Exception e) {
-        ctx.status(ExceptionStatusCodes.getCorrespondingStatusCode(e)); // set status code associated w/ exception class
-        ctx.json(serializer.toJson(new ErrorMessage(e.getMessage()))); // serialize exception's message to JSON.
-    }
-
     private void BadRequestResponse(Context ctx) {
         ctx.status(ExceptionStatusCodes.BAD_REQUEST);
         ctx.json(serializer.toJson(new ErrorMessage("Error: bad request")));
@@ -56,8 +53,12 @@ public class Server {
 
     // HANDLERS
 
-    public void delete(Context ctx) {
-
+    public void clear(Context ctx) {
+        UserService.clearUsers(userDataAccess);
+        AuthService.clearAuths(authDataAccess);
+        GameService.clearGames(gameDataAccess);
+        ctx.status(ExceptionStatusCodes.SUCCESS);
+        ctx.json(serializer.toJson(new JsonObject())); // empty JSON
     }
 
     public void register(Context ctx) {
@@ -72,7 +73,7 @@ public class Server {
 
         AuthData authData;
         try {
-            authData = UserService.register(request, userDAO, authDAO);
+            authData = UserService.register(request, userDataAccess, authDataAccess);
         } catch (UsernameAlreadyTakenException e) {
             AlreadyTakenResponse(ctx);
             return;
@@ -80,7 +81,8 @@ public class Server {
             BadRequestResponse(ctx);
             return;
         }
-        ctx.status(200);
+
+        ctx.status(ExceptionStatusCodes.SUCCESS);
         ctx.json(serializer.toJson(authData));
     }
 }

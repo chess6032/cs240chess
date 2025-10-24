@@ -8,9 +8,9 @@ import dataaccess.BadRequestException;
 import dataaccess.UserDAO;
 import dataaccess.UsernameAlreadyTakenException;
 
-public class UserService {
+public interface UserService {
 
-    public static AuthData register(RegisterRequest request, UserDAO userDAO, AuthDAO authDAO)
+    static AuthData register(RegisterRequest request, UserDAO userDAO, AuthDAO authDAO)
             throws UsernameAlreadyTakenException, BadRequestException {
 
         if (request == null
@@ -27,5 +27,9 @@ public class UserService {
         AuthData authData = new AuthData(request.username());
         authDAO.createAuth(authData);
         return authData;
+    }
+
+    static void clearUsers(UserDAO userDAO) {
+        userDAO.clearUsers();
     }
 }
