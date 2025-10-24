@@ -8,6 +8,7 @@ import dataaccess.AuthDAO;
 import dataaccess.BadRequestException;
 import dataaccess.UserDAO;
 import dataaccess.UsernameAlreadyTakenException;
+import server.CommonExceptions;
 
 public interface UserService {
 
@@ -21,7 +22,7 @@ public interface UserService {
         }
 
         if (userDAO.getUser(request.username()) != null) {
-            throw new UsernameAlreadyTakenException("Error: already taken.");
+            throw new UsernameAlreadyTakenException(CommonExceptions.ALREADY_TAKEN_MSG);
         }
 
         userDAO.createUser(new UserData(request.username(), request.password(), request.email()));
