@@ -1,14 +1,11 @@
 package service;
 
+import chess.model.UserData;
 import dataaccess.BadRequestException;
-import dataaccess.MemoryDAO.MemoryAuthDAO;
-import dataaccess.MemoryDAO.MemoryUserDAO;
-import server.Server;
+import dataaccess.UsernameAlreadyTakenException;
 
-import com.google.gson.Gson;
 import org.junit.jupiter.api.*;
-
-import java.security.Provider;
+import server.CommonExceptions;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RegisterServiceTests extends ServiceTests {
@@ -28,6 +25,26 @@ public class RegisterServiceTests extends ServiceTests {
     @Test
     @DisplayName("register: username already taken")
     public void registerAlreadyTaken() {
+        var request = new UserData("username", "password", "email");
+
+        // add user
+
+        try {
+            UserService.register(request, server.getUserDAO(), server.getAuthDAO());
+        } catch (UsernameAlreadyTakenException | BadRequestException e) {
+            throw new RuntimeException(e);
+        }
+
+        // add same user
+
+        try {
+            UserService.register(request, server.getUserDAO(), server.getAuthDAO());
+        } catch (Exception e) {
+            // assert the correct exception was thrown
+            Assertions.assertEquals(UsernameAlreadyTakenException.class, e.getClass());
+            // assert the correct message was thrown
+            Assertions.assertEquals(CommonExceptions.ALREADY_TAKEN_MSG, e.getMessage());
+        }
 
     }
 
@@ -45,6 +62,8 @@ public class RegisterServiceTests extends ServiceTests {
         } catch (Exception e) {
             // assert the correct exception was thrown
             Assertions.assertEquals(BadRequestException.class, e.getClass());
+            // assert the correct message was thrown
+            Assertions.assertEquals(CommonExceptions.BAD_REQUEST_MSG, e.getMessage());
         }
 
         Assertions.assertEquals(users_size, users.size());

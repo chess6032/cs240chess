@@ -73,9 +73,9 @@ public class Server {
     public void register(Context ctx) {
         // TODO: where to implement status code 500?
 
-        RegisterRequest request;
+        UserData request;
         try {
-            request = serializer.fromJson(ctx.body(), RegisterRequest.class);
+            request = serializer.fromJson(ctx.body(), UserData.class);
         } catch (JsonSyntaxException e) {
             BadRequestResponse(ctx);
             return;

@@ -1,7 +1,6 @@
 package service;
 
 import chess.model.AuthData;
-import chess.model.RegisterRequest;
 import chess.model.UserData;
 import dataaccess.AuthDAO;
 import dataaccess.BadRequestException;
@@ -10,7 +9,7 @@ import dataaccess.UsernameAlreadyTakenException;
 
 public interface UserService {
 
-    static AuthData register(RegisterRequest request, UserDAO userDAO, AuthDAO authDAO)
+    static AuthData register(UserData request, UserDAO userDAO, AuthDAO authDAO)
             throws UsernameAlreadyTakenException, BadRequestException {
 
         if (request == null
