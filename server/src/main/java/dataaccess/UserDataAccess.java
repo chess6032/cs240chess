@@ -8,7 +8,7 @@ import kotlin.Pair;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class UserDAO {
+public class UserDataAccess {
 
     private final HashMap<String, Pair<String, String>> userDatas = new HashMap<>();
     private final HashSet<AuthData> authTokens = new HashSet<>();
