@@ -1,10 +1,12 @@
 package service;
 
 import chess.model.RegisterRequest;
-import server.ExceptionStatusCodes;
+import server.CommonExceptions;
+import server.ErrorMessage;
 import server.Server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -35,15 +37,14 @@ public class RegisterServiceTests {
         System.out.println("Test HTTP server closed.");
     }
 
-    @Test
-    @DisplayName("register: bad input")
-    public void registerBadInput() {
-        String endpointURL = serverURL + "/user";
-        record bogusInput(String str, int num) {}
+    // UTILITY METHODS AND CLASSES
+
+    private HttpResponse<String> sendRequestAndGetResponse(String path, Object body) {
+        String endpointURL = serverURL + path;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(endpointURL))
                 .header("Content-Type", "application/json") // metadata: says body is JSON
-                .POST(HttpRequest.BodyPublishers.ofString(serializer.toJson(new bogusInput("skibidi", 67)))) // body
+                .POST(HttpRequest.BodyPublishers.ofString(serializer.toJson(body))) // body
 //                .timeout(java.time.Duration.ofSeconds(10)) // (optional) specifies timeout
                 .build();
 
@@ -54,7 +55,40 @@ public class RegisterServiceTests {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+        return response;
+    }
 
-        Assertions.assertEquals(ExceptionStatusCodes.BAD_REQUEST, response.statusCode());
+    private void assertErrorResponseEquals(int statusCode, String message, HttpResponse<String> response) {
+        // assert status code is correct
+        Assertions.assertEquals(statusCode, response.statusCode());
+        // assert error message is correct
+        Assertions.assertEquals(message, new Gson().fromJson(response.body(), ErrorMessage.class).message());
+    }
+
+    private record bogusInput(String str, int num) {}
+
+    // TESTS
+
+    @Test
+    @DisplayName("register: bad input")
+    public void registerBadInput() {
+        var response = sendRequestAndGetResponse("/user", new bogusInput("skibidi", 67));
+        assertErrorResponseEquals(CommonExceptions.BAD_REQUEST_STATUS, CommonExceptions.BAD_REQUEST_MSG, response);
+    }
+
+    @Test
+    @DisplayName("register: username already taken")
+    public void registerAlreadyTaken() {
+        var req = new RegisterRequest("username", "password", "email");
+        sendRequestAndGetResponse("/user", req);
+        var response = sendRequestAndGetResponse("/user", req);
+        assertErrorResponseEquals(CommonExceptions.ALREADY_TAKEN_STATUS, CommonExceptions.ALREADY_TAKEN_MSG, response);
+    }
+
+    @Test
+    @DisplayName("register: empty input")
+    public void registerEmptyInput() {
+        var response = sendRequestAndGetResponse("/user", new JsonObject());
+        assertErrorResponseEquals(CommonExceptions.BAD_REQUEST_STATUS, CommonExceptions.BAD_REQUEST_MSG, response);
     }
 }

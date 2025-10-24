@@ -11,6 +11,9 @@ import dataaccess.*;
 import dataaccess.MemoryDAO.*;
 import service.*;
 
+import static server.CommonExceptions.AlreadyTakenResponse;
+import static server.CommonExceptions.BadRequestResponse;
+
 public class Server {
 
     private final Javalin javalin;
@@ -20,8 +23,6 @@ public class Server {
     private final UserDAO userDataAccess = new MemoryUserDAO();
     private final AuthDAO authDataAccess = new MemoryAuthDAO();
     private final GameDAO gameDataAccess = new MemoryGameDAO();
-
-    private record ErrorMessage(String message) {}
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -42,16 +43,6 @@ public class Server {
 
     // EXCEPTION HANDLING
 
-    private void BadRequestResponse(Context ctx) {
-        ctx.status(ExceptionStatusCodes.BAD_REQUEST); // 400
-        ctx.json(serializer.toJson(new ErrorMessage("Error: bad request")));
-    }
-
-    private void AlreadyTakenResponse(Context ctx) {
-        ctx.status(ExceptionStatusCodes.ALREADY_TAKEN); // 403
-        ctx.json(serializer.toJson(new ErrorMessage("Error: already taken")));
-    }
-
     // HANDLERS
 
     public void clear(Context ctx) {
@@ -60,7 +51,7 @@ public class Server {
         UserService.clearUsers(userDataAccess);
         AuthService.clearAuths(authDataAccess);
         GameService.clearGames(gameDataAccess);
-        ctx.status(ExceptionStatusCodes.SUCCESS);
+        ctx.status(CommonExceptions.SUCCESS_STATUS);
         ctx.json(serializer.toJson(new JsonObject())); // empty JSON
     }
 
@@ -86,7 +77,7 @@ public class Server {
             return;
         }
 
-        ctx.status(ExceptionStatusCodes.SUCCESS);
+        ctx.status(CommonExceptions.SUCCESS_STATUS);
         ctx.json(serializer.toJson(authData));
     }
 }
