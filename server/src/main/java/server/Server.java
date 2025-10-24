@@ -1,7 +1,8 @@
 package server;
 
 import chess.model.*;
-import dataaccess.UserDataAccess;
+import dataaccess.MemoryDAO.MemoryUserDAO;
+import dataaccess.UserDAO;
 import dataaccess.UsernameAlreadyTakenException;
 import service.*;
 import com.google.gson.Gson;
@@ -12,8 +13,9 @@ public class Server {
 
     private final Javalin javalin;
     private final Gson serializer = new Gson();
+    
     // make each new DatabaseAccessObject ONLY ONCE.
-    private final UserDataAccess userDAO = new UserDataAccess();
+    private final UserDAO userDAO = new MemoryUserDAO();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));

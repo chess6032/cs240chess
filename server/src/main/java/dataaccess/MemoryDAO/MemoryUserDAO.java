@@ -1,32 +1,26 @@
-package dataaccess;
-import chess.model.AuthData;
+package dataaccess.MemoryDAO;
 import chess.model.UserData;
 
 
+import dataaccess.UserDAO;
 import kotlin.Pair;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
-public class UserDataAccess {
+public class MemoryUserDAO implements UserDAO {
 
     private final HashMap<String, Pair<String, String>> userDatas = new HashMap<>();
-    private final HashSet<AuthData> authTokens = new HashSet<>();
 
+    @Override
     public UserData getUser(String username) {
-        // FIXME: TEMPORARY
         if (userDatas.containsKey(username)) {
             return new UserData(username, userDatas.get(username).component1(), userDatas.get(username).component2());
         }
         return null;
     }
 
+    @Override
     public void createUser(UserData userData) {
-        // FIXME: TEMPORARY
         userDatas.put(userData.username(), new Pair<String, String>(userData.password(), userData.email()));
-    }
-
-    public void createAuth(AuthData authData) {
-        // FIXME: STUB
     }
 }
