@@ -2,6 +2,8 @@ package service;
 
 import chess.model.AuthData;
 import chess.model.UserData;
+import chess.model.http.RegisterRequest;
+import chess.model.http.RegisterResult;
 import dataaccess.AuthDAO;
 import dataaccess.BadRequestException;
 import dataaccess.UserDAO;
@@ -9,7 +11,7 @@ import dataaccess.UsernameAlreadyTakenException;
 
 public interface UserService {
 
-    static AuthData register(UserData request, UserDAO userDAO, AuthDAO authDAO)
+    static RegisterResult register(RegisterRequest request, UserDAO userDAO, AuthDAO authDAO)
             throws UsernameAlreadyTakenException, BadRequestException {
 
         if (request == null
@@ -25,7 +27,7 @@ public interface UserService {
         userDAO.createUser(new UserData(request.username(), request.password(), request.email()));
         AuthData authData = new AuthData(request.username());
         authDAO.createAuth(authData);
-        return authData;
+        return new RegisterResult(authData.authToken(), authData.username());
     }
 
     static void clearUsers(UserDAO userDAO) {

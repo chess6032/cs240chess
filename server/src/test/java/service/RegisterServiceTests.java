@@ -1,6 +1,7 @@
 package service;
 
 import chess.model.UserData;
+import chess.model.http.RegisterRequest;
 import dataaccess.BadRequestException;
 import dataaccess.UsernameAlreadyTakenException;
 
@@ -25,7 +26,7 @@ public class RegisterServiceTests extends ServiceTests {
     @Test
     @DisplayName("register: username already taken")
     public void registerAlreadyTaken() {
-        var request = new UserData("username", "password", "email");
+        var request = new RegisterRequest("username", "password", "email");
 
         // add user
 

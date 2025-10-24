@@ -1,5 +1,7 @@
 package server;
 
+import chess.model.http.RegisterRequest;
+import chess.model.http.RegisterResult;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -73,17 +75,17 @@ public class Server {
     public void register(Context ctx) {
         // TODO: where to implement status code 500?
 
-        UserData request;
+        RegisterRequest userData;
         try {
-            request = serializer.fromJson(ctx.body(), UserData.class);
+            userData = serializer.fromJson(ctx.body(), RegisterRequest.class);
         } catch (JsonSyntaxException e) {
             BadRequestResponse(ctx);
             return;
         }
 
-        AuthData authData;
+        RegisterResult authData;
         try {
-            authData = UserService.register(request, userDataAccess, authDataAccess);
+            authData = UserService.register(userData, userDataAccess, authDataAccess);
         } catch (UsernameAlreadyTakenException e) {
             AlreadyTakenResponse(ctx);
             return;
