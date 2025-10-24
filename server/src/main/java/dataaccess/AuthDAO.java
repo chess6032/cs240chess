@@ -7,4 +7,6 @@ public interface AuthDAO {
     void clearAuths();
     int size();
     boolean hasUser(String username);
+    void assertAuthExists(String authToken) throws AuthTokenNotFoundException;
+    void deleteAuth(String authToken);
 }

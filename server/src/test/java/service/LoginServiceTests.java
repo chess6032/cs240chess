@@ -2,9 +2,9 @@ package service;
 
 import chess.model.http.LoginRequest;
 import chess.model.http.RegisterRequest;
-import dataaccess.AlreadyTakenException;
-import dataaccess.BadRequestException;
-import dataaccess.LoginFailException;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.LoginFailException;
 import org.junit.jupiter.api.*;
 
 public class LoginServiceTests extends ServiceTests {

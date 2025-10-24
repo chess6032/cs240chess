@@ -1,8 +1,8 @@
 package service;
 
 import chess.model.http.RegisterRequest;
-import dataaccess.BadRequestException;
-import dataaccess.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.AlreadyTakenException;
 
 import org.junit.jupiter.api.*;
 

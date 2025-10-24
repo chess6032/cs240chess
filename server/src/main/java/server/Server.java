@@ -37,6 +37,7 @@ public class Server {
         javalin.delete("/db", this::clear);
         javalin.post("/user", this::register);
         javalin.post("/session", this::login);
+        javalin.delete("/session", this::logout);
     }
 
     public int run(int desiredPort) {
@@ -60,5 +61,9 @@ public class Server {
 
     public void login(Context ctx) {
         new LoginHandler(userDAO, authDAO).handleRequest(ctx);
+    }
+
+    public void logout(Context ctx) {
+        new LogoutHandler(authDAO).handleRequest(ctx);
     }
 }

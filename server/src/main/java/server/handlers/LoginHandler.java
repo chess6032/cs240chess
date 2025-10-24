@@ -5,6 +5,8 @@ import chess.model.http.LoginResult;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.*;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.LoginFailException;
 import io.javalin.http.Context;
 import server.CommonExceptions;
 import server.ErrorMessage;

@@ -7,6 +7,9 @@ import chess.model.http.LoginResult;
 import chess.model.http.RegisterRequest;
 import chess.model.http.RegisterResult;
 import dataaccess.*;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.LoginFailException;
 import server.CommonExceptions;
 
 public interface UserService {
