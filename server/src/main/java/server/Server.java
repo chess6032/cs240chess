@@ -24,6 +24,18 @@ public class Server {
     private final AuthDAO authDataAccess = new MemoryAuthDAO();
     private final GameDAO gameDataAccess = new MemoryGameDAO();
 
+    public UserDAO getUserDAO() {
+        return userDataAccess;
+    }
+
+    public AuthDAO getAuthDAO() {
+        return authDataAccess;
+    }
+
+    public GameDAO getGameDAO() {
+        return gameDataAccess;
+    }
+
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 

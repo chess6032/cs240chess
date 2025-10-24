@@ -58,14 +58,18 @@ public class RegisterServiceTests {
     @Test
     @DisplayName("register: empty input")
     public void registerEmptyInput() {
-        var users = new MemoryUserDAO();
-        var auths = new MemoryAuthDAO();
+        var users = server.getUserDAO();
+        int users_size = users.size();
+        var auths = server.getAuthDAO();
+        int auths_size = auths.size();
         try {
             UserService.register(null, users, auths);
         } catch (Exception e) {
             Assertions.assertEquals(BadRequestException.class, e.getClass());
             Assertions.assertEquals("", e.getMessage());
         }
+        Assertions.assertEquals(users_size, users.size());
+        Assertions.assertEquals(auths_size, auths.size());
     }
 
     @Test

@@ -8,4 +8,9 @@ public class MemoryGameDAO implements GameDAO {
     public void clearGames() {
 
     }
+
+    @Override
+    public int size() {
+        return 0; // FIXME: stub
+    }
 }
