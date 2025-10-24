@@ -51,6 +51,9 @@ public class Server {
         UserService.clearUsers(userDataAccess);
         AuthService.clearAuths(authDataAccess);
         GameService.clearGames(gameDataAccess);
+        if (ctx == null) {
+            return; // for testing
+        }
         ctx.status(CommonExceptions.SUCCESS_STATUS);
         ctx.json(serializer.toJson(new JsonObject())); // empty JSON
     }
