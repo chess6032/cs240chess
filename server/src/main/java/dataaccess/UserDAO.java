@@ -5,14 +5,15 @@ import chess.model.UserData;
 public class UserDAO {
 
     public UserData getUser(String username) {
-        // STUB
+        // FIXME: STUB
+        return null;
     }
 
     public void createUser(UserData userData) {
-        // STUB
+        // FIXME: STUB
     }
 
     public void createAuth(AuthData authData) {
-        // STUB
+        // FIXME: STUB
     }
 }

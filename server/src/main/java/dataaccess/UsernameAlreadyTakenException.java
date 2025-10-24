@@ -1,10 +1,6 @@
 package dataaccess;
 
-import exceptions.HTTPErrorException;
-
-public class UsernameAlreadyTakenException extends HTTPErrorException {
-    public static final int httpStatus = 403;
-
+public class UsernameAlreadyTakenException extends DataAccessException {
     public UsernameAlreadyTakenException(String message) {
         super(message);
     }

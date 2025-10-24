@@ -32,6 +32,11 @@ public class Server {
         javalin.stop();
     }
 
+    private void ExceptionToResponse(Context ctx, Exception e) {
+        ctx.status(ExceptionStatusCode.getCorrespondingStatusCode(e)); // set status code associated w/ exception class
+        ctx.json(serializer.toJson(new ErrorMessage(e.getMessage()))); // serialize exception's message to JSON.
+    }
+
     // HANDLERS
 
     public void register(Context ctx) {
@@ -40,8 +45,7 @@ public class Server {
         try {
             authData = RegisterService.register(request, userDAO);
         } catch (UsernameAlreadyTakenException e) {
-            ctx.status(UsernameAlreadyTakenException.httpStatus);
-            ctx.json(serializer.toJson(e.getErrorMessage()));
+            ExceptionToResponse(ctx, e);
             return;
         }
         ctx.status(200);
