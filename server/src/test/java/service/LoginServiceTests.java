@@ -59,6 +59,9 @@ public class LoginServiceTests extends ServiceTests {
             throw new RuntimeException(e);
         }
 
+            int authSize = server.getAuthDAO().size();
+            int userSize = server.getUserDAO().size();
+
 
         // log in user (without logging out)
         LoginRequest login = new LoginRequest("username", "password");
@@ -69,5 +72,7 @@ public class LoginServiceTests extends ServiceTests {
         }
         Assertions.assertFalse(exceptionThrown);
         Assertions.assertTrue(server.getAuthDAO().hasUser("username"));
+        Assertions.assertEquals(authSize, server.getAuthDAO().size());
+        Assertions.assertEquals(userSize, server.getUserDAO().size());
     }
 }

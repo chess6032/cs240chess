@@ -65,6 +65,7 @@ public interface UserService {
         authDAO.clearAuths();
     }
 
+
     static void logout(LogoutRequest request, UserDAO userDAO, AuthDAO authDAO) throws AuthTokenNotFoundException {
         authDAO.assertAuthTknExists(request.authToken());
         String username = authDAO.getUsername(request.authToken());
