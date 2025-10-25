@@ -6,7 +6,6 @@ import dataaccess.UserDAO;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import io.javalin.http.Context;
 import server.CommonResponses;
-import service.AuthService;
 import service.UserService;
 
 public class LogoutHandler implements HTTPRequestHandler {
