@@ -64,6 +64,6 @@ public class Server {
     }
 
     public void logout(Context ctx) {
-        new LogoutHandler(authDAO).handleRequest(ctx);
+        new LogoutHandler(userDAO, authDAO).handleRequest(ctx);
     }
 }

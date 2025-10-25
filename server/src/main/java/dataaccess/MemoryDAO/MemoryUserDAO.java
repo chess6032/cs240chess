@@ -33,4 +33,18 @@ public class MemoryUserDAO implements UserDAO {
     public int size() {
         return users.size();
     }
+
+    @Override
+    public void removeUser(String username) {
+        UserData deathRowUserData = null;
+        for (var userData : users) {
+            if (userData.username().equals(username)) {
+                deathRowUserData = userData;
+                break;
+            }
+        }
+        if (deathRowUserData != null) {
+            users.remove(deathRowUserData);
+        }
+    }
 }

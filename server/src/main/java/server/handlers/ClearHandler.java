@@ -27,7 +27,7 @@ public class ClearHandler implements HTTPRequestHandler {
         // TODO: where to implement status code 500?
 
         UserService.clearUsers(userDAO);
-        AuthService.clearAuths(authDAO);
+        UserService.clearAuths(authDAO);
         GameService.clearGames(gameDAO);
         if (ctx == null) {
             return; // for testing

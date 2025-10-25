@@ -2,12 +2,10 @@ package service;
 
 import chess.model.AuthData;
 import chess.model.UserData;
-import chess.model.http.LoginRequest;
-import chess.model.http.LoginResult;
-import chess.model.http.RegisterRequest;
-import chess.model.http.RegisterResult;
+import chess.model.http.*;
 import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.LoginFailException;
 import server.CommonResponses;
@@ -31,11 +29,11 @@ public interface UserService {
         // add user data and auth data to database.
         userDAO.createUser(new UserData(request.username(), request.password(), request.email()));
         AuthData authData = new AuthData(request.username());
-        authDAO.createAuth(authData);
+        authDAO.addAuthData(authData);
         return new RegisterResult(authData.authToken(), authData.username());
     }
 
-    static LoginResult login(LoginRequest request, UserDAO userDAO, AuthDAO authDAO) throws LoginFailException, AlreadyTakenException {
+    static LoginResult login(LoginRequest request, UserDAO userDAO, AuthDAO authDAO) throws LoginFailException {
         // find user in database
         var user = userDAO.getUser(request.username());
         if (user == null) {
@@ -47,19 +45,30 @@ public interface UserService {
             throw new LoginFailException("UserService.login: incorrect password");
         }
 
-        // check that user isn't already logged in
-        if (authDAO.hasUser(request.username())) {
-            throw new AlreadyTakenException("UserService.login: user already signed in");
+        // check if user already has an auth token
+        String authTkn = authDAO.getAuthTkn(request.username());
+        if (authTkn != null) {
+            return new LoginResult(authTkn);
         }
 
-        // generate auth token for user
-        var auth = new AuthData(request.username());
-        authDAO.createAuth(auth);
-        return new LoginResult(auth.authToken());
+        // generate auth token for new user
+        authTkn = authDAO.createAuth(request.username());
+        return new LoginResult(authTkn);
     }
 
 
     static void clearUsers(UserDAO userDAO) {
         userDAO.clearUsers();
+    }
+
+    static void clearAuths(AuthDAO authDAO) {
+        authDAO.clearAuths();
+    }
+
+    static void logout(LogoutRequest request, UserDAO userDAO, AuthDAO authDAO) throws AuthTokenNotFoundException {
+        authDAO.assertAuthTknExists(request.authToken());
+        String username = authDAO.getUsername(request.authToken());
+        userDAO.removeUser(username);
+        authDAO.deleteAuth(request.authToken());
     }
 }

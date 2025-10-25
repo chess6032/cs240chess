@@ -1,18 +1,21 @@
 package server.handlers;
 
 import chess.model.http.LogoutRequest;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import dataaccess.AuthDAO;
-import dataaccess.AuthTokenNotFoundException;
+import dataaccess.UserDAO;
+import dataaccess.exceptions.AuthTokenNotFoundException;
 import io.javalin.http.Context;
 import server.CommonResponses;
 import service.AuthService;
+import service.UserService;
 
 public class LogoutHandler implements HTTPRequestHandler {
+
+    private final UserDAO userDAO;
     private final AuthDAO authDAO;
 
-    public LogoutHandler(AuthDAO authDAO) {
+    public LogoutHandler(UserDAO userDAO, AuthDAO authDAO) {
+        this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
 
@@ -23,7 +26,7 @@ public class LogoutHandler implements HTTPRequestHandler {
 
         // fulfill request
         try {
-            AuthService.logout(authToken, authDAO);
+            UserService.logout(authToken, userDAO, authDAO);
         } catch (AuthTokenNotFoundException e) {
             CommonResponses.UnauthorizedResponse(ctx);
             return;

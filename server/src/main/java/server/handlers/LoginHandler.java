@@ -46,10 +46,6 @@ public class LoginHandler implements HTTPRequestHandler {
             // username not found, or password incorrect
             buildResponse(ctx, CommonResponses.UNAUTHORIZED_STATUS, "username or password incorrect");
             return;
-        } catch (AlreadyTakenException e) {
-            // AuthData with username already exists
-            buildResponse(ctx, CommonResponses.BAD_REQUEST_STATUS, "user already signed in");
-            return;
         }
         CommonResponses.SuccessResponse(ctx, auth);
     }

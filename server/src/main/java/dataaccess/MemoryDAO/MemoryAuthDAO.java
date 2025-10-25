@@ -2,7 +2,7 @@ package dataaccess.MemoryDAO;
 
 import chess.model.AuthData;
 import dataaccess.AuthDAO;
-import dataaccess.AuthTokenNotFoundException;
+import dataaccess.exceptions.AuthTokenNotFoundException;
 
 import java.util.HashSet;
 
@@ -10,7 +10,7 @@ public class MemoryAuthDAO implements AuthDAO {
     private final HashSet<AuthData> auths = new HashSet<>();
 
     @Override
-    public void createAuth(AuthData authData) {
+    public void addAuthData(AuthData authData) {
         auths.add(authData);
     }
 
@@ -35,7 +35,7 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void assertAuthExists(String authToken) throws AuthTokenNotFoundException {
+    public void assertAuthTknExists(String authToken) throws AuthTokenNotFoundException {
         for (var authData : auths) {
             if (authData.authToken().equals(authToken)) {
                 return;
@@ -50,11 +50,43 @@ public class MemoryAuthDAO implements AuthDAO {
         for (var authData : auths) {
             if (authData.authToken().equals(authToken)) {
                 deathRowAuthData = authData;
+                break;
             }
         }
         if (deathRowAuthData == null) {
             return;
         }
         auths.remove(deathRowAuthData);
+    }
+
+    @Override
+    public String getAuthTkn(String username) {
+        for (var authData : auths) {
+            if (authData.username().equals(username)) {
+                return authData.authToken();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String createAuth(String username) {
+        String authToken = getAuthTkn(username);
+        if (authToken != null) {
+            return authToken;
+        }
+        var newAuthData = new AuthData(username);
+        addAuthData(newAuthData);
+        return newAuthData.authToken();
+    }
+
+    @Override
+    public String getUsername(String authTkn) {
+        for (var authData : auths) {
+            if (authData.authToken().equals(authTkn)) {
+                return authData.username();
+            }
+        }
+        return null;
     }
 }

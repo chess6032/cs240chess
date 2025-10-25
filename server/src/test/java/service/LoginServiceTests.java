@@ -66,9 +66,8 @@ public class LoginServiceTests extends ServiceTests {
             UserService.login(login, server.getUserDAO(), server.getAuthDAO());
         } catch (Exception e) {
             exceptionThrown = true;
-            Assertions.assertEquals(AlreadyTakenException.class, e.getClass());
         }
-        Assertions.assertTrue(exceptionThrown);
+        Assertions.assertFalse(exceptionThrown);
         Assertions.assertTrue(server.getAuthDAO().hasUser("username"));
     }
 }
