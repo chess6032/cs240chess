@@ -8,11 +8,11 @@ import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.LoginFailException;
 import io.javalin.http.Context;
-import server.CommonExceptions;
+import server.CommonResponses;
 import server.ErrorMessage;
 import service.UserService;
 
-import static server.CommonExceptions.BadRequestResponse;
+import static server.CommonResponses.BadRequestResponse;
 
 public class LoginHandler implements HTTPRequestHandler {
     private final Gson serializer = new Gson();
@@ -43,17 +43,15 @@ public class LoginHandler implements HTTPRequestHandler {
             auth = UserService.login(userData, userDAO, authDAO);
         } catch (LoginFailException e) {
             // username not found, or password incorrect
-            ctx.status(CommonExceptions.UNAUTHORIZED_STATUS); // 401
+            ctx.status(CommonResponses.UNAUTHORIZED_STATUS); // 401
             ctx.json(serializer.toJson(new ErrorMessage("Error: username or password incorrect.")));
             return;
         } catch (AlreadyTakenException e) {
             // AuthData with username already exists
-            ctx.status(CommonExceptions.BAD_REQUEST_STATUS); // TODO: ?
+            ctx.status(CommonResponses.BAD_REQUEST_STATUS); // TODO: ?
             ctx.json(serializer.toJson(new ErrorMessage("Error: user already signed in")));
             return;
         }
-
-        ctx.status(CommonExceptions.SUCCESS_STATUS);
-        ctx.json(serializer.toJson(auth));
+        CommonResponses.SuccessResponse(ctx, auth);
     }
 }

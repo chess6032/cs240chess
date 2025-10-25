@@ -10,7 +10,7 @@ import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.LoginFailException;
-import server.CommonExceptions;
+import server.CommonResponses;
 
 public interface UserService {
 
@@ -25,7 +25,7 @@ public interface UserService {
         }
 
         if (userDAO.getUser(request.username()) != null) {
-            throw new AlreadyTakenException(CommonExceptions.ALREADY_TAKEN_MSG);
+            throw new AlreadyTakenException(CommonResponses.ALREADY_TAKEN_MSG);
         }
 
         // add user data and auth data to database.

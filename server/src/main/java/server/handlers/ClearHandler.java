@@ -6,13 +6,12 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import io.javalin.http.Context;
-import server.CommonExceptions;
+import server.CommonResponses;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
 
 public class ClearHandler implements HTTPRequestHandler {
-    private final Gson serializer = new Gson();
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
@@ -33,7 +32,6 @@ public class ClearHandler implements HTTPRequestHandler {
         if (ctx == null) {
             return; // for testing
         }
-        ctx.status(CommonExceptions.SUCCESS_STATUS);
-        ctx.json(serializer.toJson(new JsonObject())); // empty JSON
+        CommonResponses.EmptySuccessResponse(ctx);
     }
 }

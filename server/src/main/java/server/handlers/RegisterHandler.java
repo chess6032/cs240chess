@@ -7,12 +7,12 @@ import com.google.gson.JsonSyntaxException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.AlreadyTakenException;
 import io.javalin.http.Context;
-import server.CommonExceptions;
+import server.CommonResponses;
 import service.UserService;
 import dataaccess.*;
 
-import static server.CommonExceptions.AlreadyTakenResponse;
-import static server.CommonExceptions.BadRequestResponse;
+import static server.CommonResponses.AlreadyTakenResponse;
+import static server.CommonResponses.BadRequestResponse;
 
 public class RegisterHandler implements HTTPRequestHandler {
     private final Gson serializer = new Gson();
@@ -49,7 +49,7 @@ public class RegisterHandler implements HTTPRequestHandler {
             return;
         }
 
-        ctx.status(CommonExceptions.SUCCESS_STATUS);
+        ctx.status(CommonResponses.SUCCESS_STATUS);
         ctx.json(serializer.toJson(authData));
     }
 }

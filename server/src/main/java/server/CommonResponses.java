@@ -1,9 +1,10 @@
 package server;
 
+import com.google.gson.JsonObject;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
 
-public interface CommonExceptions {
+public interface CommonResponses {
     int SUCCESS_STATUS = 200;
     int BAD_REQUEST_STATUS = 400;
     String BAD_REQUEST_MSG = "Error: bad request";
@@ -14,18 +15,32 @@ public interface CommonExceptions {
     int GENERIC_STATUS = 500;
     int NO_MATCH = -1;
 
+    // 400
     static void BadRequestResponse(Context ctx) {
-        ctx.status(BAD_REQUEST_STATUS); // 400
+        ctx.status(BAD_REQUEST_STATUS);
         ctx.json(new Gson().toJson(new ErrorMessage(BAD_REQUEST_MSG)));
     }
 
+    // 403
     static void AlreadyTakenResponse(Context ctx) {
-        ctx.status(ALREADY_TAKEN_STATUS); // 403
+        ctx.status(ALREADY_TAKEN_STATUS);
         ctx.json(new Gson().toJson(new ErrorMessage(ALREADY_TAKEN_MSG)));
     }
 
+    // 401
     static void UnauthorizedResponse(Context ctx) {
         ctx.status(UNAUTHORIZED_STATUS);
         ctx.json(new Gson().toJson(new ErrorMessage(UNAUTHORIZED_MSG)));
+    }
+
+    // 200 {}
+    static void EmptySuccessResponse(Context ctx) {
+        SuccessResponse(ctx, new JsonObject());
+    }
+
+    // 200
+    static void SuccessResponse(Context ctx, Object body) {
+        ctx.status(SUCCESS_STATUS);
+        ctx.json(new Gson().toJson(body));
     }
 }

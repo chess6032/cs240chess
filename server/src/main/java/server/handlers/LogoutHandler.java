@@ -6,11 +6,10 @@ import com.google.gson.JsonObject;
 import dataaccess.AuthDAO;
 import dataaccess.AuthTokenNotFoundException;
 import io.javalin.http.Context;
-import server.CommonExceptions;
+import server.CommonResponses;
 import service.AuthService;
 
 public class LogoutHandler implements HTTPRequestHandler {
-    private final Gson serializer = new Gson();
     private final AuthDAO authDAO;
 
     public LogoutHandler(AuthDAO authDAO) {
@@ -26,12 +25,11 @@ public class LogoutHandler implements HTTPRequestHandler {
         try {
             AuthService.logout(authToken, authDAO);
         } catch (AuthTokenNotFoundException e) {
-            CommonExceptions.UnauthorizedResponse(ctx);
+            CommonResponses.UnauthorizedResponse(ctx);
             return;
         }
 
         // json result: 200 {}
-        ctx.status(CommonExceptions.SUCCESS_STATUS);
-        ctx.json(serializer.toJson(new JsonObject()));
+        CommonResponses.EmptySuccessResponse(ctx);
     }
 }
