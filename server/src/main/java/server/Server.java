@@ -60,10 +60,13 @@ public class Server {
         new RegisterHandler(userDAO, authDAO).handleRequest(ctx);
     }
 
+    // FIXME: username already existing should give new auth token, not throw error
+    // (I can't remember if it's doing that already rn but...)
     public void login(Context ctx) {
         new LoginHandler(userDAO, authDAO).handleRequest(ctx);
     }
 
+    // FIXME: logout should NOT remove username from UserDAO's db
     public void logout(Context ctx) {
         new LogoutHandler(userDAO, authDAO).handleRequest(ctx);
     }
