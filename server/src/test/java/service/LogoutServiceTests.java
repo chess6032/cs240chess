@@ -11,7 +11,6 @@ public class LogoutServiceTests extends ServiceTests {
     @Test
     @DisplayName("logout: successful")
     public void logout() {
-
         // register user
         try {
             UserService.register(new RegisterRequest("username", "password", "email"), server.getUserDAO(), server.getAuthDAO());
@@ -35,5 +34,34 @@ public class LogoutServiceTests extends ServiceTests {
         Assertions.assertNull(server.getAuthDAO().getUsername(authTkn));
         Assertions.assertNull(server.getAuthDAO().getAuthTkn("username"));
         Assertions.assertNull(server.getUserDAO().getUser("username"));
+    }
+
+    @Test
+    @DisplayName("logout: auth token doesn't exist")
+    public void logoutUnauthorized() {
+        // register user (just for fun)
+        try {
+            UserService.register(new RegisterRequest("username", "password", "email"), server.getUserDAO(), server.getAuthDAO());
+        } catch (BadRequestException | AlreadyTakenException e) {
+            throw new RuntimeException(e);
+        }
+
+        boolean exceptionThrown = false;
+
+        int authSize = server.getAuthDAO().size();
+        int userSize = server.getUserDAO().size();
+
+        String authTkn = server.getAuthDAO().getAuthTkn("username");
+        authTkn += "rizz"; // assures authTkn does not exist in auth tokens db.
+        try {
+            UserService.logout(new LogoutRequest(authTkn), server.getUserDAO(), server.getAuthDAO());
+        } catch (Exception e) {
+            exceptionThrown = true;
+            Assertions.assertEquals(AuthTokenNotFoundException.class, e.getClass());
+            printMsg(e);
+        }
+        Assertions.assertTrue(exceptionThrown);
+        Assertions.assertEquals(authSize, server.getAuthDAO().size());
+        Assertions.assertEquals(userSize, server.getUserDAO().size());
     }
 }
