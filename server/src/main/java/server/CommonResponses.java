@@ -43,4 +43,9 @@ public interface CommonResponses {
         ctx.status(SUCCESS_STATUS);
         ctx.json(new Gson().toJson(body));
     }
+
+    static void buildResponse(Context ctx, int status, String message) {
+        ctx.status(status); // 401
+        ctx.json(new Gson().toJson(new ErrorMessage(message)));
+    }
 }

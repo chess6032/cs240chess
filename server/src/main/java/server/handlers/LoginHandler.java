@@ -13,6 +13,7 @@ import server.ErrorMessage;
 import service.UserService;
 
 import static server.CommonResponses.BadRequestResponse;
+import static server.CommonResponses.buildResponse;
 
 public class LoginHandler implements HTTPRequestHandler {
     private final Gson serializer = new Gson();
@@ -43,13 +44,11 @@ public class LoginHandler implements HTTPRequestHandler {
             auth = UserService.login(userData, userDAO, authDAO);
         } catch (LoginFailException e) {
             // username not found, or password incorrect
-            ctx.status(CommonResponses.UNAUTHORIZED_STATUS); // 401
-            ctx.json(serializer.toJson(new ErrorMessage("Error: username or password incorrect.")));
+            buildResponse(ctx, CommonResponses.UNAUTHORIZED_STATUS, "username or password incorrect");
             return;
         } catch (AlreadyTakenException e) {
             // AuthData with username already exists
-            ctx.status(CommonResponses.BAD_REQUEST_STATUS); // TODO: ?
-            ctx.json(serializer.toJson(new ErrorMessage("Error: user already signed in")));
+            buildResponse(ctx, CommonResponses.BAD_REQUEST_STATUS, "user already signed in");
             return;
         }
         CommonResponses.SuccessResponse(ctx, auth);
