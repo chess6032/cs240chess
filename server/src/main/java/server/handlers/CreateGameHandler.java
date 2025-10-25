@@ -24,7 +24,6 @@ public class CreateGameHandler implements HTTPRequestHandler {
         this.gameDAO = gameDAO;
     }
 
-
     @Override
     public void handleRequest(Context ctx) {
         // deserialize request
