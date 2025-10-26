@@ -1,7 +1,12 @@
 package service;
 
-import server.CommonResponses;
+import dataaccess.AuthDAO;
+import dataaccess.UserDAO;
 
-public interface UserService {
 
+public record UserService(UserDAO userDAO, AuthDAO authDAO) {
+    public void clear() {
+        userDAO.clear();
+        authDAO.clear();
+    }
 }

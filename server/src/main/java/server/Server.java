@@ -6,6 +6,8 @@ import io.javalin.http.Context;
 
 import dataaccess.*;
 import dataaccess.memorydao.*;
+import service.GameService;
+import service.UserService;
 
 public class Server {
 
@@ -16,17 +18,8 @@ public class Server {
     private final AuthDAO authDAO = new MemoryAuthDAO();
     private final GameDAO gameDAO = new MemoryGameDAO();
 
-    public UserDAO getUserDAO() {
-        return userDAO;
-    }
-
-    public AuthDAO getAuthDAO() {
-        return authDAO;
-    }
-
-    public GameDAO getGameDAO() {
-        return gameDAO;
-    }
+    private final UserService userService = new UserService(userDAO, authDAO);
+    private final GameService gameService = new GameService(gameDAO);
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -53,7 +46,8 @@ public class Server {
     // HANDLERS
 
     public void clear(Context ctx) {
-
+        userService.clear();
+        gameService.clear();
     }
 
     public void register(Context ctx) {
