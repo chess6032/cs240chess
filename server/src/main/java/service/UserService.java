@@ -21,7 +21,7 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
 
         // create AuthData
         String authToken = authDAO.createAuth(userData.username());
-        
-        return new AuthData(userData.username(), authToken);
+
+        return new AuthData(authToken, userData.username());
     }
 }

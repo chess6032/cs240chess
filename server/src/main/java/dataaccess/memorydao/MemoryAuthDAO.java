@@ -15,6 +15,11 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
+    public int size() {
+        return authDatas.size();
+    }
+
+    @Override
     public String findAuthToken(String username) {
         for (var authData : authDatas) {
             if (authData.username().equals(username)) {

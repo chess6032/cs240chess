@@ -58,15 +58,12 @@ public class Server {
 
         try {
             json = new RegisterHandler(userService).register(ctx);
-        } catch (FailedDeserializationException e) {
+        } catch (FailedDeserializationException | MissingAttributeException e) {
             ResponseUtility.badRequestResponse(ctx);
             return;
         } catch (FailedSerializationException e) {
             ResponseUtility.buildErrorResponse(ctx, ResponseUtility.GENERAL_STATUS,
                     "failed to serialize AuthData to JSON");
-            return;
-        } catch (MissingAttributeException e) {
-            ResponseUtility.badRequestResponse(ctx);
             return;
         } catch (AlreadyTakenException e) {
             ResponseUtility.alreadyTakenResponse(ctx);
@@ -77,7 +74,7 @@ public class Server {
     }
 
     public void login(Context ctx) {
-
+        
     }
 
     public void logout(Context ctx) {
