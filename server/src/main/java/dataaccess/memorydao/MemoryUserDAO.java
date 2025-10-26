@@ -25,6 +25,11 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
+    public UserData getUser(String username) {
+        return users.get(username);
+    }
+
+    @Override
     public boolean createUser(String username, String password, String email) {
         // check if username is taken
         if (userExists(username)) {

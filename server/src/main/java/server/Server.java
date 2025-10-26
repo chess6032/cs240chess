@@ -2,14 +2,19 @@ package server;
 
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.MissingAttributeException;
-import io.javalin.*; // TODO: can't this just be import io.javalin.Javalin; ?
+import dataaccess.exceptions.PasswordIncorrectException;
+import dataaccess.exceptions.UserNotFoundException;
+import io.javalin.Javalin;
 import io.javalin.http.Context;
 
 import dataaccess.*;
 import dataaccess.memorydao.*;
+import server.handlers.LoginHandler;
 import server.handlers.RegisterHandler;
 import service.GameService;
 import service.UserService;
+
+import static server.ResponseUtility.*;
 
 public class Server {
 
@@ -80,24 +85,41 @@ public class Server {
         String json;
 
         try {
-            json = new RegisterHandler(userService).register(ctx);
+            json = new RegisterHandler(userService).handleRegisterRequest(ctx);
         } catch (FailedDeserializationException | MissingAttributeException e) {
-            ResponseUtility.badRequestResponse(ctx);
+            badRequestResponse(ctx);
             return;
         } catch (FailedSerializationException e) {
-            ResponseUtility.buildErrorResponse(ctx, ResponseUtility.GENERAL_STATUS,
-                    "failed to serialize AuthData to JSON");
+            failedSerializationResponse(ctx);
             return;
         } catch (AlreadyTakenException e) {
-            ResponseUtility.alreadyTakenResponse(ctx);
+            alreadyTakenResponse(ctx);
             return;
         }
 
-        ResponseUtility.successResponse(ctx, json);
+        successResponse(ctx, json);
     }
 
     public void login(Context ctx) {
+        String json;
 
+        try {
+            json = new LoginHandler(userService).handleLoginRequest(ctx);
+        } catch (FailedDeserializationException | MissingAttributeException e) {
+            badRequestResponse(ctx);
+            return;
+        } catch (UserNotFoundException e) {
+            buildErrorResponse(ctx, ResponseUtility.BAD_REQUEST_STATUS, "Error: username not registered");
+            return;
+        } catch (FailedSerializationException e) {
+            failedSerializationResponse(ctx);
+            return;
+        } catch (PasswordIncorrectException e) {
+            unauthorizedResponse(ctx);
+            return;
+        }
+
+        successResponse(ctx, json);
     }
 
     public void logout(Context ctx) {

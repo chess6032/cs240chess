@@ -5,6 +5,8 @@ import chess.model.UserData;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.PasswordIncorrectException;
+import dataaccess.exceptions.UserNotFoundException;
 
 
 public record UserService(UserDAO userDAO, AuthDAO authDAO) {
@@ -24,5 +26,22 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
         String authToken = authDAO.createAuth(userData.username());
 
         return new AuthData(authToken, userData.username());
+    }
+
+    public AuthData login(UserData requestUserData) throws UserNotFoundException, PasswordIncorrectException {
+        // find user in db
+        UserData dbUserData = userDAO.getUser(requestUserData.username());
+        if (dbUserData == null) {
+            throw new UserNotFoundException("UserService.login: username doesn't exist: " + requestUserData.username());
+        }
+
+        // make sure password matches
+        if (!requestUserData.password().equals(dbUserData.password())) {
+            throw new PasswordIncorrectException("UserService.login: password incorrect: " + requestUserData.password());
+        }
+
+        // create/get and return auth token
+        String authToken = authDAO.createAuth(requestUserData.username());
+        return new AuthData(authToken, requestUserData.username());
     }
 }

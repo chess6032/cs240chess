@@ -45,6 +45,12 @@ public interface ResponseUtility {
         ctx.json(json);
     }
 
+    // 500
+    static void failedSerializationResponse(Context ctx) {
+        ctx.status(GENERAL_STATUS);
+        ctx.json(new Gson().toJson("failed to serialize AuthData to JSON"));
+    }
+
     static void buildErrorResponse(Context ctx, int status, String message) {
         ctx.status(status);
         ctx.json(new Gson().toJson(new ErrorMessage(message)));

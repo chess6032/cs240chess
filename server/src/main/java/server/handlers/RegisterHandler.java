@@ -3,13 +3,14 @@ package server.handlers;
 import chess.model.AuthData;
 import chess.model.UserData;
 import dataaccess.exceptions.*;
-import io.javalin.http.Context;
 import server.FailedDeserializationException;
 import server.FailedSerializationException;
 import service.UserService;
 
 import static server.handlers.HandlerUtility.deserializeBody;
 import static server.handlers.HandlerUtility.serialize;
+
+import io.javalin.http.Context;
 
 public class RegisterHandler {
 
@@ -19,7 +20,7 @@ public class RegisterHandler {
         this.userService = userService;
     }
 
-    public String register(Context ctx) throws FailedDeserializationException, FailedSerializationException,
+    public String handleRegisterRequest(Context ctx) throws FailedDeserializationException, FailedSerializationException,
             MissingAttributeException, AlreadyTakenException {
         UserData userData = deserializeBody(ctx, UserData.class); // throws FailedDeserializationException
 
