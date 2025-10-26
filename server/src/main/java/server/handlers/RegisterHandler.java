@@ -22,6 +22,7 @@ public class RegisterHandler {
 
     public String handleRegisterRequest(Context ctx) throws FailedDeserializationException, FailedSerializationException,
             MissingAttributeException, AlreadyTakenException {
+
         UserData userData = deserializeBody(ctx, UserData.class); // throws FailedDeserializationException
 
         if (userData.username() == null || userData.password() == null || userData.email() == null ||
