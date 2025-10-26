@@ -48,7 +48,7 @@ public class LoginHandler implements HTTPRequestHandler {
             buildResponse(ctx, CommonResponses.UNAUTHORIZED_STATUS, "Error: username or password incorrect");
             return;
         } catch (BadRequestException e) {
-            CommonResponses.BadRequestResponse(ctx);
+            CommonResponses.buildResponse(ctx, CommonResponses.UNAUTHORIZED_STATUS, CommonResponses.UNAUTHORIZED_MSG);
             return;
         }
         CommonResponses.SuccessResponse(ctx, auth);

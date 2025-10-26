@@ -42,7 +42,7 @@ public interface UserService {
 
         // check that passwords match
         if (!request.password().equals(user.password())) {
-            throw new BadRequestException("UserService.login: incorrect password");
+            throw new LoginFailException("UserService.login: incorrect password");
         }
 
         // check if user already has an auth token
