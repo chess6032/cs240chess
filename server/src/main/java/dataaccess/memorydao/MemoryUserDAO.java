@@ -20,11 +20,6 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public boolean userExists(String username) {
-        return users.containsKey(username);
-    }
-
-    @Override
     public UserData getUser(String username) {
         return users.get(username);
     }
@@ -32,7 +27,7 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public boolean createUser(String username, String password, String email) {
         // check if username is taken
-        if (userExists(username)) {
+        if (getUser(username) != null) {
             return false;
         }
         // add user
