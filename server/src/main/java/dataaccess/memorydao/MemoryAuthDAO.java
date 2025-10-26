@@ -23,6 +23,7 @@ public class MemoryAuthDAO implements AuthDAO {
     public String findAuthToken(String username) {
         for (var authData : authDatas) {
             if (authData.username().equals(username)) {
+                System.out.println("Username match: " + username + ". Auth token is: " + authData.authToken());
                 return authData.authToken();
             }
         }
@@ -39,7 +40,7 @@ public class MemoryAuthDAO implements AuthDAO {
 
         // create auth token and add to database
         authTkn = AuthData.generateAuthToken();
-        authDatas.add(new AuthData(username, authTkn));
+        authDatas.add(new AuthData(authTkn, username));
 
         return authTkn;
     }
