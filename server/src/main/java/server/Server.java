@@ -23,6 +23,26 @@ public class Server {
     private final UserService userService = new UserService(userDAO, authDAO);
     private final GameService gameService = new GameService(gameDAO);
 
+    public UserDAO getUserDAO() {
+        return userDAO;
+    }
+
+    public AuthDAO getAuthDAO() {
+        return authDAO;
+    }
+
+    public GameDAO getGameDAO() {
+        return gameDAO;
+    }
+
+    public UserService getUserService() {
+        return userService;
+    }
+
+    public GameService getGameService() {
+        return gameService;
+    }
+
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
@@ -74,7 +94,7 @@ public class Server {
     }
 
     public void login(Context ctx) {
-        
+
     }
 
     public void logout(Context ctx) {
