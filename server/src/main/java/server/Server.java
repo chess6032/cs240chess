@@ -11,7 +11,6 @@ import server.handlers.*;
 public class Server {
 
     private final Javalin javalin;
-    private final Gson serializer = new Gson();
 
     // make each new DatabaseAccessObject ONLY ONCE.
     private final UserDAO userDAO = new MemoryUserDAO();

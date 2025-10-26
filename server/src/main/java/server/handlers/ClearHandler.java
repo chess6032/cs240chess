@@ -7,7 +7,6 @@ import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import io.javalin.http.Context;
 import server.CommonResponses;
-import service.AuthService;
 import service.GameService;
 import service.UserService;
 
