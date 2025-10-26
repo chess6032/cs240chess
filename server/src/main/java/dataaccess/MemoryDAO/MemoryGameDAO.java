@@ -7,7 +7,6 @@ import dataaccess.GameDAO;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 public class MemoryGameDAO implements GameDAO {
 
@@ -35,5 +34,17 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public Collection<GameData> getAllGames() {
         return games.values();
+    }
+
+    @Override
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
+    }
+
+    @Override
+    public void updateGame(GameData gameData) {
+        int gameID = gameData.gameID();
+        games.put(gameID, gameData);
+        // TODO: do I have to check that there isn't a value already associated to key, or will it just be overwritten?
     }
 }
