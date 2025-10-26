@@ -1,11 +1,13 @@
 package server;
 
-import com.google.gson.Gson;
+import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.MissingAttributeException;
 import io.javalin.*; // TODO: can't this just be import io.javalin.Javalin; ?
 import io.javalin.http.Context;
 
 import dataaccess.*;
 import dataaccess.memorydao.*;
+import server.handlers.RegisterHandler;
 import service.GameService;
 import service.UserService;
 
@@ -48,20 +50,36 @@ public class Server {
     public void clear(Context ctx) {
         userService.clear();
         gameService.clear();
-        CommonResponses.EmptySuccessResponse(ctx);
+        ResponseUtility.emptySuccessResponse(ctx);
     }
 
     public void register(Context ctx) {
+        String json;
 
+        try {
+            json = new RegisterHandler(userService).register(ctx);
+        } catch (FailedDeserializationException e) {
+            ResponseUtility.badRequestResponse(ctx);
+            return;
+        } catch (FailedSerializationException e) {
+            ResponseUtility.buildErrorResponse(ctx, ResponseUtility.GENERAL_STATUS,
+                    "failed to serialize AuthData to JSON");
+            return;
+        } catch (MissingAttributeException e) {
+            ResponseUtility.badRequestResponse(ctx);
+            return;
+        } catch (AlreadyTakenException e) {
+            ResponseUtility.alreadyTakenResponse(ctx);
+            return;
+        }
+
+        ResponseUtility.successResponse(ctx, json);
     }
 
-    // FIXME: username already existing should give new auth token, not throw error
-    // (I can't remember if it's doing that already rn but...)
     public void login(Context ctx) {
 
     }
 
-    // FIXME: logout should NOT remove username from UserDAO's db
     public void logout(Context ctx) {
 
     }

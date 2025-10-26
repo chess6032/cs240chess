@@ -13,4 +13,29 @@ public class MemoryAuthDAO implements AuthDAO {
     public void clear() {
         authDatas.clear();
     }
+
+    @Override
+    public String findAuthToken(String username) {
+        for (var authData : authDatas) {
+            if (authData.username().equals(username)) {
+                return authData.authToken();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String createAuth(String username) {
+        // see if username already has a corresponding auth token
+        String authTkn = findAuthToken(username);
+        if (authTkn != null) {
+            return authTkn;
+        }
+
+        // create auth token and add to database
+        authTkn = AuthData.generateAuthToken();
+        authDatas.add(new AuthData(username, authTkn));
+
+        return authTkn;
+    }
 }
