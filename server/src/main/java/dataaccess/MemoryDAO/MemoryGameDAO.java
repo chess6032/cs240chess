@@ -1,16 +1,17 @@
 package dataaccess.MemoryDAO;
 
 import chess.ChessGame;
+import chess.model.GameData;
 import chess.model.http.CreateGameResult;
 import dataaccess.GameDAO;
-import kotlin.Pair;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.UUID;
+import java.util.List;
 
 public class MemoryGameDAO implements GameDAO {
 
-    private final HashMap<Integer, Pair<String, ChessGame>> games = new HashMap<>();
+    private final HashMap<Integer, GameData> games = new HashMap<>();
     int nextGameID = 0;
 
     @Override
@@ -26,8 +27,13 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public CreateGameResult createGame(String gameName) {
         var result = new CreateGameResult(nextGameID);
-        games.put(result.gameID(), new Pair<>(gameName, new ChessGame()));
+        games.put(nextGameID, new GameData(nextGameID, "", "", gameName, new ChessGame()));
         ++nextGameID;
         return result;
+    }
+
+    @Override
+    public Collection<GameData> getAllGames() {
+        return games.values();
     }
 }

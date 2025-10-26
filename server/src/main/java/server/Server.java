@@ -38,6 +38,7 @@ public class Server {
         javalin.post("/session", this::login);
         javalin.delete("/session", this::logout);
         javalin.post("/game", this::createGame);
+        javalin.get("/game", this::listGames);
     }
 
     public int run(int desiredPort) {
@@ -72,5 +73,9 @@ public class Server {
 
     public void createGame(Context ctx) {
         new CreateGameHandler(authDAO, gameDAO).handleRequest(ctx);
+    }
+
+    public void listGames(Context ctx) {
+        new ListGamesHandler(authDAO, gameDAO).handleRequest(ctx);
     }
 }
