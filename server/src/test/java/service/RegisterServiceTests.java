@@ -14,7 +14,6 @@ public class RegisterServiceTests extends ServiceTests {
     @Test
     @DisplayName("successful")
     public void registerSuccessful() {
-        assertDAOsize(0);
         try {
             userService.register(new UserData("mario", "peachy", "superm@egadd.com"));
             assertDAOsize(1);
@@ -38,7 +37,6 @@ public class RegisterServiceTests extends ServiceTests {
     @Test
     @DisplayName("username already taken")
     public void registerUsernameAlreadyTaken() {
-        assertDAOsize(0);
         boolean exceptionThrown = false;
 
         // SUCCESSFULLY register users

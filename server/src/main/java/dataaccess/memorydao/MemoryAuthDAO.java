@@ -23,7 +23,6 @@ public class MemoryAuthDAO implements AuthDAO {
     public String findAuthToken(String username) {
         for (var authData : authDatas) {
             if (authData.username().equals(username)) {
-                System.out.println("Username match: " + username + ". Auth token is: " + authData.authToken());
                 return authData.authToken();
             }
         }
@@ -43,5 +42,27 @@ public class MemoryAuthDAO implements AuthDAO {
         authDatas.add(new AuthData(authTkn, username));
 
         return authTkn;
+    }
+
+    @Override
+    public String findUsername(String authToken) {
+        for (var authData : authDatas) {
+            if (authData.authToken().equals(authToken)) {
+                return authData.username();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean deleteAuth(String authToken) {
+        String username = findUsername(authToken);
+        if (username == null) {
+            return false;
+        }
+        if (!authDatas.remove(new AuthData(authToken, username))) {
+            throw new RuntimeException("MemoryAuthDAO.deleteAuth: username found but wasn't successfully deleted somehow?");
+        }
+        return true;
     }
 }

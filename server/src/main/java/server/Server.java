@@ -1,9 +1,6 @@
 package server;
 
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.MissingAttributeException;
-import dataaccess.exceptions.PasswordIncorrectException;
-import dataaccess.exceptions.UserNotFoundException;
+import dataaccess.exceptions.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -123,7 +120,15 @@ public class Server {
     }
 
     public void logout(Context ctx) {
+        String authToken = ctx.header("Authorization");
+        try {
+            userService.logout(authToken);
+        } catch (AuthTokenNotFoundException e) {
+            ResponseUtility.unauthorizedResponse(ctx);
+            return;
+        }
 
+        ResponseUtility.emptySuccessResponse(ctx);
     }
 
     public void createGame(Context ctx) {

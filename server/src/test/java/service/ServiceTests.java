@@ -64,6 +64,9 @@ public class ServiceTests {
     @BeforeEach
     void clearApplication() {
         server.clear(null);
+        assertUserDAOsize(0);
+        assertAuthDAOsize(0);
+        assertGameDAOsize(0);
     }
 
 }

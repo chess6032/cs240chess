@@ -5,6 +5,7 @@ import chess.model.UserData;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.PasswordIncorrectException;
 import dataaccess.exceptions.UserNotFoundException;
 
@@ -36,6 +37,7 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
         }
 
         // make sure password matches
+        // TODO: do I need to make sure email matches?
         if (!requestUserData.password().equals(dbUserData.password())) {
             throw new PasswordIncorrectException("UserService.login: password incorrect: " + requestUserData.password());
         }
@@ -43,5 +45,11 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
         // create/get and return auth token
         String authToken = authDAO.createAuth(requestUserData.username());
         return new AuthData(authToken, requestUserData.username());
+    }
+
+    public void logout(String authToken) throws AuthTokenNotFoundException {
+        if (!authDAO.deleteAuth(authToken)) {
+            throw new AuthTokenNotFoundException("UserService.logout");
+        }
     }
 }
