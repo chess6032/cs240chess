@@ -33,27 +33,27 @@ public interface UserService {
         return new RegisterResult(authData.authToken(), authData.username());
     }
 
-    static LoginResult login(LoginRequest request, UserDAO userDAO, AuthDAO authDAO) throws LoginFailException {
+    static LoginResult login(LoginRequest request, UserDAO userDAO, AuthDAO authDAO) throws LoginFailException, BadRequestException {
         // find user in database
         var user = userDAO.getUser(request.username());
         if (user == null) {
-            throw new LoginFailException("UserService.login: username not in database");
+            throw new BadRequestException("UserService.login: inputted username was null");
         }
 
         // check that passwords match
         if (!request.password().equals(user.password())) {
-            throw new LoginFailException("UserService.login: incorrect password");
+            throw new BadRequestException("UserService.login: incorrect password");
         }
 
         // check if user already has an auth token
         String authTkn = authDAO.getAuthTkn(request.username());
         if (authTkn != null) {
-            return new LoginResult(authTkn);
+            return new LoginResult(request.username(), authTkn);
         }
 
         // generate auth token for new user
         authTkn = authDAO.createAuth(request.username());
-        return new LoginResult(authTkn);
+        return new LoginResult(request.username(), authTkn);
     }
 
 
@@ -67,9 +67,7 @@ public interface UserService {
 
 
     static void logout(LogoutRequest request, UserDAO userDAO, AuthDAO authDAO) throws AuthTokenNotFoundException {
-        authDAO.assertAuthTknExists(request.authToken());
-        String username = authDAO.getUsername(request.authToken());
-        userDAO.removeUser(username);
+        authDAO.assertAuthTknExists(request.authToken()); // throws AuthTokenNotFoundException
         authDAO.deleteAuth(request.authToken());
     }
 }

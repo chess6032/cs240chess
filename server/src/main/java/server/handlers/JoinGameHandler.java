@@ -33,8 +33,11 @@ public class JoinGameHandler implements HTTPRequestHandler {
             CommonResponses.BadRequestResponse(ctx);
             return;
         }
+
+        var request = new JoinGameRequest(authToken, info.playerColor(), info.gameID());
+
         try {
-            GameService.joinGame(new JoinGameRequest(authToken, info.playerColor(), info.gameID()), authDAO, gameDAO);
+            GameService.joinGame(request, authDAO, gameDAO);
         } catch (AuthTokenNotFoundException e) {
             CommonResponses.UnauthorizedResponse(ctx);
             return;

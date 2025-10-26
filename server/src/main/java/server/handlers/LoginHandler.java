@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.LoginFailException;
 import io.javalin.http.Context;
 import server.CommonResponses;
@@ -44,7 +45,10 @@ public class LoginHandler implements HTTPRequestHandler {
             auth = UserService.login(userData, userDAO, authDAO);
         } catch (LoginFailException e) {
             // username not found, or password incorrect
-            buildResponse(ctx, CommonResponses.UNAUTHORIZED_STATUS, "username or password incorrect");
+            buildResponse(ctx, CommonResponses.UNAUTHORIZED_STATUS, "Error: username or password incorrect");
+            return;
+        } catch (BadRequestException e) {
+            CommonResponses.BadRequestResponse(ctx);
             return;
         }
         CommonResponses.SuccessResponse(ctx, auth);
