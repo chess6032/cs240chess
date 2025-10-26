@@ -70,6 +70,9 @@ public class Server {
     public void clear(Context ctx) {
         userService.clear();
         gameService.clear();
+        if (ctx == null) {
+            return;
+        }
         ResponseUtility.emptySuccessResponse(ctx);
     }
 

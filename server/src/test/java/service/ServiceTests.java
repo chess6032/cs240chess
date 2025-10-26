@@ -1,10 +1,11 @@
 package service;
 
+import org.junit.jupiter.api.*;
+
+import server.Server;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import org.junit.jupiter.api.*;
-import server.Server;
 
 public class ServiceTests {
     protected static Server server;
@@ -16,6 +17,20 @@ public class ServiceTests {
     protected static UserService userService;
     protected static GameService gameService;
 
+    // UTILITY
+
+    protected void assertUserDAOsize(int expected) {
+        Assertions.assertEquals(expected, userDAO.size());
+    }
+
+    protected void assertAuthDAOsize(int expected) {
+        Assertions.assertEquals(expected, authDAO.size());
+    }
+
+    protected void assertGameDAOsize(int expected) {
+        Assertions.assertEquals(expected, gameDAO.size());
+    }
+
     protected void printMsg(Exception e) {
         if (e.getMessage().isBlank()) {
             System.out.println("(exception had no message)");
@@ -23,6 +38,8 @@ public class ServiceTests {
         }
         System.out.println(e.getMessage());
     }
+
+    // TESTING
 
     @BeforeAll
     public static void init() {
