@@ -48,6 +48,7 @@ public class Server {
     public void clear(Context ctx) {
         userService.clear();
         gameService.clear();
+        CommonResponses.EmptySuccessResponse(ctx);
     }
 
     public void register(Context ctx) {
