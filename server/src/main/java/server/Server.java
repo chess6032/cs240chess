@@ -5,8 +5,7 @@ import io.javalin.*; // TODO: can't this just be import io.javalin.Javalin; ?
 import io.javalin.http.Context;
 
 import dataaccess.*;
-import dataaccess.MemoryDAO.*;
-import server.handlers.*;
+import dataaccess.memorydao.*;
 
 public class Server {
 
@@ -54,33 +53,33 @@ public class Server {
     // HANDLERS
 
     public void clear(Context ctx) {
-        new ClearHandler(userDAO, authDAO, gameDAO).handleRequest(ctx);
+
     }
 
     public void register(Context ctx) {
-        new RegisterHandler(userDAO, authDAO).handleRequest(ctx);
+
     }
 
     // FIXME: username already existing should give new auth token, not throw error
     // (I can't remember if it's doing that already rn but...)
     public void login(Context ctx) {
-        new LoginHandler(userDAO, authDAO).handleRequest(ctx);
+
     }
 
     // FIXME: logout should NOT remove username from UserDAO's db
     public void logout(Context ctx) {
-        new LogoutHandler(userDAO, authDAO).handleRequest(ctx);
+
     }
 
     public void createGame(Context ctx) {
-        new CreateGameHandler(authDAO, gameDAO).handleRequest(ctx);
+
     }
 
     public void listGames(Context ctx) {
-        new ListGamesHandler(authDAO, gameDAO).handleRequest(ctx);
+
     }
 
     public void joinGame(Context ctx) {
-        new JoinGameHandler(authDAO, gameDAO).handleRequest(ctx);
+
     }
 }
