@@ -10,7 +10,6 @@ import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.GameNotFoundException;
-import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import server.CommonResponses;
 import service.GameService;
