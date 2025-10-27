@@ -7,6 +7,7 @@ import dataaccess.UserDAO;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.GameNotFoundException;
+import dataaccess.exceptions.MissingAttributeException;
 
 import java.util.Collection;
 
@@ -15,7 +16,11 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
         gameDAO.clear();
     }
 
-    public int createGame(String authToken, String gameName) throws AuthTokenNotFoundException {
+    public int createGame(String authToken, String gameName) throws AuthTokenNotFoundException, MissingAttributeException {
+        if (gameName == null) {
+            throw new MissingAttributeException("GameService.createGame: gameName is null");
+        }
+
         if (authDAO.findUserOfAuth(authToken) == null) {
             throw new AuthTokenNotFoundException("GameService.createGame: auth token not found: " + authToken);
         }
@@ -33,7 +38,15 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
         return gameDAO.getAllGames();
     }
 
-    public void joinGame(String authToken, String playerColor, int gameID) throws AuthTokenNotFoundException, GameNotFoundException, AlreadyTakenException {
+    public void joinGame(String authToken, String playerColor, int gameID) throws AuthTokenNotFoundException, GameNotFoundException,
+            AlreadyTakenException, MissingAttributeException {
+
+        if (playerColor == null || gameID <= 0 ||
+                !(playerColor.equals("WHITE") || playerColor.equals("BLACK"))) {
+            throw new MissingAttributeException("GameService.joinGame: mistyped player color or game ID. " +
+                    "player color: " + playerColor + ", gameID: " + gameID);
+        }
+
         String username = authDAO.findUserOfAuth(authToken);
         if (username == null) {
             throw new AuthTokenNotFoundException("GameService.joinGame: auth token not found" + authToken);

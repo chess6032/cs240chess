@@ -1,10 +1,7 @@
 package service;
 
 import chess.model.UserData;
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.AuthTokenNotFoundException;
-import dataaccess.exceptions.PasswordIncorrectException;
-import dataaccess.exceptions.UserNotFoundException;
+import dataaccess.exceptions.*;
 import org.junit.jupiter.api.*;
 
 import java.util.Collection;
@@ -30,8 +27,8 @@ public class LogoutServiceTests extends ServiceTests {
                 assertUserDAOsize(++expectedUserDAOsize);
                 assertAuthDAOsize(++expectedAuthDAOsize);
             }
-        } catch (AlreadyTakenException e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (AlreadyTakenException | MissingAttributeException e) {
+            throw new RuntimeException(e);
         }
 
         // (check to make sure I wrote test right)
@@ -84,9 +81,7 @@ public class LogoutServiceTests extends ServiceTests {
                 assertUserDAOsize(expectedUserDAOsize);
                 assertAuthDAOsize(++expectedAuthDAOsize);
             }
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (PasswordIncorrectException e) {
+        } catch (UserNotFoundException | MissingAttributeException | PasswordIncorrectException e) {
             throw new RuntimeException(e);
         }
 

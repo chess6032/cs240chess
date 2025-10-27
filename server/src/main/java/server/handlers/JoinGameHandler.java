@@ -29,10 +29,10 @@ public class JoinGameHandler {
         String playerColor = info.playerColor();
         int gameID = info.gameID();
 
-        if (playerColor == null || gameID <= 0 ||
-            !(playerColor.equals("WHITE") || playerColor.equals("BLACK"))) {
-            throw new MissingAttributeException("JoinGameHandler.handleJoinGameRequest: bad player color or game ID");
-        }
+//        if (playerColor == null || gameID <= 0 ||
+//            !(playerColor.equals("WHITE") || playerColor.equals("BLACK"))) {
+//            throw new MissingAttributeException("JoinGameHandler.handleJoinGameRequest: bad player color or game ID");
+//        }
 
         gameService.joinGame(authToken, playerColor, gameID);
     }

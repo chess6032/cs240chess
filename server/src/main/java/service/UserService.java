@@ -4,10 +4,7 @@ import chess.model.AuthData;
 import chess.model.UserData;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.AuthTokenNotFoundException;
-import dataaccess.exceptions.PasswordIncorrectException;
-import dataaccess.exceptions.UserNotFoundException;
+import dataaccess.exceptions.*;
 
 
 public record UserService(UserDAO userDAO, AuthDAO authDAO) {
@@ -17,7 +14,12 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
         authDAO.clear();
     }
 
-    public AuthData register(UserData userData) throws AlreadyTakenException {
+    public AuthData register(UserData userData) throws AlreadyTakenException, MissingAttributeException {
+        if (userData.username() == null || userData.password() == null || userData.email() == null ||
+                userData.username().isBlank() || userData.password().isBlank() || userData.email().isBlank()) {
+            throw new MissingAttributeException("UserService.register: username, password, or email null or not given");
+        }
+
         // create UserData (if username not already taken)
         if (!userDAO.createUser(userData.username(), userData.password(), userData.email())) {
             throw new AlreadyTakenException("UserService.register: username already taken: " + userData.username());
@@ -29,7 +31,13 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
         return new AuthData(authToken, userData.username());
     }
 
-    public AuthData login(UserData requestUserData) throws UserNotFoundException, PasswordIncorrectException {
+    public AuthData login(UserData requestUserData) throws UserNotFoundException, PasswordIncorrectException, MissingAttributeException {
+        // check input is valid
+        if (requestUserData.username() == null || requestUserData.password() == null ||
+                requestUserData.username().isBlank() || requestUserData.password().isBlank()) {
+            throw new MissingAttributeException("UserService.login: Missing username or password");
+        }
+
         // find user in db
         UserData dbUserData = userDAO.getUser(requestUserData.username());
         if (dbUserData == null) {
