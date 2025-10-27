@@ -20,7 +20,7 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public String findAuthToken(String username) {
+    public String findAuthOfUser(String username) {
         for (var authData : authDatas) {
             if (authData.username().equals(username)) {
                 return authData.authToken();
@@ -32,7 +32,8 @@ public class MemoryAuthDAO implements AuthDAO {
     @Override
     public String createAuth(String username) {
         // see if username already has a corresponding auth token
-        String authTkn = findAuthToken(username);
+        String authTkn = findAuthOfUser(username);
+        System.out.println(authTkn);
         if (authTkn != null) {
             deleteAuth(authTkn);
         }
@@ -45,7 +46,7 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public String findUsername(String authToken) {
+    public String findUserOfAuth(String authToken) {
         for (var authData : authDatas) {
             if (authData.authToken().equals(authToken)) {
                 return authData.username();
@@ -56,7 +57,7 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public boolean deleteAuth(String authToken) {
-        String username = findUsername(authToken);
+        String username = findUserOfAuth(authToken);
         if (username == null) {
             return false;
         }

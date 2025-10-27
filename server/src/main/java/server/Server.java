@@ -6,6 +6,7 @@ import io.javalin.http.Context;
 
 import dataaccess.*;
 import dataaccess.memorydao.*;
+import server.handlers.CreateGameHandler;
 import server.handlers.LoginHandler;
 import server.handlers.RegisterHandler;
 import service.GameService;
@@ -23,7 +24,7 @@ public class Server {
     private final GameDAO gameDAO = new MemoryGameDAO();
 
     private final UserService userService = new UserService(userDAO, authDAO);
-    private final GameService gameService = new GameService(gameDAO);
+    private final GameService gameService = new GameService(userDAO, authDAO, gameDAO);
 
     public UserDAO getUserDAO() {
         return userDAO;
@@ -132,7 +133,25 @@ public class Server {
     }
 
     public void createGame(Context ctx) {
+        String json;
 
+        try {
+            json = new CreateGameHandler(gameService).handleCreateGameRequest(ctx);
+        } catch (FailedSerializationException e) {
+            ResponseUtility.buildErrorResponse(ctx, ResponseUtility.GENERAL_STATUS, "Failed to serialize gameID");
+            return;
+        } catch (AuthTokenNotFoundException e) {
+            unauthorizedResponse(ctx);
+            return;
+        } catch (FailedDeserializationException e) {
+            badRequestResponse(ctx);
+            return;
+        } catch (MissingAttributeException e) {
+            buildErrorResponse(ctx, BAD_REQUEST_STATUS, "no game name provided");
+            return;
+        }
+
+        successResponse(ctx, json);
     }
 
     public void listGames(Context ctx) {
