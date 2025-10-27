@@ -16,33 +16,45 @@ public class LoginServiceTests extends ServiceTests {
     @DisplayName("successful")
     public void loginSuccessful() {
         UserData mario = new UserData("mario", "password", "email");
+        UserData luigi = new UserData("luigi", "password", "email");
 
-        // register user
-        String authToken;
+        // register users
+        String marioAuthToken;
+        String luigiAuthToken;
         try {
-            authToken = userService.register(mario).authToken();
+            marioAuthToken = userService.register(mario).authToken();
+            luigiAuthToken = userService.register(luigi).authToken();
         } catch (AlreadyTakenException e) {
             throw new RuntimeException(e);
         }
 
-        assertUserDAOsize(1);
-        assertAuthDAOsize(1);
+        assertUserDAOsize(2);
+        assertAuthDAOsize(2);
+        Assertions.assertNotEquals(marioAuthToken, luigiAuthToken);
+
+        String marioAuthToken2;
+        String luigiAuthToken2;
 
         // log in user
         try {
-            Assertions.assertNotEquals(authToken, userService.login(mario).authToken());
+
+            marioAuthToken2 = userService.login(mario).authToken();
+            luigiAuthToken2 = userService.login(luigi).authToken();
             // ^ logging in a user who already has an auth token should give them
-            // the same auth token (I think)
+            // a DIFFERENT auth token (I think??????)
         } catch (UserNotFoundException | PasswordIncorrectException e) {
             throw new RuntimeException(e);
         }
 
-        assertUserDAOsize(1);
-        assertAuthDAOsize(1);
+        Assertions.assertNotEquals(marioAuthToken, marioAuthToken2);
+        Assertions.assertNotEquals(luigiAuthToken, luigiAuthToken2);
+
+        assertUserDAOsize(2);
+        assertAuthDAOsize(2);
     }
 
     @Test
-    @DisplayName("unique auth token each login")
+    @DisplayName("unique auth token when logging in the same user")
     public void loginUniqueAuthEachTime() {
         UserData mario = new UserData("mario", "password", "email");
 
