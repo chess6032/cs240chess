@@ -34,7 +34,7 @@ public class MemoryAuthDAO implements AuthDAO {
         // see if username already has a corresponding auth token
         String authTkn = findAuthToken(username);
         if (authTkn != null) {
-            return authTkn;
+            deleteAuth(authTkn);
         }
 
         // create auth token and add to database

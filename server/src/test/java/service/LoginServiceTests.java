@@ -3,6 +3,7 @@ package service;
 import chess.model.UserData;
 
 import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.PasswordIncorrectException;
 import dataaccess.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.*;
@@ -29,7 +30,7 @@ public class LoginServiceTests extends ServiceTests {
 
         // log in user
         try {
-            Assertions.assertEquals(authToken, userService.login(mario).authToken());
+            Assertions.assertNotEquals(authToken, userService.login(mario).authToken());
             // ^ logging in a user who already has an auth token should give them
             // the same auth token (I think)
         } catch (UserNotFoundException | PasswordIncorrectException e) {
@@ -38,6 +39,82 @@ public class LoginServiceTests extends ServiceTests {
 
         assertUserDAOsize(1);
         assertAuthDAOsize(1);
+    }
+
+    @Test
+    @DisplayName("unique auth token each login")
+    public void loginUniqueAuthEachTime() {
+        UserData mario = new UserData("mario", "password", "email");
+
+        // register mario
+
+        try {
+            userService.register(mario);
+        } catch (AlreadyTakenException e) {
+            throw new RuntimeException(e);
+        }
+
+        String authToken1;
+
+        // log in mario
+
+        try {
+            authToken1 = userService.login(mario).authToken();
+        } catch (UserNotFoundException | PasswordIncorrectException e) {
+            throw new RuntimeException(e);
+        }
+
+        // log in mario again
+
+        String authToken2;
+
+        try {
+            authToken2 = userService.login(mario).authToken();
+        } catch (UserNotFoundException | PasswordIncorrectException e) {
+            throw new RuntimeException(e);
+        }
+
+        // just for good measure, log in mario AGAIN
+
+        String authToken3;
+
+        try {
+            authToken3 = userService.login(mario).authToken();
+        } catch (UserNotFoundException | PasswordIncorrectException e) {
+            throw new RuntimeException(e);
+        }
+
+        // make sure all the auth tokens are unique
+
+        Assertions.assertNotEquals(authToken1, authToken2);
+        Assertions.assertNotEquals(authToken2, authToken3);
+        Assertions.assertNotEquals(authToken1, authToken3);
+
+        // make sure only the last token is in the db
+
+        boolean exception1 = false;
+        boolean exception2 = false;
+
+        try {
+            userService.logout(authToken1);
+        } catch (AuthTokenNotFoundException e) {
+            exception1 = true;
+        }
+
+        try {
+            userService.logout(authToken2);
+        } catch (AuthTokenNotFoundException e) {
+            exception2 = true;
+        }
+
+        Assertions.assertTrue(exception1);
+        Assertions.assertTrue(exception2);
+
+        try {
+            userService.logout(authToken3);
+        } catch (AuthTokenNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
