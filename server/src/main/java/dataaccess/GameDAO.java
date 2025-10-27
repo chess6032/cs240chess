@@ -9,4 +9,6 @@ public interface GameDAO {
     int size();
     int createGame(String gameName);
     Collection<GameData> getAllGames();
+    GameData getGame(int gameID);
+    boolean addPlayerToGame(int gameID, String username, String playerColor);
 }

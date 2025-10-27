@@ -6,10 +6,7 @@ import io.javalin.http.Context;
 
 import dataaccess.*;
 import dataaccess.memorydao.*;
-import server.handlers.CreateGameHandler;
-import server.handlers.ListGamesHandler;
-import server.handlers.LoginHandler;
-import server.handlers.RegisterHandler;
+import server.handlers.*;
 import service.GameService;
 import service.UserService;
 
@@ -172,6 +169,26 @@ public class Server {
     }
 
     public void joinGame(Context ctx) {
+        try {
+            new JoinGameHandler(userService, gameService).handleJoinGameRequest(ctx);
+        } catch (AuthTokenNotFoundException e) {
+            unauthorizedResponse(ctx);
+            return;
+        } catch (FailedDeserializationException e) {
+            badRequestResponse(ctx);
+            return;
+        } catch (MissingAttributeException e) {
+            badRequestResponse(ctx);
+            return;
+        } catch (AlreadyTakenException e) {
+            alreadyTakenResponse(ctx);
+            return;
+        } catch (GameNotFoundException e) {
+            // FIXME: what status to give?
+            buildErrorResponse(ctx, BAD_REQUEST_STATUS, "Error: game not found");
+            return;
+        }
 
+        emptySuccessResponse(ctx);
     }
 }
