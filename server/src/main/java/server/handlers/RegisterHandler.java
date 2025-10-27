@@ -25,11 +25,6 @@ public class RegisterHandler {
 
         UserData userData = deserializeBody(ctx, UserData.class); // throws FailedDeserializationException
 
-//        if (userData.username() == null || userData.password() == null || userData.email() == null ||
-//            userData.username().isBlank() || userData.password().isBlank() || userData.email().isBlank()) {
-//            throw new MissingAttributeException("RegisterHandler: username, password, or email null or not given");
-//        }
-
         AuthData authData = userService.register(userData); // throws AlreadyTakenException
 
         return serialize(authData); // throws FailedSerializationException

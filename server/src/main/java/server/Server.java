@@ -170,7 +170,7 @@ public class Server {
 
     public void joinGame(Context ctx) {
         try {
-            new JoinGameHandler(userService, gameService).handleJoinGameRequest(ctx);
+            new JoinGameHandler(gameService).handleJoinGameRequest(ctx);
         } catch (AuthTokenNotFoundException e) {
             unauthorizedResponse(ctx);
             return;

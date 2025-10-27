@@ -23,11 +23,7 @@ public class CreateGameHandler {
         String gameName = HandlerUtility.deserializeBody(ctx, GameData.class).gameName();
         String authToken = ctx.header("Authorization");
 
-//        if (gameName == null) {
-//            throw new MissingAttributeException("CreateGameHandler.handleCreateGameRequest: missing gameName in request body");
-//        }
-
-        int gameID = gameService.createGame(authToken, gameName); // throws AuthTokenNotFoundException
+        int gameID = gameService.createGame(authToken, gameName); // throws AuthTokenNotFoundException, MissingAttributeException
 
         return HandlerUtility.serialize(new GameData(gameID, null, null, null, null));
     }

@@ -25,12 +25,6 @@ public class LoginHandler {
             MissingAttributeException, UserNotFoundException, PasswordIncorrectException {
         UserData userData = deserializeBody(ctx, UserData.class);
 
-//        // check input is valid
-//        if (userData.username() == null || userData.password() == null ||
-//            userData.username().isBlank() || userData.password().isBlank()) {
-//            throw new MissingAttributeException("LoginHandler: Missing username or password");
-//        }
-
         // log in user
         AuthData authData = userService.login(userData);
 

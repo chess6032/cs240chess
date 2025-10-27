@@ -1,7 +1,7 @@
 package server.handlers;
 
 import chess.model.GameData;
-import chess.model.GamesForJSON;
+import chess.model.ListGamesResult;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import io.javalin.http.Context;
 import server.FailedSerializationException;
@@ -36,6 +36,6 @@ public class ListGamesHandler {
             // don't include the ChessGame attribute in the HTTP result.
             gamesCleaned.add(new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), null));
         }
-        return HandlerUtility.serialize(new GamesForJSON(gamesCleaned));
+        return HandlerUtility.serialize(new ListGamesResult(gamesCleaned));
     }
 }
