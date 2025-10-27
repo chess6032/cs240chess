@@ -31,14 +31,6 @@ public class ServiceTests {
         Assertions.assertEquals(expected, gameDAO.size());
     }
 
-    protected void printMsg(Exception e) {
-        if (e.getMessage().isBlank()) {
-            System.out.println("(exception had no message)");
-            return;
-        }
-        System.out.println(e.getMessage());
-    }
-
     // TESTING
 
     @BeforeAll
