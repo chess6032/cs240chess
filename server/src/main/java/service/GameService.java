@@ -47,6 +47,7 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
                     "player color: " + playerColor + ", gameID: " + gameID);
         }
 
+
         String username = authDAO.findUserOfAuth(authToken);
         if (username == null) {
             throw new AuthTokenNotFoundException("GameService.joinGame: auth token not found" + authToken);
@@ -60,5 +61,7 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
         if (!gameDAO.addPlayerToGame(gameID, username, playerColor)) {
             throw new AlreadyTakenException("GameService.joinGame: gameID = " + gameID + ". Color already taken: " + playerColor);
         }
+
+        // FIXME: do I need to check if player has already joined this game?
     }
 }
