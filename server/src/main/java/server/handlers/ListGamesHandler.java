@@ -24,17 +24,8 @@ public class ListGamesHandler {
         // prepare games list for serialization...
         HashSet<GameData> gamesCleaned = new HashSet<>(); // FIXME: does order matter??
         for (GameData game : games) {
-            // white/black usernames might be null. convert them to empty strings so they show up in the HTTP result.
-            String whiteUsername = game.whiteUsername();
-            if (whiteUsername == null) {
-                whiteUsername = "";
-            }
-            String blackUsername = game.blackUsername();
-            if (blackUsername == null) {
-                blackUsername = "";
-            }
             // don't include the ChessGame attribute in the HTTP result.
-            gamesCleaned.add(new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), null));
+            gamesCleaned.add(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), null));
         }
         return HandlerUtility.serialize(new ListGamesResult(gamesCleaned));
     }

@@ -104,14 +104,11 @@ public class Server {
         } catch (FailedDeserializationException | MissingAttributeException e) {
             badRequestResponse(ctx);
             return;
-        } catch (UserNotFoundException e) {
-            buildErrorResponse(ctx, ResponseUtility.BAD_REQUEST_STATUS, "Error: username not registered");
+        } catch (UserNotFoundException | PasswordIncorrectException e) {
+            unauthorizedResponse(ctx);
             return;
         } catch (FailedSerializationException e) {
             failedSerializationResponse(ctx, "Error: failed to serialize AuthData");
-            return;
-        } catch (PasswordIncorrectException e) {
-            unauthorizedResponse(ctx);
             return;
         }
 
@@ -136,7 +133,7 @@ public class Server {
         try {
             json = new CreateGameHandler(gameService).handleCreateGameRequest(ctx);
         } catch (FailedSerializationException e) {
-            failedSerializationResponse(ctx, "Failed to serialize gameID");
+            failedSerializationResponse(ctx, "Error: Failed to serialize gameID");
             return;
         } catch (AuthTokenNotFoundException e) {
             unauthorizedResponse(ctx);
@@ -145,7 +142,7 @@ public class Server {
             badRequestResponse(ctx);
             return;
         } catch (MissingAttributeException e) {
-            buildErrorResponse(ctx, BAD_REQUEST_STATUS, "no game name provided");
+            buildErrorResponse(ctx, BAD_REQUEST_STATUS, "Error: no game name provided");
             return;
         }
 
@@ -158,7 +155,7 @@ public class Server {
         try {
             json = new ListGamesHandler(gameService).handleListGamesRequest(ctx);
         } catch (FailedSerializationException e) {
-            failedSerializationResponse(ctx, "Failed to serialize Collection<GameData>");
+            failedSerializationResponse(ctx, "Error: Failed to serialize Collection<GameData>");
             return;
         } catch (AuthTokenNotFoundException e) {
             unauthorizedResponse(ctx);

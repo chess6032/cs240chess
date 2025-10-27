@@ -31,15 +31,9 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public String createAuth(String username) {
-        // see if username already has a corresponding auth token
-        String authTkn = findAuthOfUser(username);
-        System.out.println(authTkn);
-        if (authTkn != null) {
-            deleteAuth(authTkn);
-        }
-
         // create auth token and add to database
-        authTkn = AuthData.generateAuthToken();
+
+        String authTkn = AuthData.generateAuthToken();
         authDatas.add(new AuthData(authTkn, username));
 
         return authTkn;

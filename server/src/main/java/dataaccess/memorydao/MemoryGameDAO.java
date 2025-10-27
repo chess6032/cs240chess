@@ -25,7 +25,7 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public int createGame(String gameName) {
         int gameID = nextGameID++;
-        games.put(gameID, new GameData(gameID, "", "", gameName, new ChessGame()));
+        games.put(gameID, new GameData(gameID, null, null, gameName, new ChessGame()));
         return gameID;
     }
 
@@ -51,7 +51,7 @@ public class MemoryGameDAO implements GameDAO {
 
         if (playerColor.equals("WHITE")) {
             whiteUsername = username;
-        } else if (playerColor.equals("WHITE")) {
+        } else if (playerColor.equals("BLACK")) {
             blackUsername = username;
         } else {
             throw new RuntimeException("how tf did we get here?");
@@ -64,11 +64,10 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     private boolean isColorAvailable(GameData gameData, String playerColor) {
-        System.out.println(gameData);
         if (playerColor.equals("WHITE")) {
-            return gameData.whiteUsername() == null || gameData.whiteUsername().isBlank();
+            return gameData.whiteUsername() == null;
         } else if (playerColor.equals("BLACK")) {
-            return gameData.blackUsername() == null || gameData.blackUsername().isBlank();
+            return gameData.blackUsername() == null;
         }
         return false;
     }
