@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import dataaccess.*;
 import dataaccess.memorydao.*;
 import server.handlers.CreateGameHandler;
+import server.handlers.ListGamesHandler;
 import server.handlers.LoginHandler;
 import server.handlers.RegisterHandler;
 import service.GameService;
@@ -88,7 +89,7 @@ public class Server {
             badRequestResponse(ctx);
             return;
         } catch (FailedSerializationException e) {
-            failedSerializationResponse(ctx);
+            failedSerializationResponse(ctx, "Error: failed to serialize AuthData");
             return;
         } catch (AlreadyTakenException e) {
             alreadyTakenResponse(ctx);
@@ -110,7 +111,7 @@ public class Server {
             buildErrorResponse(ctx, ResponseUtility.BAD_REQUEST_STATUS, "Error: username not registered");
             return;
         } catch (FailedSerializationException e) {
-            failedSerializationResponse(ctx);
+            failedSerializationResponse(ctx, "Error: failed to serialize AuthData");
             return;
         } catch (PasswordIncorrectException e) {
             unauthorizedResponse(ctx);
@@ -125,7 +126,7 @@ public class Server {
         try {
             userService.logout(authToken);
         } catch (AuthTokenNotFoundException e) {
-            ResponseUtility.unauthorizedResponse(ctx);
+            unauthorizedResponse(ctx);
             return;
         }
 
@@ -138,7 +139,7 @@ public class Server {
         try {
             json = new CreateGameHandler(gameService).handleCreateGameRequest(ctx);
         } catch (FailedSerializationException e) {
-            ResponseUtility.buildErrorResponse(ctx, ResponseUtility.GENERAL_STATUS, "Failed to serialize gameID");
+            failedSerializationResponse(ctx, "Failed to serialize gameID");
             return;
         } catch (AuthTokenNotFoundException e) {
             unauthorizedResponse(ctx);
@@ -155,7 +156,19 @@ public class Server {
     }
 
     public void listGames(Context ctx) {
+        String json;
 
+        try {
+            json = new ListGamesHandler(gameService).handleListGamesRequest(ctx);
+        } catch (FailedSerializationException e) {
+            failedSerializationResponse(ctx, "Failed to serialize Collection<GameData>");
+            return;
+        } catch (AuthTokenNotFoundException e) {
+            unauthorizedResponse(ctx);
+            return;
+        }
+
+        successResponse(ctx, json);
     }
 
     public void joinGame(Context ctx) {
