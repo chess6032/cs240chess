@@ -2,12 +2,21 @@ package dataaccess.sqldao;
 
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
+import exception.ResponseException;
 
 import java.sql.*;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public abstract class SqlDAO {
+
+    public SqlDAO () throws DataAccessException {
+        configureDatabase();
+    }
+
+    protected abstract void configureDatabase() throws DataAccessException;
+
     public void configureDatabase(String createStatement) throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) { // try-with-resources
@@ -25,9 +34,9 @@ public abstract class SqlDAO {
     // copied from petshop... ngl I have NO idea WTF is going on.
     protected int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
 
-            for (int i = 0; i < params.length; ++i) {
+            for (int i = 0; i < params.length; i++) {
                 Object param = params[i];
                 switch (param) {
                     case String p -> ps.setString(i + 1, p);
@@ -36,17 +45,18 @@ public abstract class SqlDAO {
                     default -> ps.setObject(i + 1, param);
                 }
             }
+            ps.executeUpdate();
 
-            int updated = ps.executeUpdate();
-
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
             }
-            return updated;
+
+            return 0;
         } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage());
+            //
+            var resExc = new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(resExc.getMessage());
         }
     }
 }
