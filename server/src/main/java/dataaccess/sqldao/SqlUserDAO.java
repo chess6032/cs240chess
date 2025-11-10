@@ -3,9 +3,15 @@ package dataaccess.sqldao;
 import chess.model.UserData;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
-import org.mindrot.jbcrypt.BCrypt;
 
 public class SqlUserDAO extends SqlDAO implements UserDAO {
+
+    private static final int VAR_CHAR_SIZE = 255;
+
+    private static final String TABLE_NAME = "users";
+    private static final String USERNAME_HEADER = "username";
+    private static final String PASSWORD_HEADER = "password";
+    private static final String EMAIL_HEADER = "email";
 
     public SqlUserDAO() throws DataAccessException {
         super();
@@ -13,55 +19,69 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
 
     @Override
     public void configureDatabase() throws DataAccessException {
-        // TODO: does username need to be NOT NULL
-
         super.configureDatabase(
                 """
-                CREATE TABLE IF NOT EXISTS users (
-                    username VARCHAR(255) NOT NULL PRIMARY KEY,
-                    password VARCHAR(255) NOT NULL,
-                    email VARCHAR(255)
+                CREATE TABLE IF NOT EXISTS %s (
+                    %s VARCHAR(%d) NOT NULL PRIMARY KEY,
+                    %s VARCHAR(%d) NOT NULL,
+                    %s VARCHAR(%d)
                 );
-                """
+                """.formatted(TABLE_NAME,
+                        USERNAME_HEADER, VAR_CHAR_SIZE,
+                        PASSWORD_HEADER, VAR_CHAR_SIZE,
+                        EMAIL_HEADER, VAR_CHAR_SIZE)
         );
     }
 
     @Override
     public void clear() throws DataAccessException {
-        executeUpdate("DELETE FROM user");
-        assert true; // TODO: assert that the size of user is 0
+        executeUpdate("DELETE FROM %s".formatted(TABLE_NAME));
     }
 
     @Override
-    public int size() {
+    public int size() throws DataAccessException {
         // query the size of the users table
-        return -1;
+        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
+        return executeQuery(sql, (rs) -> {
+            if (rs.next()) {
+                return rs.getInt(1); // returns the count ig
+            }
+            return 0; // shouldn't happen for COUNT(*)
+        });
     }
 
     @Override
-    public boolean createUser(String username, String clearTextPassword, String email) {
+    public boolean createUser(String username, String clearTextPassword, String email) throws DataAccessException {
         String hashedPassword = hashPassword(clearTextPassword);
-        try {
-            saveUserData(username, hashedPassword, email);
-        } catch (Exception e) {
-            // TODO: what exception? do I even catch an exception actually??
-            return false;
-        }
-        return true;
+
+        var sql = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)".formatted(TABLE_NAME, USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER);
+        return executeUpdate(sql, username, hashedPassword, email) != 0;
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
+        final String sql =
+                """
+                SELECT %s, %s, %s
+                FROM %s
+                WHERE %s = ?
+                """.formatted(USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER,
+                        TABLE_NAME,
+                        USERNAME_HEADER);
 
-        return null;
+        return executeQuery(sql, (rs) -> {
+               // since we are looking for one row, we check rs.next() once.
+               if (rs.next()) {
+                   String _username = rs.getString(USERNAME_HEADER);
+                   String _password = rs.getString(PASSWORD_HEADER);
+                   String _email = rs.getString(EMAIL_HEADER);
+
+                   return new UserData(_username, _password, _email);
+               }
+
+               // If rs.next() is false, no user was found with that username.
+               return null;
+        }, username);
     }
 
-    private String hashPassword(String clearTextPassword) {
-        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-    }
-
-    private void saveUserData(String username, String password, String email) {
-        // password should already be encrypted!!!!
-
-    }
 }

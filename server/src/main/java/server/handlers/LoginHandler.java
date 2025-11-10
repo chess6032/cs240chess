@@ -5,6 +5,7 @@ import static server.handlers.HandlerUtility.serialize;
 
 import chess.model.AuthData;
 import chess.model.UserData;
+import dataaccess.DataAccessException;
 import dataaccess.exceptions.MissingAttributeException;
 import dataaccess.exceptions.PasswordIncorrectException;
 import dataaccess.exceptions.UserNotFoundException;
@@ -22,7 +23,7 @@ public class LoginHandler {
     }
     
     public String handleLoginRequest(Context ctx) throws FailedDeserializationException, FailedSerializationException,
-            MissingAttributeException, UserNotFoundException, PasswordIncorrectException {
+            MissingAttributeException, UserNotFoundException, PasswordIncorrectException, DataAccessException {
         UserData userData = deserializeBody(ctx, UserData.class);
 
         // log in user

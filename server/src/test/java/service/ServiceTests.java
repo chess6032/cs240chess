@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
 
 import server.Server;
@@ -20,7 +21,11 @@ public class ServiceTests {
     // UTILITY
 
     protected void assertUserDAOsize(int expected) {
-        Assertions.assertEquals(expected, userDAO.size());
+        try {
+            Assertions.assertEquals(expected, userDAO.size());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void assertAuthDAOsize(int expected) {

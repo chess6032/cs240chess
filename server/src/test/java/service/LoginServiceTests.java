@@ -2,6 +2,7 @@ package service;
 
 import chess.model.UserData;
 
+import dataaccess.DataAccessException;
 import dataaccess.exceptions.*;
 import org.junit.jupiter.api.*;
 
@@ -21,7 +22,7 @@ public class LoginServiceTests extends ServiceTests {
         try {
             marioAuthToken = userService.register(mario).authToken();
             luigiAuthToken = userService.register(luigi).authToken();
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
 
