@@ -2,7 +2,7 @@ package dataaccess.sqldao;
 
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
-import exception.ResponseException;
+import dataaccess.SqlException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
@@ -16,9 +16,9 @@ public abstract class SqlDAO {
         configureDatabase();
     }
 
-    protected abstract void configureDatabase() throws DataAccessException;
+    protected abstract void configureDatabase() throws SqlException;
 
-    public void configureDatabase(String createStatement) throws DataAccessException {
+    public void configureDatabase(String createStatement) throws SqlException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) { // try-with-resources
             try (var st = conn.createStatement()) {
@@ -27,13 +27,13 @@ public abstract class SqlDAO {
                 // FIXME: wtf do I catch???
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new SqlException(e.getMessage());
         }
     }
 
 
     // From petshop. Use for UPDATING data. (NOT for querying.)
-    protected int executeUpdate(String statement, Object... params) throws DataAccessException {
+    protected int executeUpdate(String statement, Object... params) throws SqlException {
         try (Connection conn = DatabaseManager.getConnection();
                 PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
 
@@ -55,8 +55,7 @@ public abstract class SqlDAO {
 
             return 0;
         } catch (SQLException e) {
-            var resExc = new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
-            throw new DataAccessException(resExc.getMessage());
+            throw new SqlException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
@@ -64,7 +63,7 @@ public abstract class SqlDAO {
         return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 
-    protected <T> T executeQuery(String statement, ResultSetHandler<T> handler, Object... params) throws DataAccessException {
+    protected <T> T executeQuery(String statement, ResultSetHandler<T> handler, Object... params) throws SqlException {
         try (Connection conn = DatabaseManager.getConnection();
                 PreparedStatement ps = conn.prepareStatement(statement)) {
 
@@ -84,8 +83,7 @@ public abstract class SqlDAO {
 
 
         } catch (SQLException e) {
-            var resExc = new ResponseException(ResponseException.Code.ServerError, String.format("unable to update database: %s, %s", statement, e.getMessage()));
-            throw new DataAccessException(resExc.getMessage());
+            throw new SqlException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 }

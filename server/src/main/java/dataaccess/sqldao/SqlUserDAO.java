@@ -2,6 +2,7 @@ package dataaccess.sqldao;
 
 import chess.model.UserData;
 import dataaccess.DataAccessException;
+import dataaccess.SqlException;
 import dataaccess.UserDAO;
 
 public class SqlUserDAO extends SqlDAO implements UserDAO {
@@ -18,7 +19,7 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
     }
 
     @Override
-    public void configureDatabase() throws DataAccessException {
+    public void configureDatabase() throws SqlException {
         super.configureDatabase(
                 """
                 CREATE TABLE IF NOT EXISTS %s (
@@ -34,12 +35,12 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
     }
 
     @Override
-    public void clear() throws DataAccessException {
+    public void clear() throws SqlException {
         executeUpdate("DELETE FROM %s".formatted(TABLE_NAME));
     }
 
     @Override
-    public int size() throws DataAccessException {
+    public int size() throws SqlException {
         // query the size of the users table
         String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
         return executeQuery(sql, (rs) -> {
@@ -51,7 +52,7 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
     }
 
     @Override
-    public boolean createUser(String username, String clearTextPassword, String email) throws DataAccessException {
+    public boolean createUser(String username, String clearTextPassword, String email) throws SqlException {
         String hashedPassword = hashPassword(clearTextPassword);
 
         var sql = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)".formatted(TABLE_NAME, USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER);
@@ -59,7 +60,7 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
+    public UserData getUser(String username) throws SqlException {
         final String sql =
                 """
                 SELECT %s, %s, %s

@@ -1,7 +1,5 @@
 // this was all just copied straight from Pet Shop lmao
 
-package exception;
-
 import com.google.gson.Gson;
 
 import java.util.HashMap;

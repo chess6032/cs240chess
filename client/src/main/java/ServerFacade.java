@@ -1,10 +1,4 @@
-package server;
-
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.UserDAO;
-import dataaccess.sqldao.SqlUserDAO;
-import exception.ResponseException;
 
 import java.net.*;
 import java.net.http.*;
@@ -16,15 +10,8 @@ public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
 
-    private final UserDAO userDAO;
-
     public ServerFacade(String url) {
         serverUrl = url;
-        try {
-            userDAO = new SqlUserDAO();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 //    public Pet addPet(Pet pet) throws ResponseException {

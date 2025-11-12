@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.exceptions.*;
+import dataaccess.sqldao.SqlUserDAO;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -17,7 +18,16 @@ public class Server {
     private final Javalin javalin;
 
     // make each new DatabaseAccessObject ONLY ONCE.
-    private final UserDAO userDAO = new MemoryUserDAO();
+    private final UserDAO userDAO;
+
+    {
+        try {
+            userDAO = new SqlUserDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final AuthDAO authDAO = new MemoryAuthDAO();
     private final GameDAO gameDAO = new MemoryGameDAO();
 
@@ -91,6 +101,8 @@ public class Server {
         } catch (AlreadyTakenException e) {
             alreadyTakenResponse(ctx);
             return;
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
 
         successResponse(ctx, json);
@@ -110,6 +122,8 @@ public class Server {
         } catch (FailedSerializationException e) {
             failedSerializationResponse(ctx, "Error: failed to serialize AuthData");
             return;
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
         }
 
         successResponse(ctx, json);

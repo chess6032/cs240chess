@@ -4,6 +4,7 @@ import chess.model.AuthData;
 import chess.model.UserData;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import dataaccess.SqlException;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.*;
 
@@ -37,7 +38,7 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
     }
 
     public AuthData login(UserData requestUserData) throws UserNotFoundException, PasswordIncorrectException, MissingAttributeException,
-            DataAccessException {
+            SqlException {
         // check input is valid
         if (requestUserData.username() == null || requestUserData.password() == null ||
                 requestUserData.username().isBlank() || requestUserData.password().isBlank()) {
