@@ -21,7 +21,7 @@ public class LoginServiceTests extends ServiceTests {
         try {
             marioAuthToken = userService.register(mario).authToken();
             luigiAuthToken = userService.register(luigi).authToken();
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -39,7 +39,7 @@ public class LoginServiceTests extends ServiceTests {
             luigiAuthToken2 = userService.login(luigi).authToken();
             // ^ logging in a user who already has an auth token should give them
             // a NEW auth token (WITHOUT deleting the old one)
-        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException e) {
+        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -59,7 +59,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.register(mario);
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -69,7 +69,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             authToken1 = userService.login(mario).authToken();
-        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException e) {
+        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -79,7 +79,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             authToken2 = userService.login(mario).authToken();
-        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException e) {
+        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -89,7 +89,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             authToken3 = userService.login(mario).authToken();
-        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException e) {
+        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -140,7 +140,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.register(luigi);
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -148,7 +148,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.login(luigi);
-        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException e) {
+        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
     }
@@ -160,7 +160,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.register(mario);
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -168,7 +168,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.login(mario);
-        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException e) {
+        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -178,7 +178,7 @@ public class LoginServiceTests extends ServiceTests {
             userService.login(luigi);
         } catch (UserNotFoundException e) {
             exceptionThrown = true;
-        } catch (PasswordIncorrectException | MissingAttributeException e) {
+        } catch (PasswordIncorrectException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
         return exceptionThrown;
@@ -194,7 +194,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.register(mario);
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -202,7 +202,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.login(new UserData("mario", "incorrect", "email"));
-        } catch (UserNotFoundException | MissingAttributeException e) {
+        } catch (UserNotFoundException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         } catch (PasswordIncorrectException e) {
             exceptionThrown = true;
@@ -213,7 +213,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.login(new UserData("mario", "password", "email"));
-        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException e) {
+        } catch (UserNotFoundException | PasswordIncorrectException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 

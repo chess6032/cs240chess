@@ -81,7 +81,7 @@ public class LogoutServiceTests extends ServiceTests {
                 assertUserDAOsize(expectedUserDAOsize);
                 assertAuthDAOsize(++expectedAuthDAOsize);
             }
-        } catch (UserNotFoundException | MissingAttributeException | PasswordIncorrectException e) {
+        } catch (UserNotFoundException | MissingAttributeException | PasswordIncorrectException | SqlException e) {
             throw new RuntimeException(e);
         }
 

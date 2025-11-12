@@ -1,0 +1,95 @@
+package dataaccess.sqldao;
+
+import chess.model.UserData;
+import dataaccess.UserDAO;
+import dataaccess.exceptions.SqlException;
+
+public class SqlUserDAO extends SqlDAO implements UserDAO {
+
+    private final String TABLE_NAME = "users";
+    private final String USERNAME_HEADER = "username";
+    private final String PASSWORD_HEADER = "password";
+    private final String EMAIL_HEADER = "email";
+
+    public SqlUserDAO() throws SqlException {
+        super();
+    }
+
+    @Override
+    protected void configureDatabase() throws SqlException {
+        super.configureDatabase(
+                """
+                CREATE TABLE IF NOT EXISTS %s (
+                    %s VARCHAR(%d) NOT NULL PRIMARY KEY,
+                    %s VARCHAR(%d) NOT NULL,
+                    %s VARCHAR(%d)
+                );
+                """.formatted(TABLE_NAME,
+                        USERNAME_HEADER, VAR_CHAR_SIZE,
+                        PASSWORD_HEADER, VAR_CHAR_SIZE,
+                        EMAIL_HEADER, VAR_CHAR_SIZE)
+        );
+    }
+
+    // QUERIES
+
+    @Override
+    public int size() throws SqlException {
+        // query the size of the users table
+        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
+        return executeQuery(sql, (rs) -> {
+            if (rs.next()) {
+                return rs.getInt(1); // returns the count ig
+            }
+            return 0; // shouldn't happen for COUNT(*)
+        });
+    }
+
+    @Override
+    public UserData getUser(String username) throws SqlException {
+        final String sql =
+                """
+                SELECT %s, %s, %s
+                FROM %s
+                WHERE %s = ?
+                """.formatted(USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER,
+                        TABLE_NAME,
+                        USERNAME_HEADER);
+
+        return executeQuery(sql, (rs) -> {
+            // since we are looking for one row, we check rs.next() once.
+            if (rs.next()) {
+                String _username = rs.getString(USERNAME_HEADER);
+                String _password = rs.getString(PASSWORD_HEADER);
+                String _email = rs.getString(EMAIL_HEADER);
+
+                return new UserData(_username, _password, _email);
+            }
+
+            // If rs.next() is false, no user was found with that username.
+            return null;
+        }, username);
+    }
+
+    // UPDATES
+
+    @Override
+    public void clear() throws SqlException {
+        executeUpdate("DELETE FROM %s".formatted(TABLE_NAME));
+    }
+
+    @Override
+    public boolean createUser(String username, String clearTextPassword, String email) throws SqlException {
+        System.out.println(getUser(username));
+        if (getUser(username) != null) {
+            return false;
+        }
+        String hashedPassword = hashPassword(clearTextPassword);
+
+        var sql = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)".formatted(TABLE_NAME, USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER);
+        int i = executeUpdate(sql, username, hashedPassword, email);
+        System.out.println(i);
+        return i == 0;
+    }
+
+}

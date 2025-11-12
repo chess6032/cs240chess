@@ -7,6 +7,7 @@ import chess.model.AuthData;
 import chess.model.UserData;
 import dataaccess.exceptions.MissingAttributeException;
 import dataaccess.exceptions.PasswordIncorrectException;
+import dataaccess.exceptions.SqlException;
 import dataaccess.exceptions.UserNotFoundException;
 import server.FailedDeserializationException;
 import server.FailedSerializationException;
@@ -22,7 +23,7 @@ public class LoginHandler {
     }
     
     public String handleLoginRequest(Context ctx) throws FailedDeserializationException, FailedSerializationException,
-            MissingAttributeException, UserNotFoundException, PasswordIncorrectException {
+            MissingAttributeException, UserNotFoundException, PasswordIncorrectException, SqlException {
         UserData userData = deserializeBody(ctx, UserData.class);
 
         // log in user

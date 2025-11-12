@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.exceptions.*;
+import dataaccess.sqldao.SqlUserDAO;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -17,7 +18,16 @@ public class Server {
     private final Javalin javalin;
 
     // make each new DatabaseAccessObject ONLY ONCE.
-    private final UserDAO userDAO = new MemoryUserDAO();
+    private final UserDAO userDAO;
+
+    {
+        try {
+            userDAO = new SqlUserDAO();
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final AuthDAO authDAO = new MemoryAuthDAO();
     private final GameDAO gameDAO = new MemoryGameDAO();
 
@@ -69,7 +79,11 @@ public class Server {
     // HANDLERS
 
     public void clear(Context ctx) {
-        userService.clear();
+        try {
+            userService.clear();
+        } catch (SqlException e) {
+            sqlExceptionResponse(ctx, "userService.clear: ", e);
+        }
         gameService.clear();
         if (ctx == null) {
             return;
@@ -91,6 +105,9 @@ public class Server {
         } catch (AlreadyTakenException e) {
             alreadyTakenResponse(ctx);
             return;
+        } catch (SqlException e) {
+            sqlExceptionResponse(ctx, "Server.register: RegisterHandler.handleRegisterRequest: ", e);
+            return;
         }
 
         successResponse(ctx, json);
@@ -109,6 +126,9 @@ public class Server {
             return;
         } catch (FailedSerializationException e) {
             failedSerializationResponse(ctx, "Error: failed to serialize AuthData");
+            return;
+        } catch (SqlException e) {
+            sqlExceptionResponse(ctx, "Server.Login: LoginHandler.handleLoginRequest: ", e);
             return;
         }
 

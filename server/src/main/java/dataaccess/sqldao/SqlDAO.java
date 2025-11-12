@@ -11,6 +11,9 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public abstract class SqlDAO {
+
+    protected static final int VAR_CHAR_SIZE = 255;
+
     public SqlDAO () throws SqlException {
         configureDatabase();
     }

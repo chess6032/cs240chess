@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.JsonObject;
+import dataaccess.exceptions.SqlException;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
 
@@ -54,5 +55,12 @@ public interface ResponseUtility {
     static void buildErrorResponse(Context ctx, int status, String message) {
         ctx.status(status);
         ctx.json(new Gson().toJson(new ErrorMessage(message)));
+    }
+
+    // PHASE 4: SqlException
+
+    static void sqlExceptionResponse(Context ctx, String msg, SqlException e) {
+        ctx.status(GENERAL_STATUS);
+        ctx.json(new Gson().toJson(new ErrorMessage("SQL Exception: " + msg + e.getMessage())));
     }
 }

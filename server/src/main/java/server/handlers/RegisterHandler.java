@@ -21,7 +21,7 @@ public class RegisterHandler {
     }
 
     public String handleRegisterRequest(Context ctx) throws FailedDeserializationException, FailedSerializationException,
-            MissingAttributeException, AlreadyTakenException {
+            MissingAttributeException, AlreadyTakenException, SqlException {
 
         UserData userData = deserializeBody(ctx, UserData.class); // throws FailedDeserializationException
 
