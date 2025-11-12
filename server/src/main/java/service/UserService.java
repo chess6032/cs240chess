@@ -3,8 +3,6 @@ package service;
 import chess.model.AuthData;
 import chess.model.UserData;
 import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.SqlException;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.*;
 
@@ -12,15 +10,11 @@ import dataaccess.exceptions.*;
 public record UserService(UserDAO userDAO, AuthDAO authDAO) {
 
     public void clear() {
-        try {
-            userDAO.clear();
-            authDAO.clear();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        userDAO.clear();
+        authDAO.clear();
     }
 
-    public AuthData register(UserData userData) throws AlreadyTakenException, MissingAttributeException, DataAccessException {
+    public AuthData register(UserData userData) throws AlreadyTakenException, MissingAttributeException {
         if (userData.username() == null || userData.password() == null || userData.email() == null ||
                 userData.username().isBlank() || userData.password().isBlank() || userData.email().isBlank()) {
             throw new MissingAttributeException("UserService.register: username, password, or email null or not given");
@@ -37,8 +31,7 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
         return new AuthData(authToken, userData.username());
     }
 
-    public AuthData login(UserData requestUserData) throws UserNotFoundException, PasswordIncorrectException, MissingAttributeException,
-            SqlException {
+    public AuthData login(UserData requestUserData) throws UserNotFoundException, PasswordIncorrectException, MissingAttributeException {
         // check input is valid
         if (requestUserData.username() == null || requestUserData.password() == null ||
                 requestUserData.username().isBlank() || requestUserData.password().isBlank()) {

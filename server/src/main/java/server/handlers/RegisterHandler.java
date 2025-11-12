@@ -2,7 +2,6 @@ package server.handlers;
 
 import chess.model.AuthData;
 import chess.model.UserData;
-import dataaccess.DataAccessException;
 import dataaccess.exceptions.*;
 import server.FailedDeserializationException;
 import server.FailedSerializationException;
@@ -22,7 +21,7 @@ public class RegisterHandler {
     }
 
     public String handleRegisterRequest(Context ctx) throws FailedDeserializationException, FailedSerializationException,
-            DataAccessException {
+            MissingAttributeException, AlreadyTakenException {
 
         UserData userData = deserializeBody(ctx, UserData.class); // throws FailedDeserializationException
 
