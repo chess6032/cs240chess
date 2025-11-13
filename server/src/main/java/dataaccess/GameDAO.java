@@ -1,14 +1,15 @@
 package dataaccess;
 
 import chess.model.GameData;
+import dataaccess.exceptions.SqlException;
 
 import java.util.Collection;
 
 public interface GameDAO {
-    void clear();
-    int size();
+    void clear() throws SqlException;
+    int size() throws SqlException;
     int createGame(String gameName);
-    Collection<GameData> getAllGames();
+    Collection<GameData> getAllGames() throws SqlException;
     GameData getGame(int gameID);
     boolean addPlayerToGame(int gameID, String username, String playerColor);
 }
