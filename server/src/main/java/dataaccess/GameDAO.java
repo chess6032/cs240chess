@@ -10,6 +10,6 @@ public interface GameDAO {
     int size() throws SqlException;
     int createGame(String gameName);
     Collection<GameData> getAllGames() throws SqlException;
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws SqlException;
     boolean addPlayerToGame(int gameID, String username, String playerColor);
 }
