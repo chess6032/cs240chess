@@ -35,8 +35,8 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
 
     @Override
     public String createAuth(String username) throws SqlException {
-        String authTkn = AuthData.generateAuthToken();
-        String sql = "INSERT INTO %s (%s, %s) VALUES (?, ?)".formatted(TABLE_NAME, AUTHTOKEN_HEADER, USERNAME_HEADER);
+        final String authTkn = AuthData.generateAuthToken();
+        final String sql = "INSERT INTO %s (%s, %s) VALUES (?, ?)".formatted(TABLE_NAME, AUTHTOKEN_HEADER, USERNAME_HEADER);
         executeUpdate(sql, authTkn, username);
         return authTkn;
     }
@@ -49,12 +49,26 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
     // QUERIES
 
     @Override
-    public int size() {
-        return 0;
+    public int size() throws SqlException {
+        return tableSize();
     }
 
     @Override
-    public String findUserOfAuth(String authToken) {
-        return "";
+    public String findUserOfAuth(String authToken) throws SqlException {
+        final String sql =
+                """
+                SELECT %s, %s
+                FROM %s
+                WHERE %s = ?
+                """.formatted(AUTHTOKEN_HEADER, USERNAME_HEADER,
+                        TABLE_NAME,
+                        AUTHTOKEN_HEADER);
+
+        return executeQuery(sql, (rs) -> {
+           if (rs.next()) {
+               return rs.getString(AUTHTOKEN_HEADER);
+           }
+           return null;
+        });
     }
 }
