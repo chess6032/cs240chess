@@ -60,6 +60,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
 
     @Override
     public String findUserOfAuth(String authToken) throws SqlException {
+        // FIXME: I don't think this is actually used in the SQL implementation???
         final String sql =
                 """
                 SELECT %s, %s
