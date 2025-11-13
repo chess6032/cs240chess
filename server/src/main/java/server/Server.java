@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.exceptions.*;
+import dataaccess.sqldao.SqlAuthDAO;
 import dataaccess.sqldao.SqlUserDAO;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -28,7 +29,16 @@ public class Server {
         }
     }
 
-    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final AuthDAO authDAO;
+
+    {
+        try {
+            authDAO = new SqlAuthDAO();
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final GameDAO gameDAO = new MemoryGameDAO();
 
     private final UserService userService = new UserService(userDAO, authDAO);
