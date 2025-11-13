@@ -14,7 +14,10 @@ public abstract class SqlDAO {
 
     protected static final int VAR_CHAR_SIZE = 255;
 
-    public SqlDAO () throws SqlException {
+    protected final String TABLE_NAME;
+
+    protected SqlDAO (String tableName) throws SqlException {
+        TABLE_NAME = tableName;
         configureDatabase();
     }
 
@@ -94,5 +97,31 @@ public abstract class SqlDAO {
         } catch (DataAccessException e) {
             throw new SqlException(e);
         }
+    }
+
+    protected void clearTable() throws SqlException {
+        executeUpdate("DELETE FROM %s".formatted(TABLE_NAME));
+    }
+
+//    public int size() throws SqlException {
+//        // query the size of the users table
+//        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
+//        return executeQuery(sql, (rs) -> {
+//            if (rs.next()) {
+//                return rs.getInt(1); // returns the count ig
+//            }
+//            return 0; // shouldn't happen for COUNT(*)
+//        });
+//    }
+
+    protected int tableSize() throws SqlException {
+        // query the size of the users table
+        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
+        return executeQuery(sql, (rs) -> {
+            if (rs.next()) {
+                return rs.getInt(1); // returns the count ig
+            }
+            return 0; // shouldn't happen for COUNT(*)
+        });
     }
 }

@@ -6,13 +6,12 @@ import dataaccess.exceptions.SqlException;
 
 public class SqlUserDAO extends SqlDAO implements UserDAO {
 
-    private final String TABLE_NAME = "users";
     private final String USERNAME_HEADER = "username";
     private final String PASSWORD_HEADER = "password";
     private final String EMAIL_HEADER = "email";
 
     public SqlUserDAO() throws SqlException {
-        super();
+        super("users");
     }
 
     @Override
@@ -31,18 +30,47 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
         );
     }
 
+    // UPDATES
+
+//    @Override
+//    public void clear() throws SqlException {
+//        executeUpdate("DELETE FROM %s".formatted(TABLE_NAME));
+//    }
+
+    @Override
+    public void clear() throws SqlException {
+        clearTable();
+    }
+
+    @Override
+    public boolean createUser(String username, String clearTextPassword, String email) throws SqlException {
+//        System.out.println(getUser(username));
+        if (getUser(username) != null) {
+            return false;
+        }
+        String hashedPassword = hashPassword(clearTextPassword);
+
+        var sql = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)".formatted(TABLE_NAME, USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER);
+        return  executeUpdate(sql, username, hashedPassword, email) == 0;
+    }
+
     // QUERIES
+
+//    @Override
+//    public int size() throws SqlException {
+//        // query the size of the users table
+//        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
+//        return executeQuery(sql, (rs) -> {
+//            if (rs.next()) {
+//                return rs.getInt(1); // returns the count ig
+//            }
+//            return 0; // shouldn't happen for COUNT(*)
+//        });
+//    }
 
     @Override
     public int size() throws SqlException {
-        // query the size of the users table
-        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
-        return executeQuery(sql, (rs) -> {
-            if (rs.next()) {
-                return rs.getInt(1); // returns the count ig
-            }
-            return 0; // shouldn't happen for COUNT(*)
-        });
+        return tableSize();
     }
 
     @Override
@@ -69,27 +97,6 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
             // If rs.next() is false, no user was found with that username.
             return null;
         }, username);
-    }
-
-    // UPDATES
-
-    @Override
-    public void clear() throws SqlException {
-        executeUpdate("DELETE FROM %s".formatted(TABLE_NAME));
-    }
-
-    @Override
-    public boolean createUser(String username, String clearTextPassword, String email) throws SqlException {
-        System.out.println(getUser(username));
-        if (getUser(username) != null) {
-            return false;
-        }
-        String hashedPassword = hashPassword(clearTextPassword);
-
-        var sql = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)".formatted(TABLE_NAME, USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER);
-        int i = executeUpdate(sql, username, hashedPassword, email);
-        System.out.println(i);
-        return i == 0;
     }
 
 }
