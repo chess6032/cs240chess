@@ -1,6 +1,7 @@
 package dataaccess.sqldao;
 
 import chess.model.UserData;
+import dataaccess.PasswordHasher;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.SqlException;
 
@@ -97,6 +98,27 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
             // If rs.next() is false, no user was found with that username.
             return null;
         }, username);
+    }
+
+    @Override
+    public boolean passwordMatches(String username, String clearTextPassword) throws SqlException {
+        final String sql =
+                """
+                SELECT %s FROM %s WHERE %s = %s
+                """.formatted(PASSWORD_HEADER, TABLE_NAME, USERNAME_HEADER, username);
+
+        String correctPassword = executeQuery(sql, (rs) -> {
+           if (rs.next()) {
+               return rs.getString(PASSWORD_HEADER);
+           }
+           return null;
+        });
+
+        if (correctPassword == null) {
+            return false; // username incorrect
+        }
+
+        return checkPassword(clearTextPassword, correctPassword);
     }
 
 }

@@ -2,6 +2,7 @@ package dataaccess.sqldao;
 
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
+import dataaccess.PasswordHasher;
 import dataaccess.exceptions.SqlException;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -70,7 +71,11 @@ public abstract class SqlDAO {
     }
 
     protected String hashPassword(String clearTextPassword) {
-        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+        return PasswordHasher.hashPassword(clearTextPassword);
+    }
+
+    protected boolean checkPassword(String clearTextPassword, String correctPassword) {
+        return PasswordHasher.checkPassword(clearTextPassword, correctPassword);
     }
 
     protected <T> T executeQuery(String statement, ResultSetHandler<T> handler, Object... params) throws SqlException {

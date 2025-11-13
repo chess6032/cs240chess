@@ -47,7 +47,7 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
 
         // make sure password matches
         // TODO: do I need to make sure email matches?
-        if (!requestUserData.password().equals(dbUserData.password())) {
+        if (!userDAO.passwordMatches(requestUserData.username(), requestUserData.password())) {
             throw new PasswordIncorrectException("UserService.login: password incorrect: " + requestUserData.password());
         }
 

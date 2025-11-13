@@ -48,7 +48,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
                 DELETE FROM %s
                 WHERE %s = ?
                 """.formatted(TABLE_NAME, AUTHTOKEN_HEADER);
-        return executeUpdate(sql, authToken) != 0; // FIXME: != 0, right??
+        return executeUpdate(sql, authToken) == 0;
     }
 
     // QUERIES
@@ -69,11 +69,14 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
                         TABLE_NAME,
                         AUTHTOKEN_HEADER);
 
-        return executeQuery(sql, (rs) -> {
+        System.out.println(sql);
+        String s = executeQuery(sql, (rs) -> {
            if (rs.next()) {
                return rs.getString(AUTHTOKEN_HEADER);
            }
            return null;
         });
+        System.out.println(s);
+        return s;
     }
 }
