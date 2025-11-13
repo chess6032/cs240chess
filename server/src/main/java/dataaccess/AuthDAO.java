@@ -7,5 +7,5 @@ public interface AuthDAO {
     int size() throws SqlException;
     String createAuth(String username) throws SqlException;
     String findUserOfAuth(String authToken) throws SqlException;
-    boolean deleteAuth(String authToken);
+    boolean deleteAuth(String authToken) throws SqlException;
 }

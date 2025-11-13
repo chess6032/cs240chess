@@ -42,8 +42,13 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
     }
 
     @Override
-    public boolean deleteAuth(String authToken) {
-        return false;
+    public boolean deleteAuth(String authToken) throws SqlException {
+        final String sql =
+                """
+                DELETE FROM %s
+                WHERE %s = ?
+                """.formatted(TABLE_NAME, AUTHTOKEN_HEADER);
+        return executeUpdate(sql, authToken) != 0; // FIXME: != 0, right??
     }
 
     // QUERIES
