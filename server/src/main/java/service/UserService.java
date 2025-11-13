@@ -56,7 +56,7 @@ public record UserService(UserDAO userDAO, AuthDAO authDAO) {
         return new AuthData(authToken, requestUserData.username());
     }
 
-    public void logout(String authToken) throws AuthTokenNotFoundException {
+    public void logout(String authToken) throws AuthTokenNotFoundException, SqlException {
         if (!authDAO.deleteAuth(authToken)) {
             throw new AuthTokenNotFoundException("UserService.logout");
         }

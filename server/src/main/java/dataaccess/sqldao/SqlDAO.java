@@ -34,7 +34,7 @@ public abstract class SqlDAO {
                 st.executeUpdate(createStatement);
             } catch (Exception e) {
                 // FIXME: wtf do I catch???
-                throw new RuntimeException(e); // temporary
+                throw new RuntimeException(e); // FIXME: temporary
             }
         } catch (SQLException | DataAccessException e) {
             throw new SqlException(e.getMessage());

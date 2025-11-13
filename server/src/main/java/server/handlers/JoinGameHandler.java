@@ -1,10 +1,7 @@
 package server.handlers;
 
 import chess.model.PlayerColorGameIDforJSON;
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.AuthTokenNotFoundException;
-import dataaccess.exceptions.GameNotFoundException;
-import dataaccess.exceptions.MissingAttributeException;
+import dataaccess.exceptions.*;
 import io.javalin.http.Context;
 import server.FailedDeserializationException;
 import service.GameService;
@@ -20,7 +17,7 @@ public class JoinGameHandler {
     }
 
     public void handleJoinGameRequest(Context ctx) throws FailedDeserializationException, MissingAttributeException,
-            AuthTokenNotFoundException, AlreadyTakenException, GameNotFoundException {
+            AuthTokenNotFoundException, AlreadyTakenException, GameNotFoundException, SqlException {
 
         var info = deserializeBody(ctx, PlayerColorGameIDforJSON.class);
         String authToken = ctx.header("Authorization");

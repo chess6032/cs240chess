@@ -142,6 +142,8 @@ public class Server {
         } catch (AuthTokenNotFoundException e) {
             unauthorizedResponse(ctx);
             return;
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
         }
 
         ResponseUtility.emptySuccessResponse(ctx);
@@ -164,6 +166,9 @@ public class Server {
         } catch (MissingAttributeException e) {
             buildErrorResponse(ctx, BAD_REQUEST_STATUS, "Error: no game name provided");
             return;
+        } catch (SqlException e) {
+            sqlExceptionResponse(ctx, "Server.createGame: CreateGamerHandler.handleCreateGameRequest: ", e);
+            return;
         }
 
         successResponse(ctx, json);
@@ -179,6 +184,9 @@ public class Server {
             return;
         } catch (AuthTokenNotFoundException e) {
             unauthorizedResponse(ctx);
+            return;
+        } catch (SqlException e) {
+            sqlExceptionResponse(ctx, "Server.listGames: ListGamesHandler.handleListGamesRequest: ", e);
             return;
         }
 
@@ -203,6 +211,9 @@ public class Server {
         } catch (GameNotFoundException e) {
             // FIXME: what status to give?
             buildErrorResponse(ctx, BAD_REQUEST_STATUS, "Error: game not found");
+            return;
+        } catch (SqlException e) {
+            sqlExceptionResponse(ctx, "Server.joinGame: JoinGameHandler.handleJoinGameRequest: ", e);
             return;
         }
 

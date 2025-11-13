@@ -4,10 +4,7 @@ import chess.model.GameData;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.AuthTokenNotFoundException;
-import dataaccess.exceptions.GameNotFoundException;
-import dataaccess.exceptions.MissingAttributeException;
+import dataaccess.exceptions.*;
 
 import java.util.Collection;
 
@@ -16,7 +13,7 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
         gameDAO.clear();
     }
 
-    public int createGame(String authToken, String gameName) throws AuthTokenNotFoundException, MissingAttributeException {
+    public int createGame(String authToken, String gameName) throws AuthTokenNotFoundException, MissingAttributeException, SqlException {
         if (gameName == null) {
             throw new MissingAttributeException("GameService.createGame: gameName is null");
         }
@@ -30,7 +27,7 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
         return gameDAO.createGame(gameName);
     }
 
-    public Collection<GameData> listGames(String authToken) throws AuthTokenNotFoundException {
+    public Collection<GameData> listGames(String authToken) throws AuthTokenNotFoundException, SqlException {
         if (authDAO.findUserOfAuth(authToken) == null) {
             throw new AuthTokenNotFoundException("GameService.listGames: auth token not found: " + authToken);
         }
@@ -39,7 +36,7 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
     }
 
     public void joinGame(String authToken, String playerColor, int gameID) throws AuthTokenNotFoundException, GameNotFoundException,
-            AlreadyTakenException, MissingAttributeException {
+            AlreadyTakenException, MissingAttributeException, SqlException {
 
         if (playerColor == null || gameID <= 0 ||
                 !(playerColor.equals("WHITE") || playerColor.equals("BLACK"))) {

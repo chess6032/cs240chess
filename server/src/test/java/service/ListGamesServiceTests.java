@@ -5,6 +5,7 @@ import chess.model.UserData;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.MissingAttributeException;
+import dataaccess.exceptions.SqlException;
 import org.junit.jupiter.api.*;
 
 import java.util.Collection;
@@ -18,7 +19,7 @@ public class ListGamesServiceTests extends ServiceTests {
         String authToken;
         try {
             authToken = userService.register(new UserData("mario", "password", "email")).authToken();
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -26,7 +27,7 @@ public class ListGamesServiceTests extends ServiceTests {
         for (int i = 0; i < 5; ++i) {
             try {
                 gameService.createGame(authToken, Integer.toString(i+1));
-            } catch (AuthTokenNotFoundException | MissingAttributeException e) {
+            } catch (AuthTokenNotFoundException | MissingAttributeException | SqlException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -36,7 +37,7 @@ public class ListGamesServiceTests extends ServiceTests {
         Collection<GameData> gamesList;
         try {
             gamesList = gameService.listGames(authToken);
-        } catch (AuthTokenNotFoundException e) {
+        } catch (AuthTokenNotFoundException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -52,6 +53,8 @@ public class ListGamesServiceTests extends ServiceTests {
             gameService.listGames("skibidi rizz");
         } catch (AuthTokenNotFoundException e) {
             exceptionThrown = true;
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
         }
 
         Assertions.assertTrue(exceptionThrown);

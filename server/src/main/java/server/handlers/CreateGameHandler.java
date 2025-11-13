@@ -4,6 +4,7 @@ import chess.model.GameData;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.MissingAttributeException;
+import dataaccess.exceptions.SqlException;
 import io.javalin.http.Context;
 import server.FailedDeserializationException;
 import server.FailedSerializationException;
@@ -18,7 +19,7 @@ public class CreateGameHandler {
     }
 
     public String handleCreateGameRequest(Context ctx) throws FailedDeserializationException, MissingAttributeException,
-            AuthTokenNotFoundException, FailedSerializationException {
+            AuthTokenNotFoundException, FailedSerializationException, SqlException {
 
         String gameName = HandlerUtility.deserializeBody(ctx, GameData.class).gameName();
         String authToken = ctx.header("Authorization");

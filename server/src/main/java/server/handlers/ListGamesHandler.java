@@ -3,6 +3,7 @@ package server.handlers;
 import chess.model.GameData;
 import chess.model.ListGamesResult;
 import dataaccess.exceptions.AuthTokenNotFoundException;
+import dataaccess.exceptions.SqlException;
 import io.javalin.http.Context;
 import server.FailedSerializationException;
 import service.GameService;
@@ -17,7 +18,8 @@ public class ListGamesHandler {
         this.gameService = gameService;
     }
 
-    public String handleListGamesRequest(Context ctx) throws AuthTokenNotFoundException, FailedSerializationException {
+    public String handleListGamesRequest(Context ctx) throws AuthTokenNotFoundException, FailedSerializationException,
+            SqlException {
         // get games list
         Collection<GameData> games = gameService.listGames(ctx.header("Authorization"));
 
