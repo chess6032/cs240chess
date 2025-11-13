@@ -104,15 +104,15 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
     public boolean passwordMatches(String username, String clearTextPassword) throws SqlException {
         final String sql =
                 """
-                SELECT %s FROM %s WHERE %s = %s
-                """.formatted(PASSWORD_HEADER, TABLE_NAME, USERNAME_HEADER, username);
+                SELECT %s FROM %s WHERE %s = ?
+                """.formatted(PASSWORD_HEADER, TABLE_NAME, USERNAME_HEADER);
 
         String correctPassword = executeQuery(sql, (rs) -> {
            if (rs.next()) {
                return rs.getString(PASSWORD_HEADER);
            }
            return null;
-        });
+        }, username);
 
         if (correctPassword == null) {
             return false; // username incorrect

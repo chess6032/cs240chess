@@ -10,7 +10,11 @@ import java.util.Collection;
 
 public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
     public void clear() {
-        gameDAO.clear();
+        try {
+            gameDAO.clear();
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int createGame(String authToken, String gameName) throws AuthTokenNotFoundException, MissingAttributeException, SqlException {

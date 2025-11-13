@@ -76,7 +76,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
                return rs.getString(AUTHTOKEN_HEADER);
            }
            return null;
-        });
+        }, authToken);
         System.out.println(s);
         return s;
     }
