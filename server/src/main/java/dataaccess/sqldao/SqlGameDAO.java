@@ -16,7 +16,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     private final String CHESSGAME_HEADER = "game";
     private final int CHESS_GAME_JSON_STRING_SIZE = 10000;
 
-    protected SqlGameDAO() throws SqlException {
+    public SqlGameDAO() throws SqlException {
         super("games");
     }
 
@@ -24,11 +24,12 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     protected void configureDatabase() throws SqlException {
         super.configureDatabase("""
                 CREATE TABLE IF NOT EXISTS %s (
-                    %s INT NOT NULL PRIMARY KEY AUTO INCREMENT,
+                    %s INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                     %s VARCHAR(%d),
                     %s VARCHAR(%d),
-                    %s VARCHAR(%d) NOT NULL
                     %s VARCHAR(%d) NOT NULL,
+                    %s VARCHAR(%d) NOT NULL
+                )
                 """.formatted(
                         TABLE_NAME,
                         GAME_ID_HEADER,
