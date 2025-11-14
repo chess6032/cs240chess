@@ -9,15 +9,22 @@ import java.util.Collection;
 
 public class SqlGameDAO extends SqlDAO implements GameDAO {
 
+    //              games meta
+    // id | white username | black username | game name
+
     private final String GAME_ID_HEADER = "id";
     private final String WHITE_HEADER = "`white username`";
     private final String BLACK_HEADER = "`black username`";
     private final String GAME_NAME_HEADER = "`game name`";
+
+    //  games
+    // id | game
+    private final String CHESSGAMES_TABLE_NAME = "games";
     private final String CHESSGAME_HEADER = "game";
-    private final int CHESS_GAME_JSON_STRING_SIZE = 10000;
+    private final int CHESSGAME_JSON_STRING_SIZE = 10000;
 
     public SqlGameDAO() throws SqlException {
-        super("games");
+        super("games meta");
     }
 
     @Override
@@ -27,7 +34,6 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                     %s INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                     %s VARCHAR(%d),
                     %s VARCHAR(%d),
-                    %s VARCHAR(%d) NOT NULL,
                     %s VARCHAR(%d) NOT NULL
                 )
                 """.formatted(
@@ -35,9 +41,18 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                         GAME_ID_HEADER,
                         WHITE_HEADER, VAR_CHAR_SIZE,
                         BLACK_HEADER, VAR_CHAR_SIZE,
-                        GAME_NAME_HEADER, VAR_CHAR_SIZE,
-                        CHESSGAME_HEADER, CHESS_GAME_JSON_STRING_SIZE
+                        GAME_NAME_HEADER, VAR_CHAR_SIZE//,
+//                        CHESSGAME_HEADER, CHESS_GAME_JSON_STRING_SIZE
                 )
+        );
+        super.configureDatabase("""
+                CREATE TABLE IF NOT EXISTS %s (
+                    %s INT NOT NULL PRIMARY KEY,
+                    %s VARCHAR(%d) NOT NULL
+                )
+                """.formatted(CHESSGAMES_TABLE_NAME,
+                    GAME_ID_HEADER,
+                    CHESSGAME_HEADER, CHESSGAME_JSON_STRING_SIZE)
         );
     }
 
