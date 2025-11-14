@@ -98,7 +98,7 @@ public abstract class SqlDAO {
 
 
         } catch (SQLException e) {
-            throw new SqlException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new SqlException(String.format("unable to query database: %s, %s", statement, e.getMessage()));
         } catch (DataAccessException e) {
             throw new SqlException(e);
         }

@@ -8,8 +8,8 @@ import java.util.Collection;
 public interface GameDAO {
     void clear() throws SqlException;
     int size() throws SqlException;
-    int createGame(String gameName);
+    int createGame(String gameName) throws SqlException;
     Collection<GameData> getAllGames() throws SqlException;
     GameData getGame(int gameID) throws SqlException;
-    boolean addPlayerToGame(int gameID, String username, String playerColor);
+    boolean addPlayerToGame(int gameID, String username, String playerColor) throws SqlException;
 }

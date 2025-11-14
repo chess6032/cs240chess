@@ -17,14 +17,17 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     private final String BLACK_HEADER = "`black username`";
     private final String GAME_NAME_HEADER = "`game name`";
 
+    private final String DEFAULT_WHITE_VALUE = "NULL";
+    private final String DEFAULT_BLACK_VALUE = "NULL";
+
     //  games
     // id | game
-    private final String CHESSGAMES_TABLE_NAME = "games";
-    private final String CHESSGAME_HEADER = "game";
-    private final int CHESSGAME_JSON_STRING_SIZE = 10000;
-
+//    private final String CHESSGAMES_TABLE_NAME = "games";
+//    private final String CHESSGAME_HEADER = "game";
+//    private final int CHESSGAME_JSON_STRING_SIZE = 10000;
+//
     public SqlGameDAO() throws SqlException {
-        super("games meta");
+        super("`games meta`");
     }
 
     @Override
@@ -45,15 +48,15 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 //                        CHESSGAME_HEADER, CHESS_GAME_JSON_STRING_SIZE
                 )
         );
-        super.configureDatabase("""
-                CREATE TABLE IF NOT EXISTS %s (
-                    %s INT NOT NULL PRIMARY KEY,
-                    %s VARCHAR(%d) NOT NULL
-                )
-                """.formatted(CHESSGAMES_TABLE_NAME,
-                    GAME_ID_HEADER,
-                    CHESSGAME_HEADER, CHESSGAME_JSON_STRING_SIZE)
-        );
+//        super.configureDatabase("""
+//                CREATE TABLE IF NOT EXISTS %s (
+//                    %s INT NOT NULL PRIMARY KEY,
+//                    %s VARCHAR(%d) NOT NULL
+//                )
+//                """.formatted(CHESSGAMES_TABLE_NAME,
+//                    GAME_ID_HEADER,
+//                    CHESSGAME_HEADER, CHESSGAME_JSON_STRING_SIZE)
+//        );
     }
 
     // UPDATES
@@ -64,13 +67,62 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     }
 
     @Override
-    public int createGame(String gameName) {
-        return 0;
+    public int createGame(String gameName) throws SqlException {
+        String sql = """
+                INSERT INTO %s
+                (%s, %s, %s)
+                VALUES (%s, %s, ?)
+                """.formatted(TABLE_NAME,
+                WHITE_HEADER, BLACK_HEADER, GAME_NAME_HEADER,
+                DEFAULT_WHITE_VALUE, DEFAULT_BLACK_VALUE);
+        System.out.println(sql);
+        System.out.println("game name: " + gameName);
+        return executeUpdate(sql, gameName);
+    }
+
+    private boolean colorIsWhite(String playerColor) {
+        return playerColor.equals("WHITE");
+    }
+
+    private boolean colorIsBlack(String playerColor) {
+        return playerColor.equals("BLACK");
+    }
+
+    private boolean isColorAvailable(GameData game, String playerColor) {
+        if (colorIsWhite(playerColor)) {
+            return game.whiteUsername() == null; // TODO: or equals ""??
+        } else if (colorIsBlack(playerColor)) {
+            return game.blackUsername() == null; // TODO: equals ""???
+        }
+        return false;
     }
 
     @Override
-    public boolean addPlayerToGame(int gameID, String username, String playerColor) {
-        return false;
+    public boolean addPlayerToGame(int gameID, String username, String playerColor) throws SqlException {
+        GameData game = getGame(gameID);
+        if (game == null) {
+            return false;
+        }
+
+        // find column to insert username into
+        String usernameHeader;
+        if (colorIsWhite(playerColor)) {
+            usernameHeader = WHITE_HEADER;
+        } else if (colorIsBlack(playerColor)) {
+            usernameHeader = BLACK_HEADER;
+        } else {
+            return false;
+        }
+
+        executeUpdate("""
+                INSERT INTO %s
+                (%s)
+                VALUES
+                ?
+                """.formatted(TABLE_NAME, usernameHeader),
+            username);
+
+        return true;
     }
 
     // QUERIES
@@ -82,7 +134,9 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public Collection<GameData> getAllGames() throws SqlException {
+        System.out.println("I need ALL the games");
         String sql = "SELECT * FROM %s".formatted(TABLE_NAME);
+        System.out.println(sql);
         return executeQuery(sql, (rs) -> {
             Collection<GameData> games = new ArrayList<>();
             while (rs.next()) {
