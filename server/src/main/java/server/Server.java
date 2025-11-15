@@ -162,7 +162,7 @@ public class Server {
             unauthorizedResponse(ctx);
             return;
         } catch (SqlException e) {
-            throw new RuntimeException(e);
+           sqlExceptionResponse(ctx, "Server.logout: ", e);
         }
 
         ResponseUtility.emptySuccessResponse(ctx);
