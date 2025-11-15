@@ -13,12 +13,9 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     // id | white username | black username | game name
 
     private final String GAME_ID_HEADER = "id";
-    private final String WHITE_HEADER = "`white username`";
-    private final String BLACK_HEADER = "`black username`";
-    private final String GAME_NAME_HEADER = "`game name`";
-
-    private final String DEFAULT_WHITE_VALUE = "NULL";
-    private final String DEFAULT_BLACK_VALUE = "NULL";
+    private final String WHITE_HEADER = "white_username";
+    private final String BLACK_HEADER = "black_username";
+    private final String GAME_NAME_HEADER = "name";
 
     //  games
     // id | game
@@ -27,7 +24,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 //    private final int CHESSGAME_JSON_STRING_SIZE = 10000;
 //
     public SqlGameDAO() throws SqlException {
-        super("`games meta`");
+        super("games_meta");
     }
 
     @Override
@@ -68,15 +65,16 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public int createGame(String gameName) throws SqlException {
+        String DEFAULT_USERNAME_VALUE = "NULL";
         String sql = """
                 INSERT INTO %s
                 (%s, %s, %s)
                 VALUES (%s, %s, ?)
                 """.formatted(TABLE_NAME,
                 WHITE_HEADER, BLACK_HEADER, GAME_NAME_HEADER,
-                DEFAULT_WHITE_VALUE, DEFAULT_BLACK_VALUE);
-        System.out.println(sql);
-        System.out.println("game name: " + gameName);
+                DEFAULT_USERNAME_VALUE, DEFAULT_USERNAME_VALUE);
+//        System.out.println(sql);
+//        System.out.println("game name: " + gameName);
         return executeUpdate(sql, gameName);
     }
 
@@ -86,15 +84,6 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     private boolean colorIsBlack(String playerColor) {
         return playerColor.equals("BLACK");
-    }
-
-    private boolean isColorAvailable(GameData game, String playerColor) {
-        if (colorIsWhite(playerColor)) {
-            return game.whiteUsername() == null; // TODO: or equals ""??
-        } else if (colorIsBlack(playerColor)) {
-            return game.blackUsername() == null; // TODO: equals ""???
-        }
-        return false;
     }
 
     @Override
@@ -113,6 +102,8 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
         } else {
             return false;
         }
+
+
 
         executeUpdate("""
                 INSERT INTO %s
@@ -134,9 +125,9 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public Collection<GameData> getAllGames() throws SqlException {
-        System.out.println("I need ALL the games");
+//        System.out.println("I need ALL the games");
         String sql = "SELECT * FROM %s".formatted(TABLE_NAME);
-        System.out.println(sql);
+//        System.out.println(sql);
         return executeQuery(sql, (rs) -> {
             Collection<GameData> games = new ArrayList<>();
             while (rs.next()) {
