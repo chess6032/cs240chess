@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.JsonObject;
 import dataaccess.exceptions.SqlException;
+import dataaccess.exceptions.SqlInterruptedException;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
 
@@ -57,10 +58,23 @@ public interface ResponseUtility {
         ctx.json(new Gson().toJson(new ErrorMessage(message)));
     }
 
-    // PHASE 4: SqlException
+    // PHASE 4: SQL errors
+
+    static void handleSqlException(Context ctx, String msg, SqlException e) {
+        if (e.getClass().equals(SqlInterruptedException.class)) {
+            sqlInterruptedExceptionResponse(ctx, msg, e);
+        } else {
+            sqlExceptionResponse(ctx, msg, e);
+        }
+    }
 
     static void sqlExceptionResponse(Context ctx, String msg, SqlException e) {
         ctx.status(INTERNAL_ERROR_STATUS);
-        ctx.json(new Gson().toJson(new ErrorMessage("SQL Exception: " + msg + e.getMessage())));
+        ctx.json(new Gson().toJson(new ErrorMessage("Error: SQL Exception: " + msg + e.getMessage())));
+    }
+
+    static void sqlInterruptedExceptionResponse(Context ctx, String msg, SqlException e) {
+        ctx.status(INTERNAL_ERROR_STATUS);
+        ctx.json(new Gson().toJson(new ErrorMessage("Error: SQL Connection interrupted: " + msg + e.getMessage())));
     }
 }

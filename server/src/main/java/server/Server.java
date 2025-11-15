@@ -106,7 +106,8 @@ public class Server {
         try {
             gameService.clear();
         } catch (SqlException e) {
-            sqlExceptionResponse(ctx, "Server.clear: gameService.clear: ", e);
+            handleSqlException(ctx, "Server.clear: gameService.clear: ", e);
+            return;
         }
         if (ctx == null) {
             return;
@@ -129,7 +130,7 @@ public class Server {
             alreadyTakenResponse(ctx);
             return;
         } catch (SqlException e) {
-            sqlExceptionResponse(ctx, "Server.register: RegisterHandler.handleRegisterRequest: ", e);
+            handleSqlException(ctx, "Server.register: RegisterHandler.handleRegisterRequest: ", e);
             return;
         }
 
@@ -151,7 +152,7 @@ public class Server {
             failedSerializationResponse(ctx, "Error: failed to serialize AuthData");
             return;
         } catch (SqlException e) {
-            sqlExceptionResponse(ctx, "Server.Login: LoginHandler.handleLoginRequest: ", e);
+            handleSqlException(ctx, "Server.Login: LoginHandler.handleLoginRequest: ", e);
             return;
         }
 
@@ -166,7 +167,8 @@ public class Server {
             unauthorizedResponse(ctx);
             return;
         } catch (SqlException e) {
-           sqlExceptionResponse(ctx, "Server.logout: ", e);
+            handleSqlException(ctx, "Server.logout: ", e);
+            return;
         }
 
         ResponseUtility.emptySuccessResponse(ctx);
@@ -190,7 +192,7 @@ public class Server {
             buildErrorResponse(ctx, BAD_REQUEST_STATUS, "Error: no game name provided");
             return;
         } catch (SqlException e) {
-            sqlExceptionResponse(ctx, "Server.createGame: CreateGamerHandler.handleCreateGameRequest: ", e);
+            handleSqlException(ctx, "Server.createGame: CreateGamerHandler.handleCreateGameRequest: ", e);
             return;
         }
 
@@ -209,7 +211,7 @@ public class Server {
             unauthorizedResponse(ctx);
             return;
         } catch (SqlException e) {
-            sqlExceptionResponse(ctx, "Server.listGames: ListGamesHandler.handleListGamesRequest: ", e);
+            handleSqlException(ctx, "Server.listGames: ListGamesHandler.handleListGamesRequest: ", e);
             return;
         }
 
@@ -236,7 +238,7 @@ public class Server {
             buildErrorResponse(ctx, BAD_REQUEST_STATUS, "Error: game not found");
             return;
         } catch (SqlException e) {
-            sqlExceptionResponse(ctx, "Server.joinGame: JoinGameHandler.handleJoinGameRequest: ", e);
+            handleSqlException(ctx, "Server.joinGame: JoinGameHandler.handleJoinGameRequest: ", e);
             return;
         }
 

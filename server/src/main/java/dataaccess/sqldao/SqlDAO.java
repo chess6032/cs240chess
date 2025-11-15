@@ -4,7 +4,9 @@ import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.PasswordHasher;
 import dataaccess.exceptions.SqlException;
-import org.mindrot.jbcrypt.BCrypt;
+import dataaccess.exceptions.SqlInterruptedException;
+
+import java.sql.SQLNonTransientConnectionException;
 
 import java.sql.*;
 
@@ -63,6 +65,8 @@ public abstract class SqlDAO {
             }
 
             return 0;
+        } catch (SQLNonTransientConnectionException e) {
+            throw new SqlInterruptedException("connection severed during update: " + statement, e);
         } catch (SQLException e) {
             throw new SqlException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         } catch (DataAccessException e) {
@@ -96,7 +100,8 @@ public abstract class SqlDAO {
                 return handler.handle(rs);
             }
 
-
+        } catch (SQLNonTransientConnectionException e) {
+            throw new SqlInterruptedException("connection severed during query: " + statement, e);
         } catch (SQLException e) {
             throw new SqlException(String.format("unable to query database: %s, %s", statement, e.getMessage()));
         } catch (DataAccessException e) {
