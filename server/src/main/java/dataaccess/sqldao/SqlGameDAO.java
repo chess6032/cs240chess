@@ -103,15 +103,15 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
             return false;
         }
 
+        String sql = """
+                UPDATE %s
+                SET %s = ?
+                WHERE %s = ?
+                """.formatted(TABLE_NAME, usernameHeader, GAME_ID_HEADER);
 
+        System.out.println(sql);
 
-        executeUpdate("""
-                INSERT INTO %s
-                (%s)
-                VALUES
-                ?
-                """.formatted(TABLE_NAME, usernameHeader),
-            username);
+        executeUpdate(sql, username, gameID);
 
         return true;
     }

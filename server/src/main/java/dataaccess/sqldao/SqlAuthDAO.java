@@ -65,7 +65,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
                 """
                 SELECT %s, %s
                 FROM %s
-                WHERE %s = ?
+                WHERE %s = ?;
                 """.formatted(AUTHTOKEN_HEADER, USERNAME_HEADER,
                         TABLE_NAME,
                         AUTHTOKEN_HEADER);
@@ -73,7 +73,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
         System.out.println(sql);
         String s = executeQuery(sql, (rs) -> {
            if (rs.next()) {
-               return rs.getString(AUTHTOKEN_HEADER);
+               return rs.getString(USERNAME_HEADER);
            }
            return null;
         }, authToken);
