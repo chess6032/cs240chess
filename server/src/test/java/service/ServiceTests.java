@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.exceptions.SqlException;
 import org.junit.jupiter.api.*;
 
 import server.Server;
@@ -20,15 +21,27 @@ public class ServiceTests {
     // UTILITY
 
     protected void assertUserDAOsize(int expected) {
-        Assertions.assertEquals(expected, userDAO.size());
+        try {
+            Assertions.assertEquals(expected, userDAO.size());
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void assertAuthDAOsize(int expected) {
-        Assertions.assertEquals(expected, authDAO.size());
+        try {
+            Assertions.assertEquals(expected, authDAO.size());
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void assertGameDAOsize(int expected) {
-        Assertions.assertEquals(expected, gameDAO.size());
+        try {
+            Assertions.assertEquals(expected, gameDAO.size());
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // TESTING
