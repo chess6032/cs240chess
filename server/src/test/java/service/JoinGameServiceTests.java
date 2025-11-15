@@ -18,7 +18,11 @@ public class JoinGameServiceTests extends ServiceTests {
 
         // make a bunch of games
         for (int i = 0; i < 5; ++i) {
-            gameDAO.createGame(Integer.toString(i+1));
+            try {
+                gameDAO.createGame(Integer.toString(i+1));
+            } catch (SqlException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         assertGameDAOsize(5);
