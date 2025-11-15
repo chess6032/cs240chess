@@ -4,6 +4,7 @@ import chess.model.UserData;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.MissingAttributeException;
+import dataaccess.exceptions.SqlException;
 import org.junit.jupiter.api.*;
 
 public class ClearServiceTests extends ServiceTests {
@@ -17,7 +18,7 @@ public class ClearServiceTests extends ServiceTests {
         for (int i = 0; i < 5; ++i) {
             try {
                 userService.register(new UserData(Integer.toString(i), "password", "email"));
-            } catch (AlreadyTakenException | MissingAttributeException e) {
+            } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -29,7 +30,7 @@ public class ClearServiceTests extends ServiceTests {
         String authToken;
         try {
             authToken = userService.register(new UserData("mario", "password", "email")).authToken();
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -40,7 +41,7 @@ public class ClearServiceTests extends ServiceTests {
         for (int i = 0; i < 3; ++i) {
             try {
                 gameService.createGame(authToken, Integer.toString(i+1));
-            } catch (AuthTokenNotFoundException | MissingAttributeException e) {
+            } catch (AuthTokenNotFoundException | MissingAttributeException | SqlException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -48,7 +49,11 @@ public class ClearServiceTests extends ServiceTests {
         assertGameDAOsize(3);
 
         // clear everything
-        userService.clear();
+        try {
+            userService.clear();
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
         gameService.clear();
 
         // make sure everything's empty
@@ -62,7 +67,11 @@ public class ClearServiceTests extends ServiceTests {
     public void repeatedClearsSuccessful() {
         clearSuccessful();
         for (int i = 0; i < 10; ++i) {
-            userService.clear();
+            try {
+                userService.clear();
+            } catch (SqlException e) {
+                throw new RuntimeException(e);
+            }
             gameService.clear();
             assertUserDAOsize(0);
             assertAuthDAOsize(0);
