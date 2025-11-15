@@ -1,15 +1,14 @@
 package dataaccess.sqldao;
 
 import chess.model.UserData;
-import dataaccess.PasswordHasher;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.SqlException;
 
 public class SqlUserDAO extends SqlDAO implements UserDAO {
 
-    private final String USERNAME_HEADER = "username";
-    private final String PASSWORD_HEADER = "password";
-    private final String EMAIL_HEADER = "email";
+    private static final String USERNAME_HEADER = "username";
+    private static final String PASSWORD_HEADER = "password";
+    private static final String EMAIL_HEADER = "email";
 
     public SqlUserDAO() throws SqlException {
         super("users");
@@ -24,7 +23,7 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
                     %s VARCHAR(%d) NOT NULL,
                     %s VARCHAR(%d)
                 );
-                """.formatted(TABLE_NAME,
+                """.formatted(tableName,
                         USERNAME_HEADER, VAR_CHAR_SIZE,
                         PASSWORD_HEADER, VAR_CHAR_SIZE,
                         EMAIL_HEADER, VAR_CHAR_SIZE)
@@ -51,7 +50,7 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
         }
         String hashedPassword = hashPassword(clearTextPassword);
 
-        var sql = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)".formatted(TABLE_NAME, USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER);
+        var sql = "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)".formatted(tableName, USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER);
         return  executeUpdate(sql, username, hashedPassword, email) == 0;
     }
 
@@ -82,17 +81,17 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
                 FROM %s
                 WHERE %s = ?
                 """.formatted(USERNAME_HEADER, PASSWORD_HEADER, EMAIL_HEADER,
-                        TABLE_NAME,
+                        tableName,
                         USERNAME_HEADER);
 
         return executeQuery(sql, (rs) -> {
             // since we are looking for one row, we check rs.next() once.
             if (rs.next()) {
-                String _username = rs.getString(USERNAME_HEADER);
-                String _password = rs.getString(PASSWORD_HEADER);
-                String _email = rs.getString(EMAIL_HEADER);
+                String usernameUD = rs.getString(USERNAME_HEADER);
+                String password = rs.getString(PASSWORD_HEADER);
+                String email = rs.getString(EMAIL_HEADER);
 
-                return new UserData(_username, _password, _email);
+                return new UserData(usernameUD, password, email);
             }
 
             // If rs.next() is false, no user was found with that username.
@@ -105,7 +104,7 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
         final String sql =
                 """
                 SELECT %s FROM %s WHERE %s = ?
-                """.formatted(PASSWORD_HEADER, TABLE_NAME, USERNAME_HEADER);
+                """.formatted(PASSWORD_HEADER, tableName, USERNAME_HEADER);
 
         String correctPassword = executeQuery(sql, (rs) -> {
            if (rs.next()) {

@@ -12,10 +12,10 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     //              games meta
     // id | white username | black username | game name
 
-    private final String GAME_ID_HEADER = "id";
-    private final String WHITE_HEADER = "white_username";
-    private final String BLACK_HEADER = "black_username";
-    private final String GAME_NAME_HEADER = "name";
+    private static final String GAME_ID_HEADER = "id";
+    private static final String WHITE_HEADER = "white_username";
+    private static final String BLACK_HEADER = "black_username";
+    private static final String GAME_NAME_HEADER = "name";
 
     //  games
     // id | game
@@ -37,7 +37,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                     %s VARCHAR(%d) NOT NULL
                 )
                 """.formatted(
-                        TABLE_NAME,
+                        tableName,
                         GAME_ID_HEADER,
                         WHITE_HEADER, VAR_CHAR_SIZE,
                         BLACK_HEADER, VAR_CHAR_SIZE,
@@ -70,7 +70,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                 INSERT INTO %s
                 (%s, %s, %s)
                 VALUES (%s, %s, ?)
-                """.formatted(TABLE_NAME,
+                """.formatted(tableName,
                 WHITE_HEADER, BLACK_HEADER, GAME_NAME_HEADER,
                 DEFAULT_USERNAME_VALUE, DEFAULT_USERNAME_VALUE);
 //        System.out.println(sql);
@@ -113,7 +113,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                 UPDATE %s
                 SET %s = ?
                 WHERE %s = ?
-                """.formatted(TABLE_NAME, usernameHeader, GAME_ID_HEADER);
+                """.formatted(tableName, usernameHeader, GAME_ID_HEADER);
 
         System.out.println(sql);
 
@@ -132,16 +132,16 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     @Override
     public Collection<GameData> getAllGames() throws SqlException {
 //        System.out.println("I need ALL the games");
-        String sql = "SELECT * FROM %s".formatted(TABLE_NAME);
+        String sql = "SELECT * FROM %s".formatted(tableName);
 //        System.out.println(sql);
         return executeQuery(sql, (rs) -> {
             Collection<GameData> games = new ArrayList<>();
             while (rs.next()) {
-                int _gameID = Integer.parseInt(rs.getString(GAME_ID_HEADER));
-                String _whiteUsername = rs.getString(WHITE_HEADER);
-                String _blackUsername = rs.getString(BLACK_HEADER);
-                String _gameName = rs.getString(GAME_NAME_HEADER);
-                games.add(new GameData(_gameID, _whiteUsername, _blackUsername, _gameName, null));
+                int gameID = Integer.parseInt(rs.getString(GAME_ID_HEADER));
+                String whiteUsername = rs.getString(WHITE_HEADER);
+                String blackUsername = rs.getString(BLACK_HEADER);
+                String gameName = rs.getString(GAME_NAME_HEADER);
+                games.add(new GameData(gameID, whiteUsername, blackUsername, gameName, null));
             }
             return games;
         });
@@ -149,7 +149,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws SqlException {
-        String sql = "SELECT * FROM %s WHERE %s = ?".formatted(TABLE_NAME, GAME_ID_HEADER);
+        String sql = "SELECT * FROM %s WHERE %s = ?".formatted(tableName, GAME_ID_HEADER);
         return executeQuery(sql, (rs) -> {
             if (rs.next()) {
                 int _gameID = Integer.parseInt(rs.getString(GAME_ID_HEADER));

@@ -117,23 +117,20 @@ public class DatabaseTests {
                 () -> serverFacade.clear(),
                 () -> serverFacade.register(TEST_USER),
                 () -> serverFacade.login(TEST_USER),
-                () -> serverFacade.logout(UUID.randomUUID().toString()), // DOESN'T WORK
+                () -> serverFacade.logout(UUID.randomUUID().toString()),
                 () -> serverFacade.createGame(new TestCreateRequest("inaccessible"), UUID.randomUUID().toString()),
                 () -> serverFacade.listGames(UUID.randomUUID().toString()),
                 () -> serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, 1), UUID.randomUUID().toString())
         );
 
         try {
-            int ckh_i = 0;
             for (Supplier<TestResult> operation : operations) {
-                System.out.println("I'M GOING TO KMS: " + ckh_i++);
                 TestResult result = operation.get();
                 Assertions.assertEquals(500, serverFacade.getStatusCode(),
                         "Server response code was not 500 Internal Error");
                 Assertions.assertNotNull(result.getMessage(), "Invalid Request didn't return an error message");
                 Assertions.assertTrue(result.getMessage().toLowerCase(Locale.ROOT).contains("error"),
                         "Error message didn't contain the word \"Error\"");
-
             }
         } finally {
             Method loadFromResources = databaseManagerClass.getDeclaredMethod("loadPropertiesFromResources");

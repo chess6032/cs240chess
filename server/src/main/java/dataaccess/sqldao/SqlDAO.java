@@ -17,10 +17,10 @@ public abstract class SqlDAO {
 
     protected static final int VAR_CHAR_SIZE = 255;
 
-    protected final String TABLE_NAME;
+    protected final String tableName;
 
     protected SqlDAO (String tableName) throws SqlException {
-        TABLE_NAME = tableName;
+        this.tableName = tableName;
         configureDatabase();
     }
 
@@ -44,19 +44,33 @@ public abstract class SqlDAO {
         }
     }
 
+    void prepareStatement(PreparedStatement ps, Object... params) throws SQLException{
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+            switch (param) {
+                case String p -> ps.setString(i + 1, p);
+                case Integer p -> ps.setInt(i + 1, p);
+                case null -> ps.setNull(i + 1, NULL);
+                default -> ps.setObject(i + 1, param);
+            }
+        }
+    }
+
     protected int executeUpdate(String statement, Object... params) throws SqlException {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
 
-            for (int i = 0; i < params.length; i++) {
-                Object param = params[i];
-                switch (param) {
-                    case String p -> ps.setString(i + 1, p);
-                    case Integer p -> ps.setInt(i + 1, p);
-                    case null -> ps.setNull(i + 1, NULL);
-                    default -> ps.setObject(i + 1, param);
-                }
-            }
+//            for (int i = 0; i < params.length; i++) {
+//                Object param = params[i];
+//                switch (param) {
+//                    case String p -> ps.setString(i + 1, p);
+//                    case Integer p -> ps.setInt(i + 1, p);
+//                    case null -> ps.setNull(i + 1, NULL);
+//                    default -> ps.setObject(i + 1, param);
+//                }
+//            }
+
+            prepareStatement(ps, params);
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -86,15 +100,17 @@ public abstract class SqlDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(statement)) {
 
-            for (int i = 0; i < params.length; i++) {
-                Object param = params[i];
-                switch (param) {
-                    case String p -> ps.setString(i + 1, p);
-                    case Integer p -> ps.setInt(i + 1, p);
-                    case null -> ps.setNull(i + 1, NULL);
-                    default -> ps.setObject(i + 1, param);
-                }
-            }
+//            for (int i = 0; i < params.length; i++) {
+//                Object param = params[i];
+//                switch (param) {
+//                    case String p -> ps.setString(i + 1, p);
+//                    case Integer p -> ps.setInt(i + 1, p);
+//                    case null -> ps.setNull(i + 1, NULL);
+//                    default -> ps.setObject(i + 1, param);
+//                }
+//            }
+
+            prepareStatement(ps, params);
 
             try (java.sql.ResultSet rs = ps.executeQuery()) {
                 return handler.handle(rs);
@@ -110,7 +126,7 @@ public abstract class SqlDAO {
     }
 
     protected void clearTable() throws SqlException {
-        executeUpdate("DELETE FROM %s".formatted(TABLE_NAME));
+        executeUpdate("DELETE FROM %s".formatted(tableName));
     }
 
 //    public int size() throws SqlException {
@@ -126,7 +142,7 @@ public abstract class SqlDAO {
 
     protected int tableSize() throws SqlException {
         // query the size of the users table
-        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
+        String sql = "SELECT COUNT(*) FROM %s".formatted(tableName);
         return executeQuery(sql, (rs) -> {
             if (rs.next()) {
                 return rs.getInt(1); // returns the count ig

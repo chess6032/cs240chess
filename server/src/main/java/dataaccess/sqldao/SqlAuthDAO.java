@@ -8,8 +8,8 @@ import java.sql.ResultSet;
 
 public class SqlAuthDAO extends SqlDAO implements AuthDAO {
 
-    private final String AUTHTOKEN_HEADER = "auth";
-    private final String USERNAME_HEADER = "username";
+    private static final String AUTHTOKEN_HEADER = "auth";
+    private static final String USERNAME_HEADER = "username";
 
     public SqlAuthDAO() throws SqlException {
         super("auths");
@@ -22,7 +22,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
                     %s VARCHAR(%d) NOT NULL PRIMARY KEY,
                     %s VARCHAR(%d) NOT NULL
                 );
-                """.formatted(TABLE_NAME,
+                """.formatted(tableName,
                     AUTHTOKEN_HEADER, VAR_CHAR_SIZE,
                     USERNAME_HEADER, VAR_CHAR_SIZE)
         );
@@ -38,7 +38,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
     @Override
     public String createAuth(String username) throws SqlException {
         final String authTkn = AuthData.generateAuthToken();
-        final String sql = "INSERT INTO %s (%s, %s) VALUES (?, ?)".formatted(TABLE_NAME, AUTHTOKEN_HEADER, USERNAME_HEADER);
+        final String sql = "INSERT INTO %s (%s, %s) VALUES (?, ?)".formatted(tableName, AUTHTOKEN_HEADER, USERNAME_HEADER);
         executeUpdate(sql, authTkn, username);
         return authTkn;
     }
@@ -48,7 +48,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
         String querySql = """
                 SELECT * FROM %s
                 WHERE %s = ?;
-                """.formatted(TABLE_NAME, AUTHTOKEN_HEADER);
+                """.formatted(tableName, AUTHTOKEN_HEADER);
 
         if (!executeQuery(querySql, ResultSet::next, authToken)) {
             return false;
@@ -58,7 +58,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
                 """
                 DELETE FROM %s
                 WHERE %s = ?
-                """.formatted(TABLE_NAME, AUTHTOKEN_HEADER);
+                """.formatted(tableName, AUTHTOKEN_HEADER);
         return executeUpdate(sql, authToken) == 0; // TODO: idk if this actually does anything ngl
     }
 
@@ -78,7 +78,7 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
                 FROM %s
                 WHERE %s = ?;
                 """.formatted(AUTHTOKEN_HEADER, USERNAME_HEADER,
-                        TABLE_NAME,
+                        tableName,
                         AUTHTOKEN_HEADER);
 
         System.out.println(sql);
