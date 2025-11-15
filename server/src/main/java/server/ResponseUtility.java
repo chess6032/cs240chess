@@ -13,7 +13,7 @@ public interface ResponseUtility {
     String UNAUTHORIZED_MSG = "Error: unauthorized";
     int ALREADY_TAKEN_STATUS = 403;
     String ALREADY_TAKEN_MSG = "Error: already taken";
-    int GENERAL_STATUS = 500;
+    int INTERNAL_ERROR_STATUS = 500;
     int NO_MATCH = -1;
 
     // 400
@@ -48,7 +48,7 @@ public interface ResponseUtility {
 
     // 500
     static void failedSerializationResponse(Context ctx, String msg) {
-        ctx.status(GENERAL_STATUS);
+        ctx.status(INTERNAL_ERROR_STATUS);
         ctx.json(new Gson().toJson(msg));
     }
 
@@ -60,7 +60,7 @@ public interface ResponseUtility {
     // PHASE 4: SqlException
 
     static void sqlExceptionResponse(Context ctx, String msg, SqlException e) {
-        ctx.status(GENERAL_STATUS);
+        ctx.status(INTERNAL_ERROR_STATUS);
         ctx.json(new Gson().toJson(new ErrorMessage("SQL Exception: " + msg + e.getMessage())));
     }
 }
