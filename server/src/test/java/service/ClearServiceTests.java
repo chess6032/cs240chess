@@ -51,10 +51,10 @@ public class ClearServiceTests extends ServiceTests {
         // clear everything
         try {
             userService.clear();
+            gameService.clear();
         } catch (SqlException e) {
             throw new RuntimeException(e);
         }
-        gameService.clear();
 
         // make sure everything's empty
         assertUserDAOsize(0);
@@ -69,10 +69,10 @@ public class ClearServiceTests extends ServiceTests {
         for (int i = 0; i < 10; ++i) {
             try {
                 userService.clear();
+                gameService.clear();
             } catch (SqlException e) {
                 throw new RuntimeException(e);
             }
-            gameService.clear();
             assertUserDAOsize(0);
             assertAuthDAOsize(0);
             assertGameDAOsize(0);
