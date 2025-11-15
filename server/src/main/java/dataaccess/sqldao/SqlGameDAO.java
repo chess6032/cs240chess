@@ -96,8 +96,14 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
         // find column to insert username into
         String usernameHeader;
         if (colorIsWhite(playerColor)) {
+            if (game.whiteUsername() != null) {
+                return false;
+            }
             usernameHeader = WHITE_HEADER;
         } else if (colorIsBlack(playerColor)) {
+            if (game.blackUsername() != null) {
+                return false;
+            }
             usernameHeader = BLACK_HEADER;
         } else {
             return false;

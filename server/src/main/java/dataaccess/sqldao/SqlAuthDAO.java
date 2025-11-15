@@ -4,6 +4,8 @@ import chess.model.AuthData;
 import dataaccess.AuthDAO;
 import dataaccess.exceptions.SqlException;
 
+import java.sql.ResultSet;
+
 public class SqlAuthDAO extends SqlDAO implements AuthDAO {
 
     private final String AUTHTOKEN_HEADER = "auth";
@@ -43,12 +45,21 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
 
     @Override
     public boolean deleteAuth(String authToken) throws SqlException {
+        String querySql = """
+                SELECT * FROM %s
+                WHERE %s = ?;
+                """.formatted(TABLE_NAME, AUTHTOKEN_HEADER);
+
+        if (!executeQuery(querySql, ResultSet::next, authToken)) {
+            return false;
+        }
+
         final String sql =
                 """
                 DELETE FROM %s
                 WHERE %s = ?
                 """.formatted(TABLE_NAME, AUTHTOKEN_HEADER);
-        return executeUpdate(sql, authToken) == 0;
+        return executeUpdate(sql, authToken) == 0; // TODO: idk if this actually does anything ngl
     }
 
     // QUERIES
