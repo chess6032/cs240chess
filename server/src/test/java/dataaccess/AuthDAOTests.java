@@ -32,7 +32,7 @@ public class AuthDAOTests extends DAOTests {
     @DisplayName("create auth - single")
     public void testCreateAuthSingle() {
         try {
-            dao.createAuth(defaultUser.username());
+            dao.createAuth(DEFAULT_USER.username());
             Assertions.assertEquals(1, dao.size());
         } catch (SqlException e) {
             throw new RuntimeException(e);
@@ -45,7 +45,7 @@ public class AuthDAOTests extends DAOTests {
         HashSet<String> auths = new HashSet<>();
         try {
             for (int i = 0; i < 5; ++i) {
-                String auth = dao.createAuth(defaultUser.username());
+                String auth = dao.createAuth(DEFAULT_USER.username());
                 // make sure each auth is distinct
                 Assertions.assertFalse(auths.contains(auth));
                 auths.add(auth);
@@ -64,7 +64,7 @@ public class AuthDAOTests extends DAOTests {
         HashSet<String> auths = new HashSet<>();
         try {
             int i = 0;
-            for (var user : users) {
+            for (var user : USERS) {
                 auths.add(dao.createAuth(user.username()));
                 Assertions.assertEquals(++i, dao.size());
             }
@@ -92,12 +92,12 @@ public class AuthDAOTests extends DAOTests {
     public void testFindUserOfAuthPositive() {
         HashMap<String, String> userToAuth = new HashMap<>();
         try {
-            for (var user : users) {
+            for (var user : USERS) {
                 String username = user.username();
                 userToAuth.put(username, dao.createAuth(username));
             }
 
-            for (var user : users) {
+            for (var user : USERS) {
                 Assertions.assertEquals(
                         user.username(),
                         dao.findUserOfAuth(userToAuth.get(user.username()))

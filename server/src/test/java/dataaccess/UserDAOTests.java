@@ -18,7 +18,7 @@ public class UserDAOTests extends DAOTests {
     // UTILITY
 
     void fillTable() throws SqlException {
-        for (var user : users) {
+        for (var user : USERS) {
             dao.createUser(user.username(), user.password(), user.email());
         }
     }
@@ -50,7 +50,7 @@ public class UserDAOTests extends DAOTests {
     void testCreateUserPositive() {
         try {
             int i = 0;
-            for (var user : users) {
+            for (var user : USERS) {
                 Assertions.assertTrue(dao.createUser(user.username(), user.password(), user.email()));
                 Assertions.assertEquals(++i, dao.size());
             }
@@ -68,7 +68,7 @@ public class UserDAOTests extends DAOTests {
             int size = dao.size();
 
             // make sure adding pre-existing users fails
-            for (var user : users) {
+            for (var user : USERS) {
                 Assertions.assertFalse(dao.createUser(user.username(), user.password(), user.email()));
                 Assertions.assertEquals(size, dao.size());
             }
@@ -82,7 +82,7 @@ public class UserDAOTests extends DAOTests {
     void testGetUserPositive() {
         try {
             fillTable();
-            for (var user : users) {
+            for (var user : USERS) {
                 Assertions.assertNotNull(dao.getUser(user.username()));
             }
         } catch (SqlException e) {
@@ -95,7 +95,7 @@ public class UserDAOTests extends DAOTests {
     void testGetUserOnEmpty() {
         try {
             dao.clear();
-            for (var user : users) {
+            for (var user : USERS) {
                 Assertions.assertNull(dao.getUser(user.username()));
             }
         } catch (SqlException e) {
@@ -108,7 +108,7 @@ public class UserDAOTests extends DAOTests {
     void testPasswordPositive() {
         try {
             fillTable();
-            for (var user : users) {
+            for (var user : USERS) {
                 Assertions.assertTrue(dao.passwordMatches(user.username(), user.password()));
             }
         } catch (SqlException e) {
@@ -121,7 +121,7 @@ public class UserDAOTests extends DAOTests {
     void testPasswordDoesNotMatch() {
         try {
             fillTable();
-            for (var user : users) {
+            for (var user : USERS) {
                 Assertions.assertFalse(dao.passwordMatches(user.username(), user.password() + " "));
             }
         } catch (SqlException e) {

@@ -5,7 +5,6 @@ import dataaccess.exceptions.SqlException;
 import dataaccess.sqldao.SqlGameDAO;
 import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GameDAOTests extends DAOTests {
@@ -59,7 +58,7 @@ public class GameDAOTests extends DAOTests {
     public void testAddPlayerPositive() {
         try {
             int id = dao.createGame("name");
-            Assertions.assertTrue(dao.addPlayerToGame(id, defaultUser.username(), "WHITE"));
+            Assertions.assertTrue(dao.addPlayerToGame(id, DEFAULT_USER.username(), "WHITE"));
         } catch (SqlException e) {
             throw new RuntimeException(e);
         }
@@ -70,9 +69,9 @@ public class GameDAOTests extends DAOTests {
     public void testAddPlayerColorTaken() {
         try {
             int id = dao.createGame("name");
-            Assertions.assertTrue(dao.addPlayerToGame(id, mario.username(), "WHITE"));
-            Assertions.assertFalse(dao.addPlayerToGame(id, luigi.username(), "WHITE"));
-            Assertions.assertTrue(dao.addPlayerToGame(id, luigi.username(), "BLACK"));
+            Assertions.assertTrue(dao.addPlayerToGame(id, MARIO.username(), "WHITE"));
+            Assertions.assertFalse(dao.addPlayerToGame(id, LUIGI.username(), "WHITE"));
+            Assertions.assertTrue(dao.addPlayerToGame(id, LUIGI.username(), "BLACK"));
         } catch (SqlException e) {
             throw new RuntimeException(e);
         }
@@ -82,7 +81,7 @@ public class GameDAOTests extends DAOTests {
     @DisplayName("add player - empty")
     public void testAddPlayerOnEmpty() {
         try {
-            Assertions.assertFalse(dao.addPlayerToGame(-1, defaultUser.username(), "WHITE"));
+            Assertions.assertFalse(dao.addPlayerToGame(-1, DEFAULT_USER.username(), "WHITE"));
         } catch (SqlException e) {
             throw new RuntimeException(e);
         }
@@ -93,7 +92,7 @@ public class GameDAOTests extends DAOTests {
     public void testAddPlayerBadColor() {
         try {
             int id = dao.createGame("name");
-            Assertions.assertFalse(dao.addPlayerToGame(id, defaultUser.username(), "SKIBIDI"));
+            Assertions.assertFalse(dao.addPlayerToGame(id, DEFAULT_USER.username(), "SKIBIDI"));
         } catch (SqlException e) {
             throw new RuntimeException(e);
         }
