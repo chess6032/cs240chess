@@ -1,21 +1,11 @@
 package dataaccess;
 
-import chess.model.UserData;
 import dataaccess.exceptions.SqlException;
 import dataaccess.sqldao.SqlUserDAO;
 import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
-
-public class UserDAOTests {
+public class UserDAOTests extends DAOTests {
     private final UserDAO dao;
-
-    private static final UserData defaultUser = new UserData("username", "password", "email");
-    private static final UserData mario = new UserData("mario", "peachlover44", "supermario@mariobrosplumbing.org");
-    private static final UserData luigi = new UserData("luigi", "mariobros3", "luigi@mariobrosplumbing.org");
-    private static final UserData peach = new UserData("peach", "bowserIsHot!", "princesspeach@mkindgom.org");
-
-    private static final UserData[] users = new UserData[]{defaultUser, mario, luigi, peach};
 
     {
         try {
@@ -45,6 +35,7 @@ public class UserDAOTests {
     }
 
     @Test
+    @DisplayName("clear")
     void testClear() {
         try {
             dao.clear();
@@ -55,6 +46,7 @@ public class UserDAOTests {
     }
 
     @Test
+    @DisplayName("create user")
     void testCreateUserPositive() {
         try {
             int i = 0;
@@ -68,6 +60,7 @@ public class UserDAOTests {
     }
 
     @Test
+    @DisplayName("create user - username taken")
     void testCreateUserAlreadyExists() {
         try {
             // fill table with users
@@ -85,6 +78,7 @@ public class UserDAOTests {
     }
 
     @Test
+    @DisplayName("get user")
     void testGetUserPositive() {
         try {
             fillTable();
@@ -97,7 +91,8 @@ public class UserDAOTests {
     }
 
     @Test
-    void testGetNonExistentUser() {
+    @DisplayName("get user - empty")
+    void testGetUserOnEmpty() {
         try {
             dao.clear();
             for (var user : users) {
@@ -109,6 +104,7 @@ public class UserDAOTests {
     }
 
     @Test
+    @DisplayName("passwords match")
     void testPasswordPositive() {
         try {
             fillTable();
@@ -121,6 +117,7 @@ public class UserDAOTests {
     }
 
     @Test
+    @DisplayName("passwords don't match")
     void testPasswordDoesNotMatch() {
         try {
             fillTable();

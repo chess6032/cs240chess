@@ -81,14 +81,11 @@ public class SqlAuthDAO extends SqlDAO implements AuthDAO {
                         tableName,
                         AUTHTOKEN_HEADER);
 
-        System.out.println(sql);
-        String s = executeQuery(sql, (rs) -> {
+        return executeQuery(sql, (rs) -> {
            if (rs.next()) {
                return rs.getString(USERNAME_HEADER);
            }
            return null;
         }, authToken);
-        System.out.println(s);
-        return s;
     }
 }
