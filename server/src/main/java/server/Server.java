@@ -101,9 +101,13 @@ public class Server {
         try {
             userService.clear();
         } catch (SqlException e) {
-            sqlExceptionResponse(ctx, "userService.clear: ", e);
+            sqlExceptionResponse(ctx, "Server.clear: userService.clear: ", e);
         }
-        gameService.clear();
+        try {
+            gameService.clear();
+        } catch (SqlException e) {
+            sqlExceptionResponse(ctx, "Server.clear: gameService.clear: ", e);
+        }
         if (ctx == null) {
             return;
         }

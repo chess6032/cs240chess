@@ -9,12 +9,8 @@ import dataaccess.exceptions.*;
 import java.util.Collection;
 
 public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
-    public void clear() {
-        try {
-            gameDAO.clear();
-        } catch (SqlException e) {
-            throw new RuntimeException(e);
-        }
+    public void clear() throws SqlException {
+        gameDAO.clear();
     }
 
     public int createGame(String authToken, String gameName) throws AuthTokenNotFoundException, MissingAttributeException, SqlException {
