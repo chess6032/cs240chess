@@ -53,6 +53,11 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public int createGame(String gameName) throws SqlException {
+        if (gameName == null) {
+            return -1;
+            // TODO/FIXME: I should make sure the other DAO's methods check if null is inputted for a column that can't be null
+        }
+
         String defaultUsernameValue = "NULL";
         String sql = """
                 INSERT INTO %s
@@ -61,8 +66,6 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                 """.formatted(tableName,
                 WHITE_HEADER, BLACK_HEADER, GAME_NAME_HEADER,
                 defaultUsernameValue, defaultUsernameValue);
-//        System.out.println(sql);
-//        System.out.println("game name: " + gameName);
         return executeUpdate(sql, gameName);
     }
 
@@ -103,8 +106,6 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                 WHERE %s = ?
                 """.formatted(tableName, usernameHeader, GAME_ID_HEADER);
 
-        System.out.println(sql);
-
         executeUpdate(sql, username, gameID);
 
         return true;
@@ -119,9 +120,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public Collection<GameData> getAllGames() throws SqlException {
-//        System.out.println("I need ALL the games");
         String sql = "SELECT * FROM %s".formatted(tableName);
-//        System.out.println(sql);
         return executeQuery(sql, (rs) -> {
             Collection<GameData> games = new ArrayList<>();
             while (rs.next()) {

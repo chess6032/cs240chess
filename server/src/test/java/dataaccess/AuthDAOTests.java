@@ -4,7 +4,6 @@ import dataaccess.exceptions.SqlException;
 import dataaccess.sqldao.SqlAuthDAO;
 import org.junit.jupiter.api.*;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
