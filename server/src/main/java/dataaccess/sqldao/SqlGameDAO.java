@@ -65,14 +65,14 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public int createGame(String gameName) throws SqlException {
-        String DEFAULT_USERNAME_VALUE = "NULL";
+        String defaultUsernameValue = "NULL";
         String sql = """
                 INSERT INTO %s
                 (%s, %s, %s)
                 VALUES (%s, %s, ?)
                 """.formatted(tableName,
                 WHITE_HEADER, BLACK_HEADER, GAME_NAME_HEADER,
-                DEFAULT_USERNAME_VALUE, DEFAULT_USERNAME_VALUE);
+                defaultUsernameValue, defaultUsernameValue);
 //        System.out.println(sql);
 //        System.out.println("game name: " + gameName);
         return executeUpdate(sql, gameName);
@@ -152,11 +152,11 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
         String sql = "SELECT * FROM %s WHERE %s = ?".formatted(tableName, GAME_ID_HEADER);
         return executeQuery(sql, (rs) -> {
             if (rs.next()) {
-                int _gameID = Integer.parseInt(rs.getString(GAME_ID_HEADER));
-                String _whiteUsername = rs.getString(WHITE_HEADER);
-                String _blackUsername = rs.getString(BLACK_HEADER);
-                String _gameName = rs.getString(GAME_NAME_HEADER);
-                return new GameData(_gameID, _whiteUsername, _blackUsername, _gameName, null);
+                int gameIDGD = Integer.parseInt(rs.getString(GAME_ID_HEADER));
+                String whiteUsername = rs.getString(WHITE_HEADER);
+                String blackUsername = rs.getString(BLACK_HEADER);
+                String gameName = rs.getString(GAME_NAME_HEADER);
+                return new GameData(gameIDGD, whiteUsername, blackUsername, gameName, null);
             }
             return null;
         }, gameID);
