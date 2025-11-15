@@ -4,6 +4,7 @@ import chess.model.UserData;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.MissingAttributeException;
+import dataaccess.exceptions.SqlException;
 import org.junit.jupiter.api.*;
 
 public class CreateGameServiceTests extends ServiceTests {
@@ -16,13 +17,13 @@ public class CreateGameServiceTests extends ServiceTests {
         String authToken;
         try {
             authToken = userService.register(new UserData("mario", "password", "email")).authToken();
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
         try {
             gameService.createGame(authToken, "super brothers game");
-        } catch (AuthTokenNotFoundException | MissingAttributeException e) {
+        } catch (AuthTokenNotFoundException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -38,7 +39,7 @@ public class CreateGameServiceTests extends ServiceTests {
             gameService.createGame("skibidi", "gameName");
         } catch (AuthTokenNotFoundException e) {
             exceptionThrown = true;
-        } catch (MissingAttributeException e) {
+        } catch (MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
