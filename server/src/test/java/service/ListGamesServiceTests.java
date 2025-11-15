@@ -41,7 +41,11 @@ public class ListGamesServiceTests extends ServiceTests {
             throw new RuntimeException(e);
         }
 
-        Assertions.assertEquals(gameDAO.size(), gamesList.size());
+        try {
+            Assertions.assertEquals(gameDAO.size(), gamesList.size());
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

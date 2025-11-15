@@ -9,7 +9,7 @@ import java.util.HashSet;
 
 public class LogoutServiceTests extends ServiceTests {
 
-    private void registerAndLogout(Collection<UserData> users, Collection<String> authTokens) {
+    private void registerAndLogout(Collection<UserData> users, Collection<String> authTokens) throws SqlException {
         // register users
 
         users.add(new UserData("mario", "peachy", "superm@egadd.com"));
@@ -57,7 +57,11 @@ public class LogoutServiceTests extends ServiceTests {
     public void logoutSuccessful() {
         HashSet<UserData> users = new HashSet<>();
         HashSet<String> authTokens = new HashSet<>();
-        registerAndLogout(users, authTokens);
+        try {
+            registerAndLogout(users, authTokens);
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -66,7 +70,11 @@ public class LogoutServiceTests extends ServiceTests {
 
         HashSet<UserData> users = new HashSet<>();
         HashSet<String> authTokens = new HashSet<>();
-        registerAndLogout(users, authTokens);
+        try {
+            registerAndLogout(users, authTokens);
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
 
         int expectedUserDAOsize = users.size();
         Assertions.assertTrue(expectedUserDAOsize > 0);
@@ -93,7 +101,7 @@ public class LogoutServiceTests extends ServiceTests {
                 assertUserDAOsize(expectedUserDAOsize);
                 assertAuthDAOsize(--expectedAuthDAOsize);
             }
-        } catch (AuthTokenNotFoundException e) {
+        } catch (AuthTokenNotFoundException | SqlException e) {
             throw new RuntimeException(e);
         }
     }
@@ -103,7 +111,11 @@ public class LogoutServiceTests extends ServiceTests {
     public void logoutUnauthorized() {
 
         // populate database
-        registerAndLogout(new HashSet<>(), new HashSet<>());
+        try {
+            registerAndLogout(new HashSet<>(), new HashSet<>());
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
 
         // logout with bogus auth token
 
@@ -113,6 +125,8 @@ public class LogoutServiceTests extends ServiceTests {
             userService.logout("-1");
         } catch (AuthTokenNotFoundException e) {
             exceptionThrown = true;
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
         }
 
         Assertions.assertTrue(exceptionThrown);

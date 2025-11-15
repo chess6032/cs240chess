@@ -108,12 +108,16 @@ public class LoginServiceTests extends ServiceTests {
             userService.logout(authToken1);
         } catch (AuthTokenNotFoundException e) {
             exception1 = true;
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
         }
 
         try {
             userService.logout(authToken2);
         } catch (AuthTokenNotFoundException e) {
             exception2 = true;
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
         }
 
         // FIXME: fix these assertions
@@ -122,7 +126,7 @@ public class LoginServiceTests extends ServiceTests {
 
         try {
             userService.logout(authToken3);
-        } catch (AuthTokenNotFoundException e) {
+        } catch (AuthTokenNotFoundException | SqlException e) {
             throw new RuntimeException(e);
         }
     }

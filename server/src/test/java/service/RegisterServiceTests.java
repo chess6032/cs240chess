@@ -3,6 +3,7 @@ package service;
 import chess.model.UserData;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.MissingAttributeException;
+import dataaccess.exceptions.SqlException;
 import org.junit.jupiter.api.*;
 
 public class RegisterServiceTests extends ServiceTests {
@@ -30,7 +31,7 @@ public class RegisterServiceTests extends ServiceTests {
 
             userService.register(new UserData("username", "password", "kingkoopa@evil.com"));
             assertDAOsize(5);
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
     }
@@ -53,7 +54,7 @@ public class RegisterServiceTests extends ServiceTests {
 
             userService.register(new UserData("daisy", "password", "email")); // users MAY have the same PASSWORD AND EMAIL
             assertDAOsize(4);
-        } catch (AlreadyTakenException | MissingAttributeException e) {
+        } catch (AlreadyTakenException | MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
@@ -62,7 +63,7 @@ public class RegisterServiceTests extends ServiceTests {
             userService.register(new UserData("mario", "abcdefg", "hijklmnop"));
         } catch (AlreadyTakenException e) {
             exceptionThrown = true;
-        } catch (MissingAttributeException e) {
+        } catch (MissingAttributeException | SqlException e) {
             throw new RuntimeException(e);
         }
 
