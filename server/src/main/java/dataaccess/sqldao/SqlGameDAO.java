@@ -17,12 +17,10 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     private static final String BLACK_HEADER = "black_username";
     private static final String GAME_NAME_HEADER = "name";
 
+    // TODO: make games table (for storing serialized ChessGame objects)
     //  games
     // id | game
-//    private final String CHESSGAMES_TABLE_NAME = "games";
-//    private final String CHESSGAME_HEADER = "game";
-//    private final int CHESSGAME_JSON_STRING_SIZE = 10000;
-//
+
     public SqlGameDAO() throws SqlException {
         super("games_meta");
     }
@@ -41,19 +39,9 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                         GAME_ID_HEADER,
                         WHITE_HEADER, VAR_CHAR_SIZE,
                         BLACK_HEADER, VAR_CHAR_SIZE,
-                        GAME_NAME_HEADER, VAR_CHAR_SIZE//,
-//                        CHESSGAME_HEADER, CHESS_GAME_JSON_STRING_SIZE
+                        GAME_NAME_HEADER, VAR_CHAR_SIZE
                 )
         );
-//        super.configureDatabase("""
-//                CREATE TABLE IF NOT EXISTS %s (
-//                    %s INT NOT NULL PRIMARY KEY,
-//                    %s VARCHAR(%d) NOT NULL
-//                )
-//                """.formatted(CHESSGAMES_TABLE_NAME,
-//                    GAME_ID_HEADER,
-//                    CHESSGAME_HEADER, CHESSGAME_JSON_STRING_SIZE)
-//        );
     }
 
     // UPDATES

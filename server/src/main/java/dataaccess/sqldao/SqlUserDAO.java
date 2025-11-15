@@ -32,11 +32,6 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
 
     // UPDATES
 
-//    @Override
-//    public void clear() throws SqlException {
-//        executeUpdate("DELETE FROM %s".formatted(TABLE_NAME));
-//    }
-
     @Override
     public void clear() throws SqlException {
         clearTable();
@@ -55,18 +50,6 @@ public class SqlUserDAO extends SqlDAO implements UserDAO {
     }
 
     // QUERIES
-
-//    @Override
-//    public int size() throws SqlException {
-//        // query the size of the users table
-//        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
-//        return executeQuery(sql, (rs) -> {
-//            if (rs.next()) {
-//                return rs.getInt(1); // returns the count ig
-//            }
-//            return 0; // shouldn't happen for COUNT(*)
-//        });
-//    }
 
     @Override
     public int size() throws SqlException {

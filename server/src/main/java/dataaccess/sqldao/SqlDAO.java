@@ -60,16 +60,6 @@ public abstract class SqlDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
 
-//            for (int i = 0; i < params.length; i++) {
-//                Object param = params[i];
-//                switch (param) {
-//                    case String p -> ps.setString(i + 1, p);
-//                    case Integer p -> ps.setInt(i + 1, p);
-//                    case null -> ps.setNull(i + 1, NULL);
-//                    default -> ps.setObject(i + 1, param);
-//                }
-//            }
-
             prepareStatement(ps, params);
             ps.executeUpdate();
 
@@ -100,16 +90,6 @@ public abstract class SqlDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(statement)) {
 
-//            for (int i = 0; i < params.length; i++) {
-//                Object param = params[i];
-//                switch (param) {
-//                    case String p -> ps.setString(i + 1, p);
-//                    case Integer p -> ps.setInt(i + 1, p);
-//                    case null -> ps.setNull(i + 1, NULL);
-//                    default -> ps.setObject(i + 1, param);
-//                }
-//            }
-
             prepareStatement(ps, params);
 
             try (java.sql.ResultSet rs = ps.executeQuery()) {
@@ -128,17 +108,6 @@ public abstract class SqlDAO {
     protected void clearTable() throws SqlException {
         executeUpdate("DELETE FROM %s".formatted(tableName));
     }
-
-//    public int size() throws SqlException {
-//        // query the size of the users table
-//        String sql = "SELECT COUNT(*) FROM %s".formatted(TABLE_NAME);
-//        return executeQuery(sql, (rs) -> {
-//            if (rs.next()) {
-//                return rs.getInt(1); // returns the count ig
-//            }
-//            return 0; // shouldn't happen for COUNT(*)
-//        });
-//    }
 
     protected int tableSize() throws SqlException {
         // query the size of the users table
