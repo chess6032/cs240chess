@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chess.ChessBoard;
+import chess.ChessPiece;
+import chess.ChessPosition;
+
 import static chess.ChessPiece.PieceType;
 import static chess.ChessGame.TeamColor;
 
@@ -48,14 +51,14 @@ public class UIDrawer {
         return map;
     }
 
-    // vars & constants to keep track of formatting
+    // vars to keep track of formatting
 
     private static BgColor bgColor = BgColor.DEFAULT;
-    private static String empty = REGULAR_EMPTY;
 
-    private static Map<PieceType, Integer> pieceInts = asciiChessPieceComparisons();
-    private static char whiteCharStart = WHITE_ASCII_START;
-    private static char blackCharStart = BLACK_ASCII_START;
+    private static Map<PieceType, Integer> pieceInts = uniChessPieceComparisons();
+    private static char whiteCharStart = WHITE_UNI_START;
+    private static char blackCharStart = BLACK_UNI_START;
+    private static String emptyPieceStr = WIDE_EMPTY;
 
     // WRAPPERS & HELPERS
 
@@ -79,7 +82,7 @@ public class UIDrawer {
         print(params);
         println();
     }
-    private static void printEmpty() { print(empty); }
+    private static void printEmpty() { print(REGULAR_EMPTY); }
     private static void printEmpty(int n) {
         for (int i = 0; i < n; ++i) {
             printEmpty();
@@ -119,38 +122,40 @@ public class UIDrawer {
         setTextColor(TextColor.DEFAULT);
     }
 
-    private static void useWideEmpty() {
-        empty = WIDE_EMPTY;
+    public static void useUniPieces() {
+        pieceInts = uniChessPieceComparisons();
+        whiteCharStart = WHITE_UNI_START;
+        blackCharStart = BLACK_UNI_START;
+        emptyPieceStr = WIDE_EMPTY;
     }
-    private static void useRegularEmpty() {
-        empty = REGULAR_EMPTY;
+    public static void useAsciiPieces() {
+        pieceInts = asciiChessPieceComparisons();
+        whiteCharStart = WHITE_ASCII_START;
+        blackCharStart = BLACK_ASCII_START;
+        emptyPieceStr = REGULAR_EMPTY;
     }
 
     public static void main(String[] args) {
         eraseScreen();
 
-        for (var key : pieceInts.keySet()) {
-            println(key, ": ", pieceStr(TeamColor.WHITE, key));
-        }
-
+        println("Empty board:");
+        var board = new ChessBoard();
+        printBoard(board);
         println();
 
-        for (var key : pieceInts.keySet()) {
-            println(key, ": ", pieceStr(TeamColor.BLACK, key));
-        }
-
-//        println("Empty board:");
-//        var board = new ChessBoard();
-//        printBoard(board);
-//        println();
-//
-//        println("Starting board:");
-//        board.resetBoard();
-//        printBoard(board);
+        println("Starting board:");
+        board.resetBoard();
+        printBoard(board);
     }
 
+    private static String pieceStr(ChessPiece piece) {
+        if (piece == null) {
+            return emptyPieceStr;
+        }
 
-    private static String pieceStr(TeamColor team, PieceType type) {
+        var team = piece.getTeamColor();
+        var type = piece.getPieceType();
+
         char start;
         if (team == TeamColor.WHITE) {
             start = whiteCharStart;
@@ -159,17 +164,27 @@ public class UIDrawer {
         } else {
             return " ☹ ";
         }
+
         return " %c ".formatted((char) (start + pieceInts.get(type)));
     }
 
-    private static void printRow() {
-        for (int i = 0; i < ChessBoard.getBoardWidth(); ++i) {
-            setBgColor(i % 2 == 0 ? WHITE_BG : BLACK_BG);
+    private static void printPiece(ChessPiece piece) {
+        print(pieceStr(piece));
+    }
 
+    private static void printRow(int row, ChessBoard board) {
+        int offsetter = row % 2 == 0 ? 0 : 1;
+        for (int c = 0; c < ChessBoard.getBoardWidth(); ++c) {
+            setBgColor(c % 2 == offsetter ? WHITE_BG : BLACK_BG);
+            var piece = board.getPiece(new ChessPosition(row+1, c+1));
+            printPiece(piece);
         }
     }
 
     public static void printBoard(ChessBoard board) {
-
+        for (int r = 0; r < ChessBoard.getBoardWidth(); ++r) {
+            printRow(r, board);
+            println();
+        }
     }
 }
