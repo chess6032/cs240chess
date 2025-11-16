@@ -8,6 +8,7 @@ public class EscapeSequences {
     private static final String UNICODE_ESCAPE = "\u001b";
     private static final String ANSI_ESCAPE = "\033";
 
+    public static final String CLEAR_SCREEN_AND_BUFFER = UNICODE_ESCAPE + "[2J" + UNICODE_ESCAPE + "[H" + UNICODE_ESCAPE + "[3J";
     public static final String ERASE_SCREEN = UNICODE_ESCAPE + "[H" + UNICODE_ESCAPE + "[2J";
     public static final String ERASE_LINE = UNICODE_ESCAPE + "[2K";
 
@@ -47,19 +48,21 @@ public class EscapeSequences {
     public static final String SET_BG_COLOR_WHITE = SET_BG_COLOR + "15m";
     public static final String RESET_BG_COLOR = UNICODE_ESCAPE + "[49m";
 
-    public static final String WHITE_KING = " ♔ ";
-    public static final String WHITE_QUEEN = " ♕ ";
-    public static final String WHITE_BISHOP = " ♗ ";
-    public static final String WHITE_KNIGHT = " ♘ ";
-    public static final String WHITE_ROOK = " ♖ ";
-    public static final String WHITE_PAWN = " ♙ ";
-    public static final String BLACK_KING = " ♚ ";
-    public static final String BLACK_QUEEN = " ♛ ";
-    public static final String BLACK_BISHOP = " ♝ ";
-    public static final String BLACK_KNIGHT = " ♞ ";
-    public static final String BLACK_ROOK = " ♜ ";
-    public static final String BLACK_PAWN = " ♟ ";
-    public static final String EMPTY = " \u2003 ";
+    public static final String WHITE_KING_UNI = " ♔ ";
+    public static final String WHITE_QUEEN_UNI = " ♕ ";
+    public static final String WHITE_BISHOP_UNI = " ♗ ";
+    public static final String WHITE_KNIGHT_UNI = " ♘ ";
+    public static final String WHITE_ROOK_UNI = " ♖ ";
+    public static final String WHITE_PAWN_UNI = " ♙ ";
+    public static final String BLACK_KING_UNI = " ♚ ";
+    public static final String BLACK_QUEEN_UNI = " ♛ ";
+    public static final String BLACK_BISHOP_UNI = " ♝ ";
+    public static final String BLACK_KNIGHT_UNI = " ♞ ";
+    public static final String BLACK_ROOK_UNI = " ♜ ";
+    public static final String BLACK_PAWN_UNI = " ♟ ";
+
+    public static final String REGULAR_EMPTY = "   ";
+    public static final String BIG_EMPTY = " \u2003 ";
 
     public static String moveCursorToLocation(int x, int y) { return UNICODE_ESCAPE + "[" + y + ";" + x + "H"; }
 }
