@@ -21,8 +21,11 @@ public class UIDrawer {
 
     // CONSTANTS
 
-    private static final BgColor BLACK_BG = BgColor.DARK_GREY;
-    private static final BgColor WHITE_BG = BgColor.LIGHT_GREY;
+    private static final BgColor BLACK_BG = BgColor.BROWN;
+    private static final BgColor WHITE_BG = BgColor.LIGHT_BROWN;
+
+    private static final TextColor WHITE_PIECE_CLR = TextColor.WHITE;
+    private static final TextColor BLACK_PIECE_CLR = TextColor.BLACK;
 
     private static final char WHITE_UNI_START = '\u2654';
     private static final char BLACK_UNI_START = '\u265A';
@@ -54,9 +57,10 @@ public class UIDrawer {
     // vars to keep track of formatting
 
     private static BgColor bgColor = BgColor.DEFAULT;
+    private static TextColor textColor = TextColor.DEFAULT;
 
     private static Map<PieceType, Integer> pieceInts = uniChessPieceComparisons();
-    private static char whiteCharStart = WHITE_UNI_START;
+    private static char whiteCharStart = BLACK_UNI_START;
     private static char blackCharStart = BLACK_UNI_START;
     private static String emptyPieceStr = WIDE_EMPTY;
 
@@ -89,10 +93,10 @@ public class UIDrawer {
         }
     }
     private static void moveCursor(int x, int y) { print(moveCursorToLocation(x, y)); }
-    private static void eraseScreen() {
+    public static void eraseScreen() {
         print(ERASE_SCREEN);
     }
-    private static void resetFormatting() {
+    public static void resetFormatting() {
         resetBgColor();
         resetTextColor();
 
@@ -107,18 +111,19 @@ public class UIDrawer {
         }
     }
 
-    private static void setBgColor(BgColor color) {
+    public static void setBgColor(BgColor color) {
         bgColor = color;
         print(color.seq());
     }
-    private static void resetBgColor() {
+    public static void resetBgColor() {
         setBgColor(BgColor.DEFAULT);
     }
 
-    private static void setTextColor(TextColor color) {
+    public static void setTextColor(TextColor color) {
+        textColor = color;
         print(color.seq());
     }
-    private static void resetTextColor() {
+    public static void resetTextColor() {
         setTextColor(TextColor.DEFAULT);
     }
 
@@ -169,7 +174,15 @@ public class UIDrawer {
     }
 
     private static void printPiece(ChessPiece piece) {
+        if (piece != null) {
+            if (piece.getTeamColor() == TeamColor.WHITE) {
+                print(WHITE_PIECE_CLR.seq());
+            } else if (piece.getTeamColor() == TeamColor.BLACK) {
+                print(BLACK_PIECE_CLR.seq());
+            }
+        }
         print(pieceStr(piece));
+        print(textColor.seq());
     }
 
     private static void printRow(int row, ChessBoard board) {

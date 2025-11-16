@@ -13,13 +13,19 @@ public enum BgColor {
     BLUE(SET_BG_COLOR_BLUE),
     MAGENTA(SET_BG_COLOR_MAGENTA),
     WHITE(SET_BG_COLOR_WHITE),
-    DEFAULT(RESET_BG_COLOR)
+    DEFAULT(RESET_BG_COLOR),
+    BROWN(136, 98, 62),
+    LIGHT_BROWN(198, 164, 108)
     ;
 
     private final String escapeSequence;
 
     BgColor(String escapeSequence) {
         this.escapeSequence = escapeSequence;
+    }
+
+    BgColor(int r, int g, int b) {
+        escapeSequence = "\u001b[48;2;%d;%d;%dm".formatted(r, g, b);
     }
 
     public String seq() {

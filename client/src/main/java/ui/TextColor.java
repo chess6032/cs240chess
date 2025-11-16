@@ -12,13 +12,19 @@ public enum TextColor {
     BLUE(SET_TEXT_COLOR_BLUE),
     MAGENTA(SET_TEXT_COLOR_MAGENTA),
     WHITE(SET_TEXT_COLOR_WHITE),
-    DEFAULT(RESET_TEXT_COLOR)
+    DEFAULT(RESET_TEXT_COLOR),
+    DARK_BROWN(71, 46, 25),
+    LIGHT_BROWN(255, 209, 135)
     ;
 
     private final String escapeSequence;
 
     TextColor(String escapeSequence) {
         this.escapeSequence = escapeSequence;
+    }
+
+    TextColor(int r, int g, int b) {
+        escapeSequence = "\u001b[38;2;%d;%d;%dm".formatted(r, g, b);
     }
 
     public String seq() {
