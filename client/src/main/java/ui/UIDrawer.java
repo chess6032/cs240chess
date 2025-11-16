@@ -64,6 +64,7 @@ public class UIDrawer {
     private static BgColor bgColor = BgColor.DEFAULT;
     private static TextColor textColor = TextColor.DEFAULT;
 
+    public static boolean usingUniPieces = true;
     private static Map<PieceType, Integer> pieceInts = uniChessPieceComparisons();
     private static char whiteCharStart = BLACK_UNI_START;
     private static char blackCharStart = BLACK_UNI_START;
@@ -141,12 +142,14 @@ public class UIDrawer {
         whiteCharStart = BLACK_UNI_START;
         blackCharStart = BLACK_UNI_START;
         emptyPieceChar = WIDE_EMPTY;
+        usingUniPieces = true;
     }
     public static void useAsciiPieces() {
         pieceInts = asciiChessPieceComparisons();
         whiteCharStart = WHITE_ASCII_START;
         blackCharStart = BLACK_ASCII_START;
         emptyPieceChar = REGULAR_EMPTY;
+        usingUniPieces = false;
     }
 
     public static void main(String[] args) {
