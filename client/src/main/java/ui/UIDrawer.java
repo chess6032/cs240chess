@@ -27,6 +27,9 @@ public class UIDrawer {
     private static final TextColor WHITE_PIECE_CLR = TextColor.WHITE;
     private static final TextColor BLACK_PIECE_CLR = TextColor.BLACK;
 
+    private static final BgColor BOARD_BG_CLR = BgColor.DARK_GREY;
+    private static final TextColor BOARD_TEXT_CLR = TextColor.LIGHT_GREY;
+
     private static final char WHITE_UNI_START = '\u2654';
     private static final char BLACK_UNI_START = '\u265A';
     private static final char WHITE_ASCII_START = 'k';
@@ -54,6 +57,8 @@ public class UIDrawer {
         return map;
     }
 
+    private static String BOARD_OFFSET = "          ";
+
     // vars to keep track of formatting
 
     private static BgColor bgColor = BgColor.DEFAULT;
@@ -62,7 +67,7 @@ public class UIDrawer {
     private static Map<PieceType, Integer> pieceInts = uniChessPieceComparisons();
     private static char whiteCharStart = BLACK_UNI_START;
     private static char blackCharStart = BLACK_UNI_START;
-    private static String emptyPieceStr = WIDE_EMPTY;
+    private static char emptyPieceChar = WIDE_EMPTY;
 
     // WRAPPERS & HELPERS
 
@@ -86,11 +91,15 @@ public class UIDrawer {
         print(params);
         println();
     }
-    private static void printEmpty() { print(REGULAR_EMPTY); }
-    private static void printEmpty(int n) {
-        for (int i = 0; i < n; ++i) {
-            printEmpty();
-        }
+    private static void printWithOffset(Object obj) {
+        print(BgColor.DEFAULT.seq());
+        print(BOARD_OFFSET);
+        print(bgColor.seq());
+        print(obj);
+    }
+    private static void printWithOffset(Object... params) {
+        printWithOffset("");
+        print(params);
     }
     private static void moveCursor(int x, int y) { print(moveCursorToLocation(x, y)); }
     public static void eraseScreen() {
@@ -129,19 +138,22 @@ public class UIDrawer {
 
     public static void useUniPieces() {
         pieceInts = uniChessPieceComparisons();
-        whiteCharStart = WHITE_UNI_START;
+        whiteCharStart = BLACK_UNI_START;
         blackCharStart = BLACK_UNI_START;
-        emptyPieceStr = WIDE_EMPTY;
+        emptyPieceChar = WIDE_EMPTY;
     }
     public static void useAsciiPieces() {
         pieceInts = asciiChessPieceComparisons();
         whiteCharStart = WHITE_ASCII_START;
         blackCharStart = BLACK_ASCII_START;
-        emptyPieceStr = REGULAR_EMPTY;
+        emptyPieceChar = REGULAR_EMPTY;
     }
 
     public static void main(String[] args) {
         eraseScreen();
+
+        useUniPieces();
+//        useAsciiPieces();
 
         println("Empty board:");
         var board = new ChessBoard();
@@ -155,7 +167,7 @@ public class UIDrawer {
 
     private static String pieceStr(ChessPiece piece) {
         if (piece == null) {
-            return emptyPieceStr;
+            return " %c ".formatted(emptyPieceChar);
         }
 
         var team = piece.getTeamColor();
@@ -174,6 +186,7 @@ public class UIDrawer {
     }
 
     private static void printPiece(ChessPiece piece) {
+        // set text color to black/white, corresponding to piece's team color
         if (piece != null) {
             if (piece.getTeamColor() == TeamColor.WHITE) {
                 print(WHITE_PIECE_CLR.seq());
@@ -181,23 +194,53 @@ public class UIDrawer {
                 print(BLACK_PIECE_CLR.seq());
             }
         }
+
         print(pieceStr(piece));
-        print(textColor.seq());
+        print(textColor.seq()); // reset text color
     }
 
     private static void printRow(int row, ChessBoard board) {
-        int offsetter = row % 2 == 0 ? 0 : 1;
+        printWithOffset(" ", row+1, " ");
+
+        int alternator = row % 2 == 0 ? 0 : 1; // used for making each row's starting color alternate
         for (int c = 0; c < ChessBoard.getBoardWidth(); ++c) {
-            setBgColor(c % 2 == offsetter ? WHITE_BG : BLACK_BG);
+            print(c % 2 == alternator ? WHITE_BG.seq() : BLACK_BG.seq()); // set background to appropriate grid square color
             var piece = board.getPiece(new ChessPosition(row+1, c+1));
             printPiece(piece);
         }
+        print(bgColor.seq()); // reset background
+
+        print(" ", row+1, " ");
     }
 
+    private static void printLettersRow() {
+        printWithOffset("   ");
+        for (int c = 0; c < ChessBoard.getBoardWidth(); ++c) {
+            print("%c%c ".formatted(emptyPieceChar, (char) 'a' + c));
+        }
+        print("   ");
+    }
+
+
     public static void printBoard(ChessBoard board) {
+        var bgColorHold = bgColor;
+        setBgColor(BOARD_BG_CLR);
+        var textColorHold = textColor;
+        setTextColor(BOARD_TEXT_CLR);
+
+        // print letters (for grid coords)
+        printLettersRow();
+        println();
+
+        // print grid
         for (int r = 0; r < ChessBoard.getBoardWidth(); ++r) {
             printRow(r, board);
             println();
         }
+
+        printLettersRow();
+
+        setBgColor(bgColorHold);
+        setTextColor(textColorHold);
     }
 }

@@ -61,8 +61,11 @@ public class EscapeSequences {
     public static final String BLACK_ROOK_UNI = " ♜ ";
     public static final String BLACK_PAWN_UNI = " ♟ ";
 
-    public static final String REGULAR_EMPTY = "   ";
-    public static final String WIDE_EMPTY = " \u2003 ";
+//    public static final String REGULAR_EMPTY = "   ";
+//    public static final String WIDE_EMPTY = " \u2003 ";
+
+    public static final char REGULAR_EMPTY = ' ';
+    public static final char WIDE_EMPTY = '\u2003';
 
     public static String moveCursorToLocation(int x, int y) { return UNICODE_ESCAPE + "[" + y + ";" + x + "H"; }
 }
