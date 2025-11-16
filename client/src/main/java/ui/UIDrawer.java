@@ -2,20 +2,44 @@ package ui;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import chess.ChessBoard;
+import static chess.ChessPiece.PieceType;
+import static chess.ChessGame.TeamColor;
 
 import static ui.EscapeSequences.*;
 
 public class UIDrawer {
 
+    // out stream
     private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-    // Vars to keep track of formatting
-
-    private static BgColor bgColor = BgColor.DEFAULT;
 
     // CONSTANTS
 
-    private static final String EMPTY = REGULAR_EMPTY;
+    private static final BgColor BLACK_BG = BgColor.DARK_GREY;
+    private static final BgColor WHITE_BG = BgColor.LIGHT_GREY;
+
+    private static final char whiteUniStart = '\u2654';
+
+    private static final Map<PieceType, Character> whitePieces = initializeUniChessPieces();
+
+    private static Map<PieceType, Character> initializeUniChessPieces() {
+        HashMap<PieceType, Character> map = new HashMap<>();
+        map.put(PieceType.KING, whiteUniStart);
+        map.put(PieceType.QUEEN, (char) (whiteUniStart + 1));
+        map.put(PieceType.ROOK, (char) (whiteUniStart + 2));
+        map.put(PieceType.BISHOP, (char) (whiteUniStart + 3));
+        map.put(PieceType.KNIGHT, (char) (whiteUniStart + 4));
+        map.put(PieceType.PAWN, (char) (whiteUniStart + 5));
+        return map;
+    }
+
+    // vars & constants to keep track of formatting
+
+    private static BgColor bgColor = BgColor.DEFAULT;
+    private static String empty = REGULAR_EMPTY;
 
     // WRAPPERS & HELPERS
 
@@ -35,7 +59,11 @@ public class UIDrawer {
         out.println();
         print(bgColor.seq());
     }
-    private static void printEmpty() { print(EMPTY); }
+    private static void println(Object... params) {
+        print(params);
+        println();
+    }
+    private static void printEmpty() { print(empty); }
     private static void printEmpty(int n) {
         for (int i = 0; i < n; ++i) {
             printEmpty();
@@ -45,7 +73,6 @@ public class UIDrawer {
     private static void eraseScreen() {
         print(ERASE_SCREEN);
     }
-    private static void eraseLine()   { print(ERASE_LINE); }
     private static void resetFormatting() {
         resetBgColor();
         resetTextColor();
@@ -55,8 +82,6 @@ public class UIDrawer {
                 RESET_TEXT_ITALIC,
                 RESET_TEXT_UNDERLINE,
                 RESET_TEXT_BLINKING,
-//                RESET_TEXT_COLOR,
-//                RESET_BG_COLOR,
         };
         for (var reset : resets) {
             print(reset);
@@ -78,25 +103,46 @@ public class UIDrawer {
         setTextColor(TextColor.DEFAULT);
     }
 
+    private static void useWideEmpty() {
+        empty = WIDE_EMPTY;
+    }
+    private static void useRegularEmpty() {
+        empty = REGULAR_EMPTY;
+    }
+
     public static void main(String[] args) {
         eraseScreen();
 
-        for (int i = 0; i < 8; ++i) {
-            setBgColor(i % 2 == 0 ?
-                BgColor.RED : BgColor.BLUE);
-            printEmpty();
+        for (var key : whitePieces.keySet()) {
+            println(key, ": ", pieceStr(TeamColor.WHITE, key));
         }
 
-        println();
-        printEmpty(5);
-        println();
-        println();
-        printEmpty();
-        setTextColor(TextColor.BLACK);
-        print("Hello");
-        resetFormatting();
-        print("hello again");
+//        println("Empty board:");
+//        var board = new ChessBoard();
+//        printBoard(board);
+//        println();
+//
+//        println("Starting board:");
+//        board.resetBoard();
+//        printBoard(board);
     }
 
 
+    private static String pieceStr(TeamColor team, PieceType type) {
+        if (team == TeamColor.WHITE) {
+            return " " + whitePieces.get(type) + " ";
+        }
+        return null;
+    }
+
+    private static void printRow() {
+        for (int i = 0; i < ChessBoard.getBoardWidth(); ++i) {
+            setBgColor(i % 2 == 0 ? WHITE_BG : BLACK_BG);
+
+        }
+    }
+
+    public static void printBoard(ChessBoard board) {
+
+    }
 }
