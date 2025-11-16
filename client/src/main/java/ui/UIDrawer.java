@@ -21,18 +21,30 @@ public class UIDrawer {
     private static final BgColor BLACK_BG = BgColor.DARK_GREY;
     private static final BgColor WHITE_BG = BgColor.LIGHT_GREY;
 
-    private static final char whiteUniStart = '\u2654';
+    private static final char WHITE_UNI_START = '\u2654';
+    private static final char BLACK_UNI_START = '\u265A';
+    private static final char WHITE_ASCII_START = 'k';
+    private static final char BLACK_ASCII_START = 'K';
 
-    private static final Map<PieceType, Character> whitePieces = initializeUniChessPieces();
+    private static Map<PieceType, Integer> uniChessPieceComparisons() {
+        HashMap<PieceType, Integer> map = new HashMap<>();
+        map.put(PieceType.KING, 0);
+        map.put(PieceType.QUEEN, 1);
+        map.put(PieceType.ROOK, 2);
+        map.put(PieceType.BISHOP, 3);
+        map.put(PieceType.KNIGHT, 4);
+        map.put(PieceType.PAWN, 5);
+        return map;
+    }
 
-    private static Map<PieceType, Character> initializeUniChessPieces() {
-        HashMap<PieceType, Character> map = new HashMap<>();
-        map.put(PieceType.KING, whiteUniStart);
-        map.put(PieceType.QUEEN, (char) (whiteUniStart + 1));
-        map.put(PieceType.ROOK, (char) (whiteUniStart + 2));
-        map.put(PieceType.BISHOP, (char) (whiteUniStart + 3));
-        map.put(PieceType.KNIGHT, (char) (whiteUniStart + 4));
-        map.put(PieceType.PAWN, (char) (whiteUniStart + 5));
+    private static Map<PieceType, Integer> asciiChessPieceComparisons() {
+        HashMap<PieceType, Integer> map = new HashMap<>();
+        map.put(PieceType.KING, 0);    // K = 75
+        map.put(PieceType.QUEEN, 6);   // Q = 81
+        map.put(PieceType.ROOK, 7);    // R = 82
+        map.put(PieceType.BISHOP, -9); // B = 66
+        map.put(PieceType.KNIGHT, 3);  // N = 78
+        map.put(PieceType.PAWN, 5);    // P = 80
         return map;
     }
 
@@ -40,6 +52,10 @@ public class UIDrawer {
 
     private static BgColor bgColor = BgColor.DEFAULT;
     private static String empty = REGULAR_EMPTY;
+
+    private static Map<PieceType, Integer> pieceInts = asciiChessPieceComparisons();
+    private static char whiteCharStart = WHITE_ASCII_START;
+    private static char blackCharStart = BLACK_ASCII_START;
 
     // WRAPPERS & HELPERS
 
@@ -113,8 +129,14 @@ public class UIDrawer {
     public static void main(String[] args) {
         eraseScreen();
 
-        for (var key : whitePieces.keySet()) {
+        for (var key : pieceInts.keySet()) {
             println(key, ": ", pieceStr(TeamColor.WHITE, key));
+        }
+
+        println();
+
+        for (var key : pieceInts.keySet()) {
+            println(key, ": ", pieceStr(TeamColor.BLACK, key));
         }
 
 //        println("Empty board:");
@@ -129,10 +151,15 @@ public class UIDrawer {
 
 
     private static String pieceStr(TeamColor team, PieceType type) {
+        char start;
         if (team == TeamColor.WHITE) {
-            return " " + whitePieces.get(type) + " ";
+            start = whiteCharStart;
+        } else if (team == TeamColor.BLACK){
+            start = blackCharStart;
+        } else {
+            return " ☹ ";
         }
-        return null;
+        return " %c ".formatted((char) (start + pieceInts.get(type)));
     }
 
     private static void printRow() {
