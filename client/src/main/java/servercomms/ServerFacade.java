@@ -5,6 +5,7 @@ import model.AuthData;
 import model.GameData;
 import model.PlayerColorGameIDforJSON;
 import model.UserData;
+import org.junit.jupiter.api.Assertions;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,7 +27,7 @@ public class ServerFacade {
 
     // HTTP UTILITY METHODS
 
-    private String neverEndWithSlash(String path) {
+    private static String neverEndWithSlash(String path) {
         if (!(path == null || path.isEmpty())) {
             if (path.charAt(path.length() - 1) == '/') {
                 return path.substring(0, path.length() - 1);
@@ -36,7 +37,7 @@ public class ServerFacade {
         return path;
     }
 
-    private String alwaysBeginWithSlash(String path) {
+    private static String alwaysBeginWithSlash(String path) {
         if (!(path == null || path.isEmpty())) {
             if (path.charAt(0) != '/') {
                 return "/" + path;
@@ -139,11 +140,23 @@ public class ServerFacade {
 
     public Collection<GameData> listGames(AuthData auth) throws ResponseException {
         return buildSendHandle("GET", "/game", null, auth,
-                Collection.class); // TODO: will this work fine with Collection.class ?
+                Collection.class); // FIXME: will this work fine with Collection.class ?
     }
 
     public void joinGame(AuthData auth, PlayerColorGameIDforJSON colorAndID) throws ResponseException {
         buildSendHandle("PUT", "/game", colorAndID, auth,
                 null);
+    }
+
+    public static void main(String[] args) {
+        String a = "a/";
+        String b = "b";
+        String x = "/x";
+        String y = "y";
+
+        Assertions.assertEquals("a/x", neverEndWithSlash(a) + alwaysBeginWithSlash(x));
+        Assertions.assertEquals("a/y", neverEndWithSlash(a) + alwaysBeginWithSlash(y));
+        Assertions.assertEquals("b/x", neverEndWithSlash(b) + alwaysBeginWithSlash(x));
+        Assertions.assertEquals("b/y", neverEndWithSlash(b) + alwaysBeginWithSlash(y));
     }
 }
