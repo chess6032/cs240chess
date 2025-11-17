@@ -1,6 +1,6 @@
 package service;
 
-import chess.model.GameData;
+import model.GameData;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;

@@ -1,3 +1,3 @@
-package chess.model;
+package model;
 
 public record PlayerColorGameIDforJSON(String playerColor, int gameID) {}

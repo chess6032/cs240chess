@@ -1,6 +1,6 @@
 package dataaccess.memorydao;
 
-import chess.model.UserData;
+import model.UserData;
 import dataaccess.UserDAO;
 
 import java.util.HashMap;

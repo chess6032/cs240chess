@@ -1,11 +1,10 @@
 package server.handlers;
 
-import chess.model.PlayerColorGameIDforJSON;
+import model.PlayerColorGameIDforJSON;
 import dataaccess.exceptions.*;
 import io.javalin.http.Context;
 import server.FailedDeserializationException;
 import service.GameService;
-import service.UserService;
 
 import static server.handlers.HandlerUtility.deserializeBody;
 

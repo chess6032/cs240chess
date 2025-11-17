@@ -1,6 +1,6 @@
 package dataaccess;
 
-import chess.model.UserData;
+import model.UserData;
 
 public class DAOTests {
 

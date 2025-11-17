@@ -1,7 +1,7 @@
 package server.handlers;
 
-import chess.model.AuthData;
-import chess.model.UserData;
+import model.AuthData;
+import model.UserData;
 import dataaccess.exceptions.*;
 import server.FailedDeserializationException;
 import server.FailedSerializationException;

@@ -1,7 +1,7 @@
 package service;
 
-import chess.model.AuthData;
-import chess.model.UserData;
+import model.AuthData;
+import model.UserData;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.*;

@@ -1,6 +1,6 @@
 package service;
 
-import chess.model.UserData;
+import model.UserData;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.MissingAttributeException;

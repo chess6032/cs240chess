@@ -3,8 +3,8 @@ package server.handlers;
 import static server.handlers.HandlerUtility.deserializeBody;
 import static server.handlers.HandlerUtility.serialize;
 
-import chess.model.AuthData;
-import chess.model.UserData;
+import model.AuthData;
+import model.UserData;
 import dataaccess.exceptions.MissingAttributeException;
 import dataaccess.exceptions.PasswordIncorrectException;
 import dataaccess.exceptions.SqlException;

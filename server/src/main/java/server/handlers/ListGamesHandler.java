@@ -1,7 +1,7 @@
 package server.handlers;
 
-import chess.model.GameData;
-import chess.model.ListGamesResult;
+import model.GameData;
+import model.ListGamesResult;
 import dataaccess.exceptions.AuthTokenNotFoundException;
 import dataaccess.exceptions.SqlException;
 import io.javalin.http.Context;

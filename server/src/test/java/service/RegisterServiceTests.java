@@ -1,6 +1,6 @@
 package service;
 
-import chess.model.UserData;
+import model.UserData;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.MissingAttributeException;
 import dataaccess.exceptions.SqlException;

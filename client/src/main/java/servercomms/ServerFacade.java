@@ -1,13 +1,19 @@
 package servercomms;
 
-import chess.model.*;
+import com.google.gson.Gson;
+import model.AuthData;
+import model.UserData;
 
+import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
 public class ServerFacade {
+    private final Gson serializer = new Gson();
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverURL;
 
@@ -15,16 +21,104 @@ public class ServerFacade {
         serverURL = url;
     }
 
+    // HTTP UTILITY METHODS
+
+    private String neverEndWithSlash(String path) {
+        if (!(path == null || path.isEmpty())) {
+            if (path.charAt(path.length() - 1) == '/') {
+                return path.substring(0, path.length() - 1);
+            }
+        }
+
+        return path;
+    }
+
+    private String alwaysBeginWithSlash(String path) {
+        if (!(path == null || path.isEmpty())) {
+            if (path.charAt(0) != '/') {
+                return "/" + path;
+            }
+        }
+
+        return path;
+    }
+
+    private HttpRequest buildRequest(String method, String path, Object body, AuthData auth) {
+
+        String fullPath = neverEndWithSlash(serverURL) + alwaysBeginWithSlash(path);
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(fullPath))
+                .method(method, makeRequestBody(body));
+
+        if (auth != null && auth.authToken() != null) {
+            request.setHeader("Authorization", auth.authToken());
+        }
+
+        return request.build();
+    }
+
+    private BodyPublisher makeRequestBody(Object request) {
+        // serialize request, then sends it in Java's BodyPublisher class
+        if (request == null) {
+            return BodyPublishers.noBody();
+        }
+        return BodyPublishers.ofString(new Gson().toJson(request));
+    }
+
+    private HttpResponse<String> sendRequest(HttpRequest request) throws ResponseException {
+        try {
+            return client.send(request, BodyHandlers.ofString());
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
+        }
+    }
+
+    private boolean isSuccessful(int status) {
+        return status / 100 == 2; // check if the status is in the 200s
+    }
+
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
+        var status = response.statusCode();
+
+        // throw error if status code indicates request wasn't successful
+        if (!isSuccessful(status)) {
+            var body = response.body();
+            if (body != null) {
+                throw ResponseException.fromJson(body);
+            }
+
+            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
+        }
+
+        // if successful, return body
+        if (responseClass != null) {
+            return new Gson().fromJson(response.body(), responseClass);
+        }
+
+        // if successful, return nothing if the body is empty
+        return null;
+    }
+
+    private <T> T buildSendHandle(String method, String path, Object body, AuthData auth, Class<T> responseClass) throws ResponseException {
+        var request = buildRequest(method, path, body, auth);
+        var response = sendRequest(request);
+        return handleResponse(response, responseClass);
+    }
+
     // SERVER COMMUNICATION METHODS
 
-    // TODO: implement these somehow
-    public void register() {
+    public void clear() throws ResponseException {
+        // TODO: delete this probably but idk maybe it'll be nice to have
+        buildSendHandle("DELETE", "/db", null, null, null);
+    }
+    public void register(UserData user) throws ResponseException {
+        buildSendHandle("POST", "/user", user, null,
+                AuthData.class);
+    }
+    public void login(UserData user) {
 
     }
-    public void login() {
-
-    }
-    public void logout() {
+    public void logout(AuthData auth) {
 
     }
     public void createGame() {

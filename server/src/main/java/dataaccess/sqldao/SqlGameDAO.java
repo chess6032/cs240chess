@@ -1,6 +1,6 @@
 package dataaccess.sqldao;
 
-import chess.model.GameData;
+import model.GameData;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.SqlException;
 

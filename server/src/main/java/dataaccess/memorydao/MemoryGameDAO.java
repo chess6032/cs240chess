@@ -1,7 +1,7 @@
 package dataaccess.memorydao;
 
 import chess.ChessGame;
-import chess.model.GameData;
+import model.GameData;
 import dataaccess.GameDAO;
 
 import java.util.Collection;
