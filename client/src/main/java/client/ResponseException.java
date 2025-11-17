@@ -1,4 +1,4 @@
-package servercomms;
+package client;
 
 import com.google.gson.Gson;
 
