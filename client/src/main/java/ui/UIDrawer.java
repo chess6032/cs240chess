@@ -84,8 +84,12 @@ public abstract class UIDrawer {
     public static void main(String[] args) {
         eraseScreen();
 
-//        BoardDrawer.useUniPieces();
-//        BoardDrawer.useAsciiPieces();
+        if (args.length > 0) {
+            String arg = args[0];
+            if (arg.equals("uni")) {
+                BoardDrawer.useUniPieces();
+            }
+        }
 
         var board = new ChessBoard();
         board.resetBoard();
@@ -95,6 +99,7 @@ public abstract class UIDrawer {
         println();
 
         println(board);
+        println();
 
         println("Starting board, from black's perspective:");
         BoardDrawer.printBoard(board, ChessGame.TeamColor.BLACK);

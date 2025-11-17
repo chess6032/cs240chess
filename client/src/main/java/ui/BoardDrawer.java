@@ -26,8 +26,8 @@ public class BoardDrawer extends UIDrawer {
     private static final BgColor BOARD_BG_CLR = BgColor.DARK_GREY;
     private static final TextColor BOARD_TEXT_CLR = TextColor.LIGHT_GREY;
 
-    private static final char WHITE_UNI_START = '\u2654';
-    private static final char BLACK_UNI_START = '\u265A';
+    private static final char WHITE_UNI_START = '♔';
+    private static final char BLACK_UNI_START = '♚';
     private static final char WHITE_ASCII_START = 'K';
     private static final char BLACK_ASCII_START = 'k';
 
@@ -64,7 +64,7 @@ public class BoardDrawer extends UIDrawer {
     private static char emptyPieceChar;
 
     static {
-        useUniPieces();
+        useAsciiPieces();
     }
 
     private static String boardOffset = DEFAULT_BOARD_OFFSET;
@@ -176,9 +176,6 @@ public class BoardDrawer extends UIDrawer {
 
         setBgColor(bgColorHold);
         setTextColor(textColorHold);
-
-        boardOffset = DEFAULT_BOARD_OFFSET;
-
     }
 
     public static void printBoard(ChessBoard board, TeamColor viewerTeam) {
