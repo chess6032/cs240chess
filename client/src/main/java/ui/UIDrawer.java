@@ -3,6 +3,7 @@ package ui;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import chess.ChessBoard;
+import chess.ChessGame;
 
 import static ui.EscapeSequences.*;
 
@@ -32,9 +33,8 @@ public abstract class UIDrawer {
         }
     }
     public static void println(Object obj) {
-        print(BgColor.DEFAULT.seq());
-        out.println(obj);
-        print(bgColor.seq());
+        print(obj);
+        println();
     }
     public static void println() {
         print(BgColor.DEFAULT.seq());
@@ -84,17 +84,20 @@ public abstract class UIDrawer {
     public static void main(String[] args) {
         eraseScreen();
 
-        BoardDrawer.useUniPieces();
+//        BoardDrawer.useUniPieces();
 //        BoardDrawer.useAsciiPieces();
 
-        println("Empty board:");
         var board = new ChessBoard();
-        BoardDrawer.printBoard(board);
+        board.resetBoard();
+
+        println("Starting board, from white's perspective:");
+        BoardDrawer.printBoard(board, ChessGame.TeamColor.WHITE);
         println();
 
-        println("Starting board:");
-        board.resetBoard();
-        BoardDrawer.printBoard(board);
+        println(board);
+
+        println("Starting board, from black's perspective:");
+        BoardDrawer.printBoard(board, ChessGame.TeamColor.BLACK);
     }
 
 }

@@ -1,15 +1,16 @@
 package ui;
 
 import chess.ChessBoard;
-import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import chess.ChessGame.TeamColor;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static ui.EscapeSequences.REGULAR_EMPTY;
 import static ui.EscapeSequences.WIDE_EMPTY;
+
 
 public class BoardDrawer extends UIDrawer {
 
@@ -27,8 +28,8 @@ public class BoardDrawer extends UIDrawer {
 
     private static final char WHITE_UNI_START = '\u2654';
     private static final char BLACK_UNI_START = '\u265A';
-    private static final char WHITE_ASCII_START = 'k';
-    private static final char BLACK_ASCII_START = 'K';
+    private static final char WHITE_ASCII_START = 'K';
+    private static final char BLACK_ASCII_START = 'k';
 
     private static Map<ChessPiece.PieceType, Integer> uniChessPieceComparisons() {
         HashMap<ChessPiece.PieceType, Integer> map = new HashMap<>();
@@ -56,11 +57,15 @@ public class BoardDrawer extends UIDrawer {
 
     // formatting vars
 
-    public static boolean usingUniPieces = true;
-    private static Map<ChessPiece.PieceType, Integer> pieceInts = uniChessPieceComparisons();
-    private static char whiteCharStart = BLACK_UNI_START;
-    private static char blackCharStart = BLACK_UNI_START;
-    private static char emptyPieceChar = WIDE_EMPTY;
+    public static boolean usingUniPieces;
+    private static Map<ChessPiece.PieceType, Integer> pieceInts;
+    private static char whiteCharStart;
+    private static char blackCharStart;
+    private static char emptyPieceChar;
+
+    static {
+        useUniPieces();
+    }
 
     private static String boardOffset = DEFAULT_BOARD_OFFSET;
 
@@ -79,7 +84,7 @@ public class BoardDrawer extends UIDrawer {
 
     public static void useUniPieces() {
         pieceInts = uniChessPieceComparisons();
-        whiteCharStart = BLACK_UNI_START;
+        whiteCharStart = WHITE_UNI_START;
         blackCharStart = BLACK_UNI_START;
         emptyPieceChar = WIDE_EMPTY;
         usingUniPieces = true;
@@ -101,9 +106,9 @@ public class BoardDrawer extends UIDrawer {
         var type = piece.getPieceType();
 
         char start;
-        if (team == ChessGame.TeamColor.WHITE) {
+        if (team == TeamColor.WHITE) {
             start = whiteCharStart;
-        } else if (team == ChessGame.TeamColor.BLACK){
+        } else if (team == TeamColor.BLACK){
             start = blackCharStart;
         } else {
             return " ☹ ";
@@ -115,9 +120,9 @@ public class BoardDrawer extends UIDrawer {
     private static void printPiece(ChessPiece piece) {
         // set text color to black/white, corresponding to piece's team color
         if (piece != null) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            if (piece.getTeamColor() == TeamColor.WHITE) {
                 print(WHITE_PIECE_CLR.seq());
-            } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            } else if (piece.getTeamColor() == TeamColor.BLACK) {
                 print(BLACK_PIECE_CLR.seq());
             }
         }
@@ -129,7 +134,7 @@ public class BoardDrawer extends UIDrawer {
     private static void printRow(int row, ChessBoard board) {
         printWithOffset(" ", row+1, " ");
 
-        int alternator = row % 2 == 0 ? 0 : 1; // used for making each row's starting color alternate
+        int alternator = row % 2 == 0 ? 1 : 0; // used for making each row's starting color alternate
         for (int c = 0; c < ChessBoard.getBoardWidth(); ++c) {
             print(c % 2 == alternator ? WHITE_BG.seq() : BLACK_BG.seq()); // set background to appropriate grid square color
             var piece = board.getPiece(new ChessPosition(row+1, c+1));
@@ -145,11 +150,11 @@ public class BoardDrawer extends UIDrawer {
         for (int c = 0; c < ChessBoard.getBoardWidth(); ++c) {
             print("%c%c ".formatted(emptyPieceChar, (char) 'a' + c));
         }
-        print("   ");
+        println("   ");
     }
 
 
-    public static void printBoard(ChessBoard board, int boardOffsetSpaces) {
+    public static void printBoard(ChessBoard board, TeamColor viewerTeam, int boardOffsetSpaces) {
         boardOffset = " ".repeat(boardOffsetSpaces);
 
         var bgColorHold = getBgColor();
@@ -159,11 +164,11 @@ public class BoardDrawer extends UIDrawer {
 
         // print letters (for grid coords)
         printLettersRow();
-        println();
 
         // print grid
+        boolean blacksPerspective = viewerTeam == TeamColor.BLACK;
         for (int r = 0; r < ChessBoard.getBoardWidth(); ++r) {
-            printRow(r, board);
+            printRow(blacksPerspective ? r : ChessBoard.getBoardWidth()-1-r, board);
             println();
         }
 
@@ -173,9 +178,10 @@ public class BoardDrawer extends UIDrawer {
         setTextColor(textColorHold);
 
         boardOffset = DEFAULT_BOARD_OFFSET;
+
     }
 
-    public static void printBoard(ChessBoard board) {
-        printBoard(board, DEFAULT_BOARD_OFFSET.length());
+    public static void printBoard(ChessBoard board, TeamColor viewerTeam) {
+        printBoard(board, viewerTeam, DEFAULT_BOARD_OFFSET.length());
     }
 }
