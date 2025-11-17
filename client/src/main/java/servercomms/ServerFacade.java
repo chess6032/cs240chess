@@ -147,16 +147,4 @@ public class ServerFacade {
         buildSendHandle("PUT", "/game", colorAndID, auth,
                 null);
     }
-
-    public static void main(String[] args) {
-        String a = "a/";
-        String b = "b";
-        String x = "/x";
-        String y = "y";
-
-        Assertions.assertEquals("a/x", neverEndWithSlash(a) + alwaysBeginWithSlash(x));
-        Assertions.assertEquals("a/y", neverEndWithSlash(a) + alwaysBeginWithSlash(y));
-        Assertions.assertEquals("b/x", neverEndWithSlash(b) + alwaysBeginWithSlash(x));
-        Assertions.assertEquals("b/y", neverEndWithSlash(b) + alwaysBeginWithSlash(y));
-    }
 }
