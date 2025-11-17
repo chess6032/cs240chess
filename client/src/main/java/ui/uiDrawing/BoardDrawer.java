@@ -1,4 +1,4 @@
-package ui;
+package ui.uiDrawing;
 
 import chess.ChessBoard;
 import chess.ChessPiece;
@@ -8,8 +8,8 @@ import chess.ChessGame.TeamColor;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ui.EscapeSequences.REGULAR_EMPTY;
-import static ui.EscapeSequences.WIDE_EMPTY;
+import static ui.uiDrawing.EscapeSequences.REGULAR_EMPTY;
+import static ui.uiDrawing.EscapeSequences.WIDE_EMPTY;
 
 
 public class BoardDrawer extends UIDrawer {

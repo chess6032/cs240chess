@@ -1,6 +1,6 @@
-package ui;
+package ui.uiDrawing;
 
-import static ui.EscapeSequences.*;
+import static ui.uiDrawing.EscapeSequences.*;
 
 public enum BgColor {
     BLACK(SET_BG_COLOR_BLACK),

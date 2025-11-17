@@ -1,11 +1,11 @@
-package ui;
+package ui.uiDrawing;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import chess.ChessBoard;
 import chess.ChessGame;
 
-import static ui.EscapeSequences.*;
+import static ui.uiDrawing.EscapeSequences.*;
 
 public abstract class UIDrawer {
 
