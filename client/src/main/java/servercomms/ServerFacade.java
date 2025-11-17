@@ -2,6 +2,8 @@ package servercomms;
 
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
+import model.PlayerColorGameIDforJSON;
 import model.UserData;
 
 import java.net.URI;
@@ -11,6 +13,7 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Collection;
 
 public class ServerFacade {
     private final Gson serializer = new Gson();
@@ -99,35 +102,48 @@ public class ServerFacade {
         return null;
     }
 
-    private <T> T buildSendHandle(String method, String path, Object body, AuthData auth, Class<T> responseClass) throws ResponseException {
-        var request = buildRequest(method, path, body, auth);
+    private <T> T buildSendHandle(String method, String path, Object body, AuthData authHeader, Class<T> returnClass) throws ResponseException {
+        var request = buildRequest(method, path, body, authHeader);
         var response = sendRequest(request);
-        return handleResponse(response, responseClass);
+        return handleResponse(response, returnClass);
     }
 
     // SERVER COMMUNICATION METHODS
 
     public void clear() throws ResponseException {
         // TODO: delete this probably but idk maybe it'll be nice to have
-        buildSendHandle("DELETE", "/db", null, null, null);
+        buildSendHandle("DELETE", "/db", null, null,
+                null);
     }
-    public void register(UserData user) throws ResponseException {
-        buildSendHandle("POST", "/user", user, null,
+
+    public AuthData register(UserData user) throws ResponseException {
+        return buildSendHandle("POST", "/user", user, null,
                 AuthData.class);
     }
-    public void login(UserData user) {
 
+    public AuthData login(UserData user) throws ResponseException {
+        return buildSendHandle("POST", "/session", user, null,
+                AuthData.class);
     }
-    public void logout(AuthData auth) {
 
+    public void logout(AuthData auth) throws ResponseException {
+        buildSendHandle("DELETE", "/session", null, auth,
+                null);
     }
-    public void createGame() {
 
+    public GameData createGame(AuthData auth, String gameName) throws ResponseException {
+        GameData gameNameForSerialization = new GameData(-1, null, null, gameName, null);
+        return buildSendHandle("POST", "/game", gameNameForSerialization, auth,
+                GameData.class);
     }
-    public void listGames() {
 
+    public Collection<GameData> listGames(AuthData auth) throws ResponseException {
+        return buildSendHandle("GET", "/game", null, auth,
+                Collection.class); // TODO: will this work fine with Collection.class ?
     }
-    public void joinGame() {
 
+    public void joinGame(AuthData auth, PlayerColorGameIDforJSON colorAndID) throws ResponseException {
+        buildSendHandle("PUT", "/game", colorAndID, auth,
+                null);
     }
 }
