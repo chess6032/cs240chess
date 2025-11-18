@@ -81,6 +81,13 @@ public abstract class UIDrawer {
         setTextColor(TextColor.DEFAULT);
     }
 
+    public static void printPrompt(String prefix) {
+        print(TextColor.GREEN.seq());
+        if (prefix != null) { print(prefix); }
+        print(" >>> ");
+        print(textColor.seq());
+    }
+
     public static void main(String[] args) {
         eraseScreen();
 
