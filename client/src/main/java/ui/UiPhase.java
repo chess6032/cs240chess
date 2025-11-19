@@ -5,12 +5,12 @@ import model.AuthData;
 import model.UserData;
 import ui.uiDrawing.UIDrawer;
 
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 public abstract class UiPhase {
 
     private static final Scanner scanner = new Scanner(System.in);
+    protected final List<String> commands;
 
     private Client.State clientState;
     private UserData clientUserData;
@@ -24,6 +24,10 @@ public abstract class UiPhase {
     }
     protected void setClientAuthData(AuthData auth) {
         clientAuthData = auth;
+    }
+
+    public UiPhase(List<String> commands) {
+        this.commands = commands;
     }
 
     ReplResult readEvalPrint() {
@@ -53,6 +57,20 @@ public abstract class UiPhase {
         return new ReplResult(clientState, clientUserData, clientAuthData);
     }
 
+
+
+    protected String parseCommand(String command) throws UnknownCommandFromUser {
+        // for now, this method is really simple.
+        // but it can be expanded upon to allow for more flexible user input.
+
+        if (commands.contains(command)) {
+            return command;
+        }
+
+        throw new UnknownCommandFromUser(command);
+    }
+
+
     private CommandAndArgs parseInput(String line) throws UnknownCommandFromUser {
         if (line == null || line.isEmpty()) {
             return null;
@@ -64,5 +82,4 @@ public abstract class UiPhase {
     }
 
     public abstract String eval(CommandAndArgs cargs) throws InvalidArgsFromUser;
-    protected abstract String parseCommand(String command) throws UnknownCommandFromUser;
 }
