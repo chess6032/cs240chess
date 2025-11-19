@@ -8,7 +8,7 @@ import ui.uiDrawing.UIDrawer;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public abstract class UiSuper {
+public abstract class UiPhase {
 
     private static final Scanner scanner = new Scanner(System.in);
 
