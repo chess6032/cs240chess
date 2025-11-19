@@ -34,8 +34,8 @@ setClientAuth(AuthData auth) => void {
 }
 
 abstract help() => void
-abstract eval() => void?
 abstract badInput() => void
+abstract eval(C command, String[] args) => void
 
 
 PRELOGIN:

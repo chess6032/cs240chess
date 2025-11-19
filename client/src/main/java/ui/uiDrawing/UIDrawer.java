@@ -81,6 +81,10 @@ public abstract class UIDrawer {
         setTextColor(TextColor.DEFAULT);
     }
 
+
+    public static void printPrompt() {
+        printPrompt(null);
+    }
     public static void printPrompt(String prefix) {
         print(TextColor.GREEN.seq());
         if (prefix != null) { print(prefix); }
