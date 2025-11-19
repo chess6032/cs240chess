@@ -1,0 +1,91 @@
+SUPERCLASS:
+
+C = ???
+
+rep() {
+    // READ
+
+    scan System.in -> String line
+    parse(line) -> C command, String[] args
+
+    // EVAL
+
+    try:
+        eval(command, args)
+    catch InvalidArgumentException:
+        badInput()
+}
+
+parse(String line) => C, String[] {
+    split line -> String[] args
+    parseCommand(args[0]) -> C command
+    return command, args[1:]
+}
+
+
+
+
+setClientState(State state) => void {
+    ???
+}
+
+setClientAuth(AuthData auth) => void {
+    ???
+}
+
+abstract help() => void
+abstract eval() => void?
+abstract badInput() => void
+
+
+PRELOGIN:
+
+OVERRIDE
+eval(C command, String[] args) => void? {
+    // Translate command to ServerFacade function.
+
+    switch(command):
+        HELP: help()
+        REGISTER: register(args)
+        LOGIN: login(args)
+        EXIT: setClientState(QUIT)
+}
+
+register(String[] args) => void? {
+    setClientAuth( ServerFacade.register(new UserData(args[0], args[1], args[2])) )
+    setClientState(POSTLOGIN)
+}
+
+login(args) => void? {
+    setClientAuth( ServerFacade.login(new UserData(args[0], args[1], null)) )
+    setClientState(POSTLOGIN)
+}
+
+POSTLOGIN:
+
+OVERRIDE
+eval(C command, String[] args) => void? {
+    // Translate command to ServerFacade function.
+
+    switch(command):
+        HELP: help()
+        CREATE GAME: createGame(args)
+        PLAY GAME: playGame(args)
+        LIST GAMES: listGames(args)
+        LOGOUT: setClientState(PRELOGIN)
+}
+
+createGame(String[] args) => void? {
+    ServerFacade.createGame(clientAuth, gameName: args[0])
+    setClientState(GAMEPLAY)
+}
+
+playGame(String[] args) => void? {
+    ServerFacade.joinGame(clientAuth, new PlayerColorGameIDforJSON(playerColor: args[1], gameID: args[0])
+    setClientState(GAMEPLAY)
+}
+
+listGames(String[] args) => void? {
+    ServerFacade.listGames(clientAuth)
+    setClientState(GAMEPLAY)
+}

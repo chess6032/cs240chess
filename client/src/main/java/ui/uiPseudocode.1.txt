@@ -2,8 +2,10 @@ SUPERCLASS:
 
 C = ???
 
-(enum) clientState // the client's state.
-AuthData clientAuth // the client's auth.
+abstract help() => void
+abstract badInput() => void
+
+final Map<C, func> commandToEval // defined in subclasses
 
 rep() {
     // READ
@@ -25,6 +27,9 @@ parse(String line) => C, String[] {
     return command, args[1:]
 }
 
+eval(C command, String[] args) => void? {
+    // ummmmm OK I think doing a Switch is easier actually
+}
 
 
 
@@ -36,22 +41,14 @@ setClientAuth(AuthData auth) => void {
     ???
 }
 
-abstract help() => void
-abstract eval() => void?
-abstract badInput() => void
-
 
 PRELOGIN:
 
-OVERRIDE
-eval(C command, String[] args) => void? {
-    // Translate command to ServerFacade function.
-
-    switch(command):
-        HELP: help()
-        REGISTER: register(args)
-        LOGIN: login(args)
-        EXIT: setClientState(QUIT)
+commandToEval = {
+    HELP: help()
+    REGISTER: register(String[])
+    LOGIN: login(String[])
+    EXIT: setClientState(QUIT)
 }
 
 register(String[] args) => void? {
@@ -66,16 +63,12 @@ login(args) => void? {
 
 POSTLOGIN:
 
-OVERRIDE
-eval(C command, String[] args) => void? {
-    // Translate command to ServerFacade function.
-
-    switch(command):
-        HELP: help()
-        CREATE GAME: createGame(args)
-        PLAY GAME: playGame(args)
-        LIST GAMES: listGames(args)
-        LOGOUT: setClientState(PRELOGIN)
+commandToEval = {
+    HELP: help()
+    CREATE GAME: createGame(String[])
+    PLAY GAME: playGame(String[])
+    LIST GAMES: listGames(String[])
+    LOGOUT: setClientState(PRELOGIN)
 }
 
 createGame(String[] args) => void? {
