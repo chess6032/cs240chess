@@ -72,9 +72,10 @@ public class BoardDrawer extends UIDrawer {
     // HELPERS
 
     private static void printWithOffset(Object obj) {
-        print(BgColor.DEFAULT.seq());
+//        print(BgColor.DEFAULT.seq());
+        useBgColor(BgColor.DEFAULT);
         print(boardOffset);
-        print(getBgColor().seq());
+        revertBgColor();
         print(obj);
     }
     private static void printWithOffset(Object... params) {
@@ -121,14 +122,15 @@ public class BoardDrawer extends UIDrawer {
         // set text color to black/white, corresponding to piece's team color
         if (piece != null) {
             if (piece.getTeamColor() == TeamColor.WHITE) {
-                print(WHITE_PIECE_CLR.seq());
+                useTextColor(WHITE_PIECE_CLR);
             } else if (piece.getTeamColor() == TeamColor.BLACK) {
-                print(BLACK_PIECE_CLR.seq());
+                useTextColor(BLACK_PIECE_CLR);
             }
         }
 
         print(pieceStr(piece));
-        print(getTextColor().seq()); // reset text color
+//        print(getTextColor().seq()); // reset text color
+        revertTextColor(); // reset text color
     }
 
     private static void printRow(int row, ChessBoard board) {
@@ -136,11 +138,11 @@ public class BoardDrawer extends UIDrawer {
 
         int alternator = row % 2 == 0 ? 1 : 0; // used for making each row's starting color alternate
         for (int c = 0; c < ChessBoard.getBoardWidth(); ++c) {
-            print(c % 2 == alternator ? WHITE_BG.seq() : BLACK_BG.seq()); // set background to appropriate grid square color
+            useBgColor(c % 2 == alternator ? WHITE_BG : BLACK_BG); // set background to appropriate grid square color
             var piece = board.getPiece(new ChessPosition(row+1, c+1));
             printPiece(piece);
         }
-        print(getBgColor().seq()); // reset background
+        revertBgColor(); // reset background
 
         print(" ", row+1, " ");
     }
@@ -158,9 +160,9 @@ public class BoardDrawer extends UIDrawer {
         boardOffset = " ".repeat(boardOffsetSpaces);
 
         var bgColorHold = getBgColor();
-        setBgColor(BOARD_BG_CLR);
+        setPersistingBgColor(BOARD_BG_CLR);
         var textColorHold = getTextColor();
-        setTextColor(BOARD_TEXT_CLR);
+        setPersistingTextColor(BOARD_TEXT_CLR);
 
         // print letters (for grid coords)
         printLettersRow();
@@ -174,8 +176,8 @@ public class BoardDrawer extends UIDrawer {
 
         printLettersRow();
 
-        setBgColor(bgColorHold);
-        setTextColor(textColorHold);
+        setPersistingBgColor(bgColorHold);
+        setPersistingTextColor(textColorHold);
     }
 
     public static void printBoard(ChessBoard board, TeamColor viewerTeam) {

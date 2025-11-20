@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import chess.ChessBoard;
 import chess.ChessGame;
 
+import javax.sound.sampled.ReverbType;
+
 import static ui.uiDrawing.EscapeSequences.*;
 
 public abstract class UIDrawer {
@@ -37,9 +39,9 @@ public abstract class UIDrawer {
         println();
     }
     public static void println() {
-        print(BgColor.DEFAULT.seq());
+        useBgColor(BgColor.DEFAULT);
         out.println();
-        print(bgColor.seq());
+        revertBgColor();
     }
     public static void println(Object... params) {
         print(params);
@@ -65,32 +67,47 @@ public abstract class UIDrawer {
         }
     }
 
-    public static void setBgColor(BgColor color) {
+    public static void setPersistingBgColor(BgColor color) {
         bgColor = color;
         print(color.seq());
     }
     public static void resetBgColor() {
-        setBgColor(BgColor.DEFAULT);
+        setPersistingBgColor(BgColor.DEFAULT);
     }
 
-    public static void setTextColor(TextColor color) {
+    public static void setPersistingTextColor(TextColor color) {
         textColor = color;
         print(color.seq());
     }
     public static void resetTextColor() {
-        setTextColor(TextColor.DEFAULT);
+        setPersistingTextColor(TextColor.DEFAULT);
     }
 
+    public static void useTextColor(TextColor color) {
+        // DON'T FORGET TO REVERT
+        print(color.seq());
+    }
+    public static void revertTextColor() {
+        print(textColor.seq());
+    }
+    public static void useBgColor(BgColor color) {
+        // DON'T FORGET TO REVERT
+        print(color.seq());
+    }
+    public static void revertBgColor() {
+        print(bgColor.seq());
+    }
 
     public static void printPrompt() {
         printPrompt(null);
     }
     public static void printPrompt(String prefix) {
-        print(TextColor.GREEN.seq());
+        useTextColor(TextColor.GREEN);
         if (prefix != null) { print(prefix); }
         print(" >>> ");
-        print(textColor.seq());
+        revertTextColor();
     }
+
 
     public static void main(String[] args) {
         eraseScreen();
