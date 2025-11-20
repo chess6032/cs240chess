@@ -18,6 +18,10 @@ public class ResponseException extends Exception {
         this.code = code;
     }
 
+    public Code getCode() {
+        return code;
+    }
+
     public static ResponseException fromJson(String json) {
         var map = new Gson().fromJson(json, HashMap.class); // convert ResponseException to map to make it easier to find stuff
         var status = Code.valueOf(map.get("status").toString());

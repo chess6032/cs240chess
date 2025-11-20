@@ -1,6 +1,7 @@
 package ui;
 
 import client.Client;
+import client.ResponseException;
 import client.ServerFacade;
 import model.AuthData;
 import model.UserData;
@@ -13,22 +14,29 @@ public abstract class UiPhase {
 
     private static final Scanner scanner = new Scanner(System.in);
 
-    private final ServerFacade server;
+    protected final ServerFacade server;
     protected final List<String> commands;
 
     private Client.State clientState;
     private UserData clientUserData;
+    private AuthData clientAuthData;
 
-    protected void setClientState(Client.State state) {
+    protected void setResultState(Client.State state) {
         clientState = state;
     }
-    protected void setClientUserData(UserData user) {
+    protected void setResultUserData(UserData user) {
         clientUserData = user;
     }
+    protected void setResultAuthData(AuthData auth) {
+        clientAuthData = auth;
+    }
 
-    public UiPhase(List<String> commands, ServerFacade server) {
+    protected UiPhase(List<String> commands, ServerFacade server) {
         this.commands = commands;
         this.server = server;
+        clientState = null;
+        clientUserData = null;
+        clientAuthData = null;
     }
 
     public ReplResult readEvalPrint() {
@@ -46,6 +54,10 @@ public abstract class UiPhase {
             } catch (InvalidArgsFromUser e) {
                 result = "Invalid input: " + cargs.command() +
                         "\n" + e.getMessage();
+            } catch (ResponseException e) {
+                // TODO: wtf do I do here
+                UIDrawer.print((e.getCode() == ResponseException.Code.ServerError ? "[Server error]" : "[User error]")
+                        + " Sorry! Something went wrong. Please try again.");
             }
         } catch (UnknownCommandFromUser e) {
             result = e.getMessage();
@@ -82,5 +94,5 @@ public abstract class UiPhase {
         return new CommandAndArgs(command, args);
     }
 
-    public abstract String eval(CommandAndArgs cargs) throws InvalidArgsFromUser;
+    public abstract String eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException;
 }

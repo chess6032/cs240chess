@@ -3,14 +3,9 @@ package client;
 import static client.Client.State.*;
 import static ui.uiDrawing.UIDrawer.*;
 
-import model.AuthData;
-import model.UserData;
 import ui.PreLoginUI;
 import ui.ReplResult;
 import ui.UiPhase;
-import ui.uiDrawing.BoardDrawer;
-
-import java.util.Scanner;
 
 public class Client {
     private final ServerFacade server;
@@ -18,8 +13,8 @@ public class Client {
     private static final String INTRO_MESSAGE = "♕ 240 Chess Client";
 
     private State state;
-    private UserData user;
-    private AuthData auth;
+    private String username;
+    private String authToken;
 
     private UiPhase phase;
 
@@ -34,21 +29,23 @@ public class Client {
         server = new ServerFacade(serverURL);
 
         state = PRELOGIN;
-        phase = new PreLoginUI();
+        phase = new PreLoginUI(server);
     }
 
     public void run() {
         println(INTRO_MESSAGE);
 
         while (state != EXIT) {
-            // stub
-
-            var result = phase.readEvalPrint();
-            transitionState(result);
+            ReplResult result = phase.readEvalPrint();
+            transition(result);
         }
     }
 
-    private void transitionState(ReplResult result) {
+    private void transition(ReplResult result) {
 
+//        // SHOULD NEVER GET HERE
+//        UIDrawer.println("Sorry! Something went wrong trying to transition between application states.",
+//                "(%s to %s)".formatted(state, newState),
+//                "Exiting...");
     }
 }

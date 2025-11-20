@@ -1,30 +1,32 @@
 package ui;
 
 import client.Client;
+import client.ResponseException;
+import client.ServerFacade;
+import model.AuthData;
 import model.UserData;
 
 import java.util.List;
 
 public class PreLoginUI extends UiPhase{
-    public PreLoginUI() {
+    public PreLoginUI(ServerFacade server) {
         super(List.of(
             "help",
             "register",
             "login",
             "quit"
-        ));
-        setClientState(Client.State.PRELOGIN);
+        ), server);
     }
 
     @Override
-    public String eval(CommandAndArgs cargs) throws InvalidArgsFromUser {
+    public String eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
         return switch (cargs.command()) {
             case "help" -> help();
             case "register" -> register(cargs.args());
             case "login" -> login(cargs.args());
             case "quit" -> quit();
             default -> {
-                setClientState(Client.State.EXIT);
+                setResultState(Client.State.EXIT);
                 yield "Sorry, I...pooped my pants. " + cargs.command();
             }
         };
@@ -40,36 +42,38 @@ public class PreLoginUI extends UiPhase{
                 """;
     }
 
-    private String register(String[] args) throws InvalidArgsFromUser {
+    private String register(String[] args) throws InvalidArgsFromUser, ResponseException {
         if (args.length < 3) {
             throw new InvalidArgsFromUser("register <username> <password> <email>",
                     "register mario128 MarioBR0S! mario@superbrosplumbing.com");
         }
 
-        String username = args[0];
-        setClientUserData(new UserData(username, args[1], args[2]));
+        UserData user = new UserData(args[0], args[1], args[2]);
+        AuthData auth = server.register(user);
 
-        setClientState(Client.State.POSTLOGIN);
-
-        return "Registered new user: " + username;
+        setResultUserData(user);
+        setResultAuthData(auth);
+        setResultState(Client.State.POSTLOGIN);
+        return "Registered new user: " + user.username();
     }
 
-    private String login(String[] args) throws InvalidArgsFromUser {
+    private String login(String[] args) throws InvalidArgsFromUser, ResponseException {
         if (args.length < 2) {
             throw new InvalidArgsFromUser("login <username> <password",
                     "login mario128 MarioBR0S!");
         }
 
-        String username = args[0];
-        setClientUserData(new UserData(username, args[1], null));
+        UserData user = new UserData(args[0], args[1], null);
+        AuthData auth = server.login(user);
 
-        setClientState(Client.State.POSTLOGIN);
+        setResultUserData(user);
+        setResultState(Client.State.POSTLOGIN);
 
-        return "Logged in as " + username;
+        return "Logged in as " + user.username();
     }
 
     private String quit() {
-        setClientState(Client.State.EXIT);
+        setResultState(Client.State.EXIT);
         return "Exiting chess...";
     }
 }
