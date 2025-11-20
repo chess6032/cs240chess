@@ -146,4 +146,9 @@ public class ServerFacade {
         buildSendHandle("PUT", "/game", colorAndID, auth,
                 null);
     }
+
+    public static void main(String[] args) {
+        HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/user"));
+    }
 }
