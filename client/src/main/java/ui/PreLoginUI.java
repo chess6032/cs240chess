@@ -19,7 +19,7 @@ public class PreLoginUI extends UiPhase{
     }
 
     @Override
-    public String eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
+    public String eval(CommandAndArgs cargs) throws InvalidArgsFromUser {
         return switch (cargs.command()) {
             case "help" -> help();
             case "register" -> register(cargs.args());
@@ -42,20 +42,25 @@ public class PreLoginUI extends UiPhase{
                 """;
     }
 
-    private String register(String[] args) throws InvalidArgsFromUser, ResponseException {
+    private String register(String[] args) throws InvalidArgsFromUser {
         if (args.length < 3) {
             throw new InvalidArgsFromUser("register <username> <password> <email>",
                     "register mario128 MarioBR0S! mario@superbrosplumbing.com");
         }
 
         UserData user = new UserData(args[0], args[1], args[2]);
-        AuthData auth = server.register(user);
+        AuthData auth = null;
+        try {
+            auth = server.register(user);
+        } catch (ResponseException e) {
+            
+        }
 
         setResult(new ReplResult(Client.State.POSTLOGIN, user, auth));
         return "Registered new user: " + user.username();
     }
 
-    private String login(String[] args) throws InvalidArgsFromUser, ResponseException {
+    private String login(String[] args) throws InvalidArgsFromUser {
         if (args.length < 2) {
             throw new InvalidArgsFromUser("login <username> <password",
                     "login mario128 MarioBR0S!");

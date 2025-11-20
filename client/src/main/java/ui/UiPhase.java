@@ -55,11 +55,12 @@ public abstract class UiPhase {
             } catch (InvalidArgsFromUser e) {
                 result = "Invalid input: " + cargs.command() +
                         "\n" + e.getMessage();
-            } catch (ResponseException e) {
-                // TODO: wtf do I do here
-                UIDrawer.print((e.getCode() == ResponseException.Code.ServerError ? "[Server error]" : "[User error]")
-                        + " Sorry! Something went wrong. Please try again.");
             }
+//            } catch (ResponseException e) {
+//                // TODO: wtf do I do here
+//                UIDrawer.print((e.getCode() == ResponseException.Code.ServerError ? "[Server error]" : "[User error]")
+//                        + " Sorry! Something went wrong. Please try again.");
+//            }
         } catch (UnknownCommandFromUser e) {
             result = e.getMessage();
         }
@@ -95,5 +96,5 @@ public abstract class UiPhase {
         return new CommandAndArgs(command, args);
     }
 
-    public abstract String eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException;
+    public abstract String eval(CommandAndArgs cargs) throws InvalidArgsFromUser;
 }
