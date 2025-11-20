@@ -3,6 +3,7 @@ package ui;
 import client.Client;
 import client.ResponseException;
 import client.ServerFacade;
+import ui.uiDrawing.EscapeSequences;
 import ui.uiDrawing.TextColor;
 
 import java.util.List;
@@ -44,7 +45,9 @@ public class PostLoginUI extends UiPhase {
 
     private void logout() {
         setResult(new ReplResult(Client.State.PRELOGIN));
+        print(EscapeSequences.SET_TEXT_ITALIC);
         println("Logging out...");
+        print(EscapeSequences.RESET_TEXT_ITALIC);
     }
 
     private Runnable observeGame(String[] args) {

@@ -9,10 +9,10 @@ import model.UserData;
 import java.util.List;
 
 import static server.HttpResponseCodes.*;
-import ui.uiDrawing.UIDrawer;
+import static ui.uiDrawing.UIDrawer.*;
 
-import static ui.uiDrawing.UIDrawer.printCommand;
-import static ui.uiDrawing.UIDrawer.println;
+import ui.uiDrawing.EscapeSequences;
+import ui.uiDrawing.UIDrawer;
 
 public class PreLoginUI extends UiPhase{
     public PreLoginUI(ServerFacade server) {
@@ -30,7 +30,7 @@ public class PreLoginUI extends UiPhase{
             case "help" -> this::help;
             case "register" -> register(cargs.args());
             case "login" -> login(cargs.args());
-            case "quit" -> quit();
+            case "quit" -> this::quit;
             default -> {
                 setResult(new ReplResult(Client.State.EXIT));
                 yield () -> println("Sorry, I...pooped my pants. " + cargs.command());
@@ -78,7 +78,7 @@ public class PreLoginUI extends UiPhase{
         AuthData auth = null;
 
         try {
-            server.login(user);
+            auth = server.login(user);
         } catch (ResponseException e) {
             if (e.getStatus() != UNAUTHORIZED_STATUS) {
                 throw e;
@@ -90,8 +90,10 @@ public class PreLoginUI extends UiPhase{
         return () -> println("Logged in as " + user.username());
     }
 
-    private Runnable quit() {
+    private void quit() {
         setResult(new ReplResult(Client.State.EXIT));
-        return () -> println("Exiting chess...");
+        print(EscapeSequences.SET_TEXT_ITALIC);
+        println("Exiting chess...");
+        print(EscapeSequences.RESET_TEXT_ITALIC);
     }
 }
