@@ -67,7 +67,7 @@ public abstract class UiPhase {
         UIDrawer.println(result);
 
         // give client updated state (modified in eval)
-        return new ReplResult(clientState, clientUserData);
+        return new ReplResult(clientState, clientUserData, clientAuthData);
     }
 
 

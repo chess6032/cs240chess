@@ -67,6 +67,7 @@ public class PreLoginUI extends UiPhase{
         AuthData auth = server.login(user);
 
         setResultUserData(user);
+        setResultAuthData(auth);
         setResultState(Client.State.POSTLOGIN);
 
         return "Logged in as " + user.username();

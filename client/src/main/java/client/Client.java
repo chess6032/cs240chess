@@ -3,6 +3,7 @@ package client;
 import static client.Client.State.*;
 import static ui.uiDrawing.UIDrawer.*;
 
+import model.AuthData;
 import ui.PreLoginUI;
 import ui.ReplResult;
 import ui.UiPhase;
@@ -37,15 +38,27 @@ public class Client {
 
         while (state != EXIT) {
             ReplResult result = phase.readEvalPrint();
-            transition(result);
+            var resultUser = result.user();
+            var resultAuth = result.auth();
+
+            if (resultUser != null) {
+                assert(username == null);
+                assert(state == PRELOGIN);
+                username = resultUser.username();
+            }
+            if (resultAuth != null) {
+                assert(authToken == null);
+                assert(state == PRELOGIN);
+                authToken = resultAuth.authToken();
+            }
+
+
         }
-    }
 
-    private void transition(ReplResult result) {
-
-//        // SHOULD NEVER GET HERE
-//        UIDrawer.println("Sorry! Something went wrong trying to transition between application states.",
-//                "(%s to %s)".formatted(state, newState),
-//                "Exiting...");
+        try {
+            server.logout(new AuthData(authToken, username));
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
