@@ -98,6 +98,8 @@ public abstract class UIDrawer {
         print(bgColor.seq());
     }
 
+    // METHODS USED BY UI CLASSES
+
     public static void printPrompt() {
         printPrompt(null);
     }
@@ -108,6 +110,28 @@ public abstract class UIDrawer {
         revertTextColor();
     }
 
+    public static void printCommand(String line) {
+        String[] tokens = line.split("\\s+");
+        if (line == null || line.isEmpty()) {
+            return;
+        }
+
+        var textColorHold = textColor;
+        setPersistingTextColor(TextColor.BLUE);
+
+        useTextColor(TextColor.YELLOW);
+        print(tokens[0], " ");
+        revertTextColor();
+
+        for (int i = 1; i < tokens.length; ++i) {
+            print(tokens[i], " ");
+        }
+        println();
+
+        setPersistingTextColor(textColorHold);
+    }
+
+    // main method for testing
 
     public static void main(String[] args) {
         eraseScreen();

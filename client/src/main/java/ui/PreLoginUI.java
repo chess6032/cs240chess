@@ -10,6 +10,8 @@ import java.util.List;
 
 import static server.HttpResponseCodes.*;
 import ui.uiDrawing.UIDrawer;
+
+import static ui.uiDrawing.UIDrawer.printCommand;
 import static ui.uiDrawing.UIDrawer.println;
 
 public class PreLoginUI extends UiPhase{
@@ -25,7 +27,7 @@ public class PreLoginUI extends UiPhase{
     @Override
     public Runnable eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
         return switch (cargs.command()) {
-            case "help" -> help();
+            case "help" -> this::help;
             case "register" -> register(cargs.args());
             case "login" -> login(cargs.args());
             case "quit" -> quit();
@@ -36,17 +38,12 @@ public class PreLoginUI extends UiPhase{
         };
     }
 
-    private Runnable help() {
-        return () -> {
-            println("""
-                    You are not logged in.
-                    
-                    register <username> <password> <email>
-                    login <username> <password>
-                    quit
-                    """);
-        };
+    private void help() {
+        println("You are not logged in. Login/register to play!");
 
+        printCommand("register <username> <password> <email>");
+        printCommand("login <username> <password>");
+        printCommand("quit");
     }
 
     private Runnable register(String[] args) throws InvalidArgsFromUser, ResponseException {

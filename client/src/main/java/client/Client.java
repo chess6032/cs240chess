@@ -4,6 +4,7 @@ import static client.Client.State.*;
 import static ui.uiDrawing.UIDrawer.*;
 
 import model.AuthData;
+import ui.PostLoginUI;
 import ui.PreLoginUI;
 import ui.ReplResult;
 import ui.UiPhase;
@@ -63,7 +64,9 @@ public class Client {
                     phase = new PreLoginUI(server);
                 }
             } else if (newState == POSTLOGIN) {
-
+                if (!phase.getClass().equals(PostLoginUI.class)) {
+                    phase = new PostLoginUI(server, username);
+                }
             } else if (newState == GAMEPLAY) {
 
             }
