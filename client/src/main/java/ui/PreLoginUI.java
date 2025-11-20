@@ -1,15 +1,12 @@
 package ui;
 
 import client.Client;
-import model.AuthData;
 import model.UserData;
 
 import java.util.List;
 
-import java.util.ArrayList;
-
-public class PreloginUI extends UiPhase{
-    public PreloginUI() {
+public class PreLoginUI extends UiPhase{
+    public PreLoginUI() {
         super(List.of(
             "help",
             "register",

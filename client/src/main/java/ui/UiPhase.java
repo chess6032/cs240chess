@@ -1,6 +1,7 @@
 package ui;
 
 import client.Client;
+import client.ServerFacade;
 import model.AuthData;
 import model.UserData;
 import ui.uiDrawing.UIDrawer;
@@ -9,7 +10,10 @@ import java.util.*;
 
 public abstract class UiPhase {
 
+
     private static final Scanner scanner = new Scanner(System.in);
+
+    private final ServerFacade server;
     protected final List<String> commands;
 
     private Client.State clientState;
@@ -22,11 +26,12 @@ public abstract class UiPhase {
         clientUserData = user;
     }
 
-    public UiPhase(List<String> commands) {
+    public UiPhase(List<String> commands, ServerFacade server) {
         this.commands = commands;
+        this.server = server;
     }
 
-    ReplResult readEvalPrint() {
+    public ReplResult readEvalPrint() {
         // single iteration of the REP loop
 
         UIDrawer.printPrompt();
