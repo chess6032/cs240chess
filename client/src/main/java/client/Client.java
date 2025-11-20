@@ -38,27 +38,34 @@ public class Client {
 
         while (state != EXIT) {
             ReplResult result = phase.readEvalPrint();
+
             var resultUser = result.user();
             var resultAuth = result.auth();
 
             if (resultUser != null) {
-                assert(username == null);
+//                assert(username == null);
                 assert(state == PRELOGIN);
                 username = resultUser.username();
             }
             if (resultAuth != null) {
-                assert(authToken == null);
+//                assert(authToken == null);
                 assert(state == PRELOGIN);
                 authToken = resultAuth.authToken();
             }
 
+            var newState = result.state();
 
-        }
+            if (newState == PRELOGIN) {
+                if (!phase.getClass().equals(PreLoginUI.class)) {
+                    phase = new PreLoginUI(server);
+                }
+            } else if (newState == POSTLOGIN) {
 
-        try {
-            server.logout(new AuthData(authToken, username));
-        } catch (ResponseException e) {
-            throw new RuntimeException(e);
+            } else if (newState == GAMEPLAY) {
+
+            }
+
+            state = newState;
         }
     }
 }
