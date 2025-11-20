@@ -44,34 +44,36 @@ public abstract class UiPhase {
         // single iteration of the REP loop
 
         UIDrawer.printPrompt();
-        String result = null;
+        Runnable printFunc = null;
         try {
             // READ
             String line = scanner.nextLine();
             var cargs = parseInput(line);
             try {
                 // EVAL
-                result = eval(cargs);
+                printFunc = eval(cargs);
             } catch (InvalidArgsFromUser e) {
-                UIDrawer.println("Invalid input");
-                UIDrawer.println(cargs.command(), " should look like this: ");
-                UIDrawer.println("   ", e.getFormat());
-                UIDrawer.println("for example:");
-                UIDrawer.println("   ", e.getExample());
-                UIDrawer.println();
-                UIDrawer.println("Type help for a list of commands");
+                printFunc = () -> {
+                    UIDrawer.println("Invalid input");
+                    UIDrawer.println(cargs.command(), " should look like this: ");
+                    UIDrawer.println("   ", e.getFormat());
+                    UIDrawer.println("for example:");
+                    UIDrawer.println("   ", e.getExample());
+                    UIDrawer.println();
+                    UIDrawer.println("Type help for a list of commands");
+                };
             } catch (ResponseException e) {
                 // TODO: wtf do I do here
-                UIDrawer.print((e.getStatus() / 100 == 5 ? "[Server error]" : "[User error]")
+                printFunc = () -> UIDrawer.print((e.getStatus() / 100 == 5 ? "[Server error]" : "[User error]")
                         + " Sorry! Something went wrong...");
             }
         } catch (UnknownCommandFromUser e) {
-            result = e.getMessage();
+            printFunc = () -> UIDrawer.println(e.getMessage());
         }
 
         // PRINT
-        if (result != null) {
-            UIDrawer.println(result);
+        if (printFunc != null) {
+            printFunc.run();
         }
 
         // give client updated state (modified in eval)
@@ -102,5 +104,5 @@ public abstract class UiPhase {
         return new CommandAndArgs(command, args);
     }
 
-    public abstract String eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException;
+    public abstract Runnable eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException;
 }
