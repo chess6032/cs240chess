@@ -1,10 +1,7 @@
 package ui;
 
-import client.Client;
 import client.ResponseException;
 import client.ServerFacade;
-import model.AuthData;
-import model.UserData;
 import ui.uiDrawing.UIDrawer;
 
 import java.util.*;
@@ -17,26 +14,30 @@ public abstract class UiPhase {
     protected final ServerFacade server;
     protected final List<String> commands;
 
-    private Client.State clientState;
-    private UserData clientUserData;
-    private AuthData clientAuthData;
+//    private Client.State clientState;
+//    private UserData clientUserData;
+//    private AuthData clientAuthData;
 
-    protected void setResultState(Client.State state) {
-        clientState = state;
-    }
-    protected void setResultUserData(UserData user) {
-        clientUserData = user;
-    }
-    protected void setResultAuthData(AuthData auth) {
-        clientAuthData = auth;
+//    protected void setResultState(Client.State state) {
+//        clientState = state;
+//    }
+//    protected void setResultUserData(UserData user) {
+//        clientUserData = user;
+//    }
+//    protected void setResultAuthData(AuthData auth) {
+//        clientAuthData = auth;
+//    }
+
+    private ReplResult replResult;
+
+    protected void setResult(ReplResult result) {
+        replResult = result;
     }
 
     protected UiPhase(List<String> commands, ServerFacade server) {
         this.commands = commands;
         this.server = server;
-        clientState = null;
-        clientUserData = null;
-        clientAuthData = null;
+        replResult = null;
     }
 
     public ReplResult readEvalPrint() {
@@ -67,7 +68,7 @@ public abstract class UiPhase {
         UIDrawer.println(result);
 
         // give client updated state (modified in eval)
-        return new ReplResult(clientState, clientUserData, clientAuthData);
+        return replResult;
     }
 
 

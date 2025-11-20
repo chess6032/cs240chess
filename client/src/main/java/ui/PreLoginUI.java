@@ -26,7 +26,7 @@ public class PreLoginUI extends UiPhase{
             case "login" -> login(cargs.args());
             case "quit" -> quit();
             default -> {
-                setResultState(Client.State.EXIT);
+                setResult(new ReplResult(Client.State.EXIT));
                 yield "Sorry, I...pooped my pants. " + cargs.command();
             }
         };
@@ -51,9 +51,7 @@ public class PreLoginUI extends UiPhase{
         UserData user = new UserData(args[0], args[1], args[2]);
         AuthData auth = server.register(user);
 
-        setResultUserData(user);
-        setResultAuthData(auth);
-        setResultState(Client.State.POSTLOGIN);
+        setResult(new ReplResult(Client.State.POSTLOGIN, user, auth));
         return "Registered new user: " + user.username();
     }
 
@@ -66,15 +64,12 @@ public class PreLoginUI extends UiPhase{
         UserData user = new UserData(args[0], args[1], null);
         AuthData auth = server.login(user);
 
-        setResultUserData(user);
-        setResultAuthData(auth);
-        setResultState(Client.State.POSTLOGIN);
-
+        setResult(new ReplResult(Client.State.POSTLOGIN, user, auth));
         return "Logged in as " + user.username();
     }
 
     private String quit() {
-        setResultState(Client.State.EXIT);
+        setResult(new ReplResult(Client.State.EXIT));
         return "Exiting chess...";
     }
 }
