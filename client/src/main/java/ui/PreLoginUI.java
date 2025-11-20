@@ -8,6 +8,8 @@ import model.UserData;
 
 import java.util.List;
 
+import static server.HttpResponseCodes.*;
+
 public class PreLoginUI extends UiPhase{
     public PreLoginUI(ServerFacade server) {
         super(List.of(
@@ -19,7 +21,7 @@ public class PreLoginUI extends UiPhase{
     }
 
     @Override
-    public String eval(CommandAndArgs cargs) throws InvalidArgsFromUser {
+    public String eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
         return switch (cargs.command()) {
             case "help" -> help();
             case "register" -> register(cargs.args());
@@ -42,32 +44,45 @@ public class PreLoginUI extends UiPhase{
                 """;
     }
 
-    private String register(String[] args) throws InvalidArgsFromUser {
-        if (args.length < 3) {
+    private String register(String[] args) throws InvalidArgsFromUser, ResponseException {
+        if (args.length != 3) {
             throw new InvalidArgsFromUser("register <username> <password> <email>",
                     "register mario128 MarioBR0S! mario@superbrosplumbing.com");
         }
 
         UserData user = new UserData(args[0], args[1], args[2]);
         AuthData auth = null;
+
         try {
             auth = server.register(user);
         } catch (ResponseException e) {
-            
+            if (e.getStatus() != ALREADY_TAKEN_STATUS) {
+                throw e;
+            }
+            return "That username is already taken.";
         }
 
         setResult(new ReplResult(Client.State.POSTLOGIN, user, auth));
-        return "Registered new user: " + user.username();
+        return "Welcome, " + user.username();
     }
 
-    private String login(String[] args) throws InvalidArgsFromUser {
-        if (args.length < 2) {
+    private String login(String[] args) throws InvalidArgsFromUser, ResponseException {
+        if (args.length != 2) {
             throw new InvalidArgsFromUser("login <username> <password",
                     "login mario128 MarioBR0S!");
         }
 
         UserData user = new UserData(args[0], args[1], null);
-        AuthData auth = server.login(user);
+        AuthData auth = null;
+
+        try {
+            server.login(user);
+        } catch (ResponseException e) {
+            if (e.getStatus() != UNAUTHORIZED_STATUS) {
+                throw e;
+            }
+            return "Username or password incorrect.";
+        }
 
         setResult(new ReplResult(Client.State.POSTLOGIN, user, auth));
         return "Logged in as " + user.username();

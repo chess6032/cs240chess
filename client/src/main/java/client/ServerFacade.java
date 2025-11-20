@@ -72,7 +72,7 @@ public class ServerFacade {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception e) {
-            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
+            throw new ResponseException(500, e.getMessage());
         }
     }
 
@@ -90,7 +90,7 @@ public class ServerFacade {
                 throw ResponseException.fromJson(status, body);
             }
 
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
+            throw new ResponseException(status, "other failure: " + status);
         }
 
         // if successful, return body

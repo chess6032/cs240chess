@@ -38,6 +38,9 @@ public class Client {
 
         while (state != EXIT) {
             ReplResult result = phase.readEvalPrint();
+            if (result == null) {
+                continue;
+            }
 
             var resultUser = result.user();
             var resultAuth = result.auth();

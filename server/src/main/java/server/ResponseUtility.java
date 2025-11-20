@@ -6,16 +6,12 @@ import dataaccess.exceptions.SqlInterruptedException;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
 
+import static server.HttpResponseCodes.*;
+
 public interface ResponseUtility {
-    int SUCCESS_STATUS = 200;
-    int BAD_REQUEST_STATUS = 400;
     String BAD_REQUEST_MSG = "Error: bad request";
-    int UNAUTHORIZED_STATUS = 401;
     String UNAUTHORIZED_MSG = "Error: unauthorized";
-    int ALREADY_TAKEN_STATUS = 403;
     String ALREADY_TAKEN_MSG = "Error: already taken";
-    int INTERNAL_ERROR_STATUS = 500;
-    int NO_MATCH = -1;
 
     // 400
     static void badRequestResponse(Context ctx) {

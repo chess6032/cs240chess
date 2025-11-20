@@ -14,6 +14,7 @@ import service.GameService;
 import service.UserService;
 
 import static server.ResponseUtility.*;
+import static server.HttpResponseCodes.*;
 
 public class Server {
 

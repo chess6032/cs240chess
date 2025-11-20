@@ -6,34 +6,20 @@ import java.util.HashMap;
 
 public class ResponseException extends Exception {
 
-    public enum Code {
-        ServerError,
-        ClientError
-    }
+    private final int status;
 
-    final private Code code;
-
-    public ResponseException(Code code, String message) {
+    public ResponseException(int status, String message) {
         super(message);
-        this.code = code;
+        this.status = status;
     }
 
-    public Code getCode() {
-        return code;
+    public int getStatus() {
+        return status;
     }
 
-    public static ResponseException fromJson(Code status, String json) {
+    public static ResponseException fromJson(int status, String json) {
         var map = new Gson().fromJson(json, HashMap.class); // convert ResponseException to map to make it easier to find stuff
-//        var status = Code.valueOf(map.get("status").toString());
         String message = map.get("message").toString();
         return new ResponseException(status, message);
-    }
-
-    public static Code fromHttpStatusCode(int httpStatusCode) {
-        return switch (httpStatusCode) {
-            case 500 -> Code.ServerError;
-            case 400 -> Code.ClientError;
-            default -> throw new IllegalArgumentException("Unknown HTTP status code: " + httpStatusCode);
-        };
     }
 }
