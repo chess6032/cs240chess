@@ -22,9 +22,11 @@ public class ResponseException extends Exception {
         return code;
     }
 
-    public static ResponseException fromJson(String json) {
+    public static ResponseException fromJson(int statusCode, String json) {
         var map = new Gson().fromJson(json, HashMap.class); // convert ResponseException to map to make it easier to find stuff
-        var status = Code.valueOf(map.get("status").toString());
+//        var status = Code.valueOf(map.get("status").toString());
+        // ^ This was producing an error
+        var status = fromHttpStatusCode(statusCode);
         String message = map.get("message").toString();
         return new ResponseException(status, message);
     }
