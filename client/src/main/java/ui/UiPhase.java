@@ -14,16 +14,12 @@ public abstract class UiPhase {
 
     private Client.State clientState;
     private UserData clientUserData;
-    private AuthData clientAuthData;
 
     protected void setClientState(Client.State state) {
         clientState = state;
     }
     protected void setClientUserData(UserData user) {
         clientUserData = user;
-    }
-    protected void setClientAuthData(AuthData auth) {
-        clientAuthData = auth;
     }
 
     public UiPhase(List<String> commands) {
@@ -43,8 +39,8 @@ public abstract class UiPhase {
                 // EVAL
                 result = eval(cargs);
             } catch (InvalidArgsFromUser e) {
-                result = "Invalid input for " + cargs.command() + '\n' +
-                        "Expected format: " + e.getMessage();
+                result = "Invalid input: " + cargs.command() +
+                        "\n" + e.getMessage();
             }
         } catch (UnknownCommandFromUser e) {
             result = e.getMessage();
@@ -54,7 +50,7 @@ public abstract class UiPhase {
         UIDrawer.println(result);
 
         // give client updated state (modified in eval)
-        return new ReplResult(clientState, clientUserData, clientAuthData);
+        return new ReplResult(clientState, clientUserData);
     }
 
 

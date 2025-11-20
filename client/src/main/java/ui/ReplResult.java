@@ -4,4 +4,4 @@ import client.Client;
 import model.AuthData;
 import model.UserData;
 
-public record ReplResult(Client.State state, UserData user, AuthData auth) {}
+public record ReplResult(Client.State state, UserData user) {}
