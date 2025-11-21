@@ -48,7 +48,8 @@ public class PreLoginUI extends UiPhase{
 
     private Runnable register(String[] args) throws InvalidArgsFromUser, ResponseException {
         if (args.length != 3) {
-            throw new InvalidArgsFromUser("register <username> <password> <email>",
+            throw new InvalidArgsFromUser(
+                    "register <username> <password> <email>",
                     "register mario128 MarioBR0S! mario@superbrosplumbing.com");
         }
 

@@ -3,18 +3,21 @@ package ui;
 import client.Client;
 import client.ResponseException;
 import client.ServerFacade;
+import model.AuthData;
 import ui.uiDrawing.EscapeSequences;
 import ui.uiDrawing.TextColor;
 
 import java.util.List;
 
+import static server.HttpResponseCodes.*;
+
 import static ui.uiDrawing.UIDrawer.*;
 
 public class PostLoginUI extends UiPhase {
 
-    private final String username;
+    private final AuthData auth;
 
-    public PostLoginUI(ServerFacade server, String username) {
+    public PostLoginUI(ServerFacade server, AuthData auth) {
         super(List.of(
             "help",
             "create",
@@ -23,8 +26,10 @@ public class PostLoginUI extends UiPhase {
             "observe",
             "logout"
         ), server);
-        assert(username != null);
-        this.username = username;
+        if (auth == null || auth.username() == null || auth.authToken() == null) {
+            throw new IllegalArgumentException("PostLoginUI: inputted auth must NOT be null, nor have any null members");
+        }
+        this.auth = auth;
     }
 
     @Override
@@ -50,11 +55,18 @@ public class PostLoginUI extends UiPhase {
         print(EscapeSequences.RESET_TEXT_ITALIC);
     }
 
-    private Runnable observeGame(String[] args) {
-        return null;
-    }
+    private Runnable createGame(String[] args) throws InvalidArgsFromUser {
+        // does NOT join the user to the game, only creates it.
 
-    private Runnable joinGame(String[] args) {
+        validateInput(args, 1, "create <name>", "create letsBrawl");
+
+        int gameID;
+        try {
+            gameID = server.createGame(auth, args[0]).gameID();
+        } catch (ResponseException e) {
+            if (e.getStatus() == UNAUTHORIZED_STATUS)
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -62,16 +74,20 @@ public class PostLoginUI extends UiPhase {
         return null;
     }
 
-    private Runnable createGame(String[] args) {
+    private Runnable joinGame(String[] args) {
+        return null;
+    }
+
+    private Runnable observeGame(String[] args) {
         return null;
     }
 
     private void help() {
-        println("Signed in as ", username);
+        println("Signed in as ", auth.username());
 
         printCommand("create <name>");
         printCommand("list");
-        printCommand("join <id>");
+        printCommand("join <id> [WHITE|BLACK]");
         printCommand("observe <id>");
         printCommand("logout");
     }

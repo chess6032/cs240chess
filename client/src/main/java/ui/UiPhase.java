@@ -34,6 +34,12 @@ public abstract class UiPhase {
         replResult = result;
     }
 
+    protected void validateInput(String[] args, int argsCount, String commandFormat, String exampleCommand) throws InvalidArgsFromUser {
+        if (args.length != argsCount) {
+            throw new InvalidArgsFromUser(commandFormat, exampleCommand);
+        }
+    }
+
     protected UiPhase(List<String> commands, ServerFacade server) {
         this.commands = commands;
         this.server = server;
