@@ -1,10 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
-import model.AuthData;
-import model.GameData;
-import model.PlayerColorGameIDforJSON;
-import model.UserData;
+import model.*;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,6 +10,7 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class ServerFacade {
@@ -137,9 +135,9 @@ public class ServerFacade {
                 GameData.class);
     }
 
-    public Collection<GameData> listGames(AuthData auth) throws ResponseException {
+    public ListGamesResult listGames(AuthData auth) throws ResponseException {
         return buildSendHandle("GET", "/game", null, auth,
-                Collection.class); // FIXME: will this work fine with Collection.class ?
+                ListGamesResult.class); // FIXME: will this work fine with Collection.class ?
     }
 
     public void joinGame(AuthData auth, PlayerColorGameIDforJSON colorAndID) throws ResponseException {

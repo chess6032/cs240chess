@@ -17,6 +17,12 @@ public class InvalidArgsFromUser extends Exception {
         example = exampleCommand;
     }
 
+    public InvalidArgsFromUser(String message) {
+        super(message);
+        format = null;
+        example = null;
+    }
+
     public String getFormat() {
         return format;
     }

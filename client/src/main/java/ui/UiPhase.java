@@ -2,6 +2,7 @@ package ui;
 
 import client.ResponseException;
 import client.ServerFacade;
+import ui.uiDrawing.TextColor;
 import ui.uiDrawing.UIDrawer;
 
 import java.util.*;
@@ -35,7 +36,11 @@ public abstract class UiPhase {
     }
 
     protected void validateInput(String[] args, int argsCount, String commandFormat, String exampleCommand) throws InvalidArgsFromUser {
-        if (args.length != argsCount) {
+        if (args == null) {
+            if (argsCount != 0) {
+                throw new InvalidArgsFromUser(commandFormat, exampleCommand);
+            }
+        } else if (args.length != argsCount) {
             throw new InvalidArgsFromUser(commandFormat, exampleCommand);
         }
     }
@@ -60,13 +65,16 @@ public abstract class UiPhase {
                 printFunc = eval(cargs);
             } catch (InvalidArgsFromUser e) {
                 printFunc = () -> {
+                    UIDrawer.useTextColor(TextColor.RED);
                     UIDrawer.println("Invalid input");
-                    UIDrawer.println(cargs.command(), " should look like this: ");
-                    UIDrawer.println("   ", e.getFormat());
-                    UIDrawer.println("for example:");
-                    UIDrawer.println("   ", e.getExample());
-                    UIDrawer.println();
-                    UIDrawer.println("Type help for a list of commands");
+                    // TODO: remove this. I don't want it anymore.
+//                    UIDrawer.println(cargs.command(), " should look like this: ");
+//                    UIDrawer.println("   ", e.getFormat());
+//                    UIDrawer.println("for example:");
+//                    UIDrawer.println("   ", e.getExample());
+//                    UIDrawer.println();
+//                    UIDrawer.println("Type help for a list of commands");
+                    UIDrawer.revertTextColor();
                 };
             } catch (ResponseException e) {
                 // TODO: wtf do I do here

@@ -65,7 +65,7 @@ public class Client {
                 }
             } else if (newState == POSTLOGIN) {
                 if (!phase.getClass().equals(PostLoginUI.class)) {
-                    phase = new PostLoginUI(server, username);
+                    phase = new PostLoginUI(server, new AuthData(authToken, username));
                 }
             } else if (newState == GAMEPLAY) {
 
