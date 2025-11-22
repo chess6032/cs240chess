@@ -65,6 +65,9 @@ public interface ResponseUtility {
     }
 
     static void sqlExceptionResponse(Context ctx, String msg, SqlException e) {
+        if (ctx == null) {
+            return;
+        }
         ctx.status(INTERNAL_ERROR_STATUS);
         ctx.json(new Gson().toJson(new ErrorMessage("Error: SQL Exception: " + msg + e.getMessage())));
     }

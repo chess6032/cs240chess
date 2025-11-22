@@ -98,6 +98,10 @@ public class Server {
 
     // HANDLERS
 
+    public void clear() {
+        clear(null);
+    }
+
     public void clear(Context ctx) {
         try {
             userService.clear();

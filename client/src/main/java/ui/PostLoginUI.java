@@ -65,7 +65,7 @@ public class PostLoginUI extends UiPhase {
             }
             case "join" -> joinGame(cargs.args());
             case "observe" -> observeGame(cargs.args());
-            case "logout" -> this::logout;
+            case "logout" -> logout();
             default -> {
                 setResult(new ReplResult(Client.State.EXIT));
                 yield() -> println("Sorry, I...sharted my pants. " + cargs.command());
@@ -73,11 +73,16 @@ public class PostLoginUI extends UiPhase {
         };
     }
 
-    private void logout() {
+    private Runnable logout() throws ResponseException {
+
+        server.logout(auth);
         setResult(new ReplResult(Client.State.PRELOGIN));
-        print(EscapeSequences.SET_TEXT_ITALIC);
-        println("Logging out...");
-        print(EscapeSequences.RESET_TEXT_ITALIC);
+
+        return () -> {
+            print(EscapeSequences.SET_TEXT_ITALIC);
+            println("Logging out...");
+            print(EscapeSequences.RESET_TEXT_ITALIC);
+        };
     }
 
     private Runnable createGame(String[] args) throws InvalidArgsFromUser, ResponseException {
