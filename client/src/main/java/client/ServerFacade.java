@@ -108,12 +108,6 @@ public class ServerFacade {
 
     // SERVER COMMUNICATION METHODS
 
-    public void clear() throws ResponseException {
-        // TODO: delete this probably but idk maybe it'll be nice to have
-        buildSendHandle("DELETE", "/db", null, null,
-                null);
-    }
-
     public AuthData register(UserData user) throws ResponseException {
         return buildSendHandle("POST", "/user", user, null,
                 AuthData.class);
