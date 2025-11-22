@@ -9,10 +9,9 @@ import model.UserData;
 import java.util.List;
 
 import static server.HttpResponseCodes.*;
-import static ui.uiDrawing.UIDrawer.*;
+import static ui.uidrawing.UIDrawer.*;
 
-import ui.uiDrawing.EscapeSequences;
-import ui.uiDrawing.UIDrawer;
+import ui.uidrawing.EscapeSequences;
 
 public class PreLoginUI extends UiPhase{
     public PreLoginUI(ServerFacade server) {

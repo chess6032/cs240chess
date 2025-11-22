@@ -1,13 +1,13 @@
 package client;
 
 import static client.Client.State.*;
-import static ui.uiDrawing.UIDrawer.*;
+import static ui.uidrawing.UIDrawer.*;
 
 import chess.ChessBoard;
 import chess.ChessGame;
 import model.AuthData;
 import ui.*;
-import ui.uiDrawing.BoardDrawer;
+import ui.uidrawing.BoardDrawer;
 
 import java.util.Collections;
 

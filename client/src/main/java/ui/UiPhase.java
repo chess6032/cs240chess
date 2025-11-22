@@ -2,8 +2,8 @@ package ui;
 
 import client.ResponseException;
 import client.ServerFacade;
-import ui.uiDrawing.TextColor;
-import ui.uiDrawing.UIDrawer;
+import ui.uidrawing.TextColor;
+import ui.uidrawing.UIDrawer;
 
 import java.util.*;
 

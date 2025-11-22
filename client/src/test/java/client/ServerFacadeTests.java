@@ -273,5 +273,4 @@ public class ServerFacadeTests {
         Assertions.assertNotNull(exc);
         Assertions.assertEquals(ALREADY_TAKEN_STATUS, exc.getStatus());
     }
-
 }

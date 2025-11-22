@@ -7,8 +7,8 @@ import client.ServerFacade;
 import model.AuthData;
 import model.GameData;
 import model.PlayerColorGameIDforJSON;
-import ui.uiDrawing.EscapeSequences;
-import ui.uiDrawing.TextColor;
+import ui.uidrawing.EscapeSequences;
+import ui.uidrawing.TextColor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import static server.HttpResponseCodes.*;
 
-import static ui.uiDrawing.UIDrawer.*;
+import static ui.uidrawing.UIDrawer.*;
 
 public class PostLoginUI extends UiPhase {
 

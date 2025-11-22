@@ -1,13 +1,11 @@
-package ui.uiDrawing;
+package ui.uidrawing;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import chess.ChessBoard;
 import chess.ChessGame;
 
-import javax.sound.sampled.ReverbType;
-
-import static ui.uiDrawing.EscapeSequences.*;
+import static ui.uidrawing.EscapeSequences.*;
 
 public abstract class UIDrawer {
 

@@ -1,6 +1,6 @@
-package ui.uiDrawing;
+package ui.uidrawing;
 
-import static ui.uiDrawing.EscapeSequences.*;
+import static ui.uidrawing.EscapeSequences.*;
 
 public enum TextColor {
     BLACK(SET_TEXT_COLOR_BLACK),
