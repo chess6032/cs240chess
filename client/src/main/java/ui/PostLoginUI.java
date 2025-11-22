@@ -174,13 +174,7 @@ public class PostLoginUI extends UiPhase {
             return this::noneActive;
         }
 
-        if (id < 1) {
-            throw new InvalidArgsFromUser("Game IDs start at 1.");
-        }
-        if (id > gamesInDB.size()) {
-            throw new InvalidArgsFromUser("There are only " + Integer.toString(gamesInDB.size()) + " games.");
-        }
-        GameData game = gamesInDB.get(id-1);
+        var game = getGameByListID(id);
         int gameIdInDB = game.gameID();
 
         String playerColor = args[1];
@@ -208,6 +202,18 @@ public class PostLoginUI extends UiPhase {
     private Runnable observeGame(String[] args) throws InvalidArgsFromUser {
         validateInput(args, 1);
 
+        if (gamesInDB.isEmpty()) {
+            return this::noneActive;
+        }
+
+        try {
+            getGameByListID(Integer.parseInt(args[0]));
+        } catch (NumberFormatException e) {
+            throw new InvalidArgsFromUser("Please enter an integer");
+        }
+
+        setResult(new ReplResult(Client.State.GAMEPLAY));
+
         return null;
     }
 
@@ -231,5 +237,15 @@ public class PostLoginUI extends UiPhase {
 
     private void noneActive() {
         println("There are no active games.");
+    }
+
+    private GameData getGameByListID(int id) throws InvalidArgsFromUser {
+        if (id < 1) {
+            throw new InvalidArgsFromUser("Game IDs start at 1.");
+        }
+        if (id > gamesInDB.size()) {
+            throw new InvalidArgsFromUser("There are only " + Integer.toString(gamesInDB.size()) + " games.");
+        }
+        return gamesInDB.get(id-1);
     }
 }
