@@ -113,15 +113,6 @@ public class PostLoginUI extends UiPhase {
         };
     }
 
-    private int idxOfGameID(int gameIdInDB) {
-        for (int i = 0; i < gamesInDB.size(); ++i) {
-            if (gamesInDB.get(i).gameID() == gameIdInDB) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     private Runnable listGames() throws ResponseException {
 
         Collection<GameData> games;

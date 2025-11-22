@@ -40,6 +40,7 @@ public class Client {
 
     public void run() {
         println(INTRO_MESSAGE);
+        resetFormatting();
 
         while (state != EXIT) {
             ReplResult result = phase.readEvalPrint();

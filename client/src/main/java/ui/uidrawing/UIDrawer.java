@@ -46,7 +46,6 @@ public abstract class UIDrawer {
         println();
     }
 
-    public static void moveCursor(int x, int y) { print(moveCursorToLocation(x, y)); }
     public static void eraseScreen() {
         print(ERASE_SCREEN);
     }
