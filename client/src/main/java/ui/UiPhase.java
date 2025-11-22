@@ -15,20 +15,6 @@ public abstract class UiPhase {
     protected final ServerFacade server;
     protected final List<String> commands;
 
-//    private Client.State clientState;
-//    private UserData clientUserData;
-//    private AuthData clientAuthData;
-
-//    protected void setResultState(Client.State state) {
-//        clientState = state;
-//    }
-//    protected void setResultUserData(UserData user) {
-//        clientUserData = user;
-//    }
-//    protected void setResultAuthData(AuthData auth) {
-//        clientAuthData = auth;
-//    }
-
     private ReplResult replResult;
 
     protected UiPhase(List<String> commands, ServerFacade server) {
@@ -78,13 +64,6 @@ public abstract class UiPhase {
                 printFunc = () -> {
                     UIDrawer.useTextColor(TextColor.RED);
                     UIDrawer.println("Invalid input");
-                    // TODO: remove this. I don't want it anymore.
-//                    UIDrawer.println(cargs.command(), " should look like this: ");
-//                    UIDrawer.println("   ", e.getFormat());
-//                    UIDrawer.println("for example:");
-//                    UIDrawer.println("   ", e.getExample());
-//                    UIDrawer.println();
-//                    UIDrawer.println("Type help for a list of commands");
                     UIDrawer.revertTextColor();
                 };
             } catch (ResponseException e) {
