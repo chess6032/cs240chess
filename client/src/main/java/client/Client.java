@@ -3,8 +3,13 @@ package client;
 import static client.Client.State.*;
 import static ui.uiDrawing.UIDrawer.*;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import model.AuthData;
 import ui.*;
+import ui.uiDrawing.BoardDrawer;
+
+import java.util.Collections;
 
 public class Client {
     private final ServerFacade server;
@@ -14,6 +19,8 @@ public class Client {
     private State state;
     private String username;
     private String authToken;
+    private Integer gameID; // game ID in database
+    private ChessGame.TeamColor teamColor;
 
     private UiPhase phase;
 
@@ -40,21 +47,17 @@ public class Client {
                 continue;
             }
 
-            var resultUser = result.user();
-            var resultAuth = result.auth();
-
-            if (resultUser != null) {
-//                assert(username == null);
-                assert(state == PRELOGIN);
-                username = resultUser.username();
-            }
-            if (resultAuth != null) {
-//                assert(authToken == null);
-                assert(state == PRELOGIN);
-                authToken = resultAuth.authToken();
-            }
-
             var newState = result.state();
+
+            if (newState != EXIT) {
+                if (state == PRELOGIN) {
+                    username = result.user().username();
+                    authToken = result.auth().authToken();
+                } else if (state == POSTLOGIN) {
+                    gameID = result.gameID();
+                    teamColor = result.color();
+                }
+            }
 
             if (newState == PRELOGIN) {
                 if (!phase.getClass().equals(PreLoginUI.class)) {
@@ -65,15 +68,14 @@ public class Client {
                     phase = new PostLoginUI(server, new AuthData(authToken, username));
                 }
             } else if (newState == GAMEPLAY) {
-                println("Sorry, this hasn't been implemented yet lol.");
-                phase = new UiPhase(null, null) {
+                var board = new ChessBoard();
+                board.resetBoard();
+                BoardDrawer.printBoard(board, teamColor);
+                phase = new UiPhase(Collections.singletonList("quit"), null) {
                     @Override
                     public Runnable eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
-                        return null;
-                    }
-
-                    @Override
-                    protected String parseCommand(String command) {
+                        validateInput(cargs.args(), 0);
+                        setResult(new ReplResult(POSTLOGIN));
                         return null;
                     }
                 };

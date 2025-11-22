@@ -45,7 +45,13 @@ public class PostLoginUI extends UiPhase {
             throw new IllegalArgumentException("PostLoginUI: inputted auth must NOT be null, nor have any null members");
         }
         this.auth = auth;
+
         gamesInDB = new ArrayList<>();
+        try {
+            listGames();
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -53,7 +59,10 @@ public class PostLoginUI extends UiPhase {
         return switch (cargs.command()) {
             case "help" -> this::help;
             case "create" -> createGame(cargs.args());
-            case "list" -> listGames(cargs.args());
+            case "list" -> {
+                validateInput(cargs.args(), 0);
+                yield listGames();
+            }
             case "join" -> joinGame(cargs.args());
             case "observe" -> observeGame(cargs.args());
             case "logout" -> this::logout;
@@ -87,19 +96,15 @@ public class PostLoginUI extends UiPhase {
             throw e;
         }
 
-
+        listGames();
 
         // no setResult because state hasn't changed
         return () -> {
-            gamesInDB.add(game);
-
             useTextColor(GAMENAME_COLOR);
             print(gameName);
             revertTextColor();
-            print(" created with ID ");
-            useTextColor(ID_COLOR);
-            println(gamesInDB.size());
-            revertTextColor();
+            print(" created");
+            println();
         };
     }
 
@@ -112,8 +117,7 @@ public class PostLoginUI extends UiPhase {
         return -1;
     }
 
-    private Runnable listGames(String[] args) throws InvalidArgsFromUser, ResponseException {
-        validateInput(args, 0);
+    private Runnable listGames() throws ResponseException {
 
         Collection<GameData> games;
         try {
@@ -201,7 +205,9 @@ public class PostLoginUI extends UiPhase {
             println("Joined ", game.gameName(), " as ", color);
     }
 
-    private Runnable observeGame(String[] args) {
+    private Runnable observeGame(String[] args) throws InvalidArgsFromUser {
+        validateInput(args, 1);
+
         return null;
     }
 
