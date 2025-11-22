@@ -4,10 +4,7 @@ import static client.Client.State.*;
 import static ui.uiDrawing.UIDrawer.*;
 
 import model.AuthData;
-import ui.PostLoginUI;
-import ui.PreLoginUI;
-import ui.ReplResult;
-import ui.UiPhase;
+import ui.*;
 
 public class Client {
     private final ServerFacade server;
@@ -68,7 +65,18 @@ public class Client {
                     phase = new PostLoginUI(server, new AuthData(authToken, username));
                 }
             } else if (newState == GAMEPLAY) {
+                println("Sorry, this hasn't been implemented yet lol.");
+                phase = new UiPhase(null, null) {
+                    @Override
+                    public Runnable eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
+                        return null;
+                    }
 
+                    @Override
+                    protected String parseCommand(String command) {
+                        return null;
+                    }
+                };
             }
 
             state = newState;

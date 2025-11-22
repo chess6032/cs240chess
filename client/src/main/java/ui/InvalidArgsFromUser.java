@@ -23,6 +23,12 @@ public class InvalidArgsFromUser extends Exception {
         example = null;
     }
 
+    public InvalidArgsFromUser() {
+        super();
+        format = null;
+        example = null;
+    }
+
     public String getFormat() {
         return format;
     }

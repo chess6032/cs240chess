@@ -1,10 +1,12 @@
 package ui;
 
+import chess.ChessGame;
 import client.Client;
 import client.ResponseException;
 import client.ServerFacade;
 import model.AuthData;
 import model.GameData;
+import model.PlayerColorGameIDforJSON;
 import ui.uiDrawing.EscapeSequences;
 import ui.uiDrawing.TextColor;
 
@@ -111,7 +113,7 @@ public class PostLoginUI extends UiPhase {
     }
 
     private Runnable listGames(String[] args) throws InvalidArgsFromUser, ResponseException {
-        validateInput(args, 0, null, null);
+        validateInput(args, 0);
 
         Collection<GameData> games;
         try {
@@ -130,7 +132,7 @@ public class PostLoginUI extends UiPhase {
 
     private void printGames() {
         if (gamesInDB == null || gamesInDB.isEmpty()) {
-            println("There are no active games.");
+            noneActive();
         }
 
         TextColor hold = getTextColor();
@@ -154,8 +156,49 @@ public class PostLoginUI extends UiPhase {
         setPersistingTextColor(hold);
     }
 
-    private Runnable joinGame(String[] args) {
-        return null;
+    private Runnable joinGame(String[] args) throws InvalidArgsFromUser, ResponseException {
+        validateInput(args, 2);
+
+        int id;
+        try {
+            id = Integer.parseInt(args[0]);
+        } catch (NumberFormatException e) {
+            throw new InvalidArgsFromUser("Please give an integer game ID.");
+        }
+
+        if (gamesInDB.isEmpty()) {
+            return this::noneActive;
+        }
+
+        if (id < 1) {
+            throw new InvalidArgsFromUser("Game IDs start at 1.");
+        }
+        if (id > gamesInDB.size()) {
+            throw new InvalidArgsFromUser("There are only " + Integer.toString(gamesInDB.size()) + " games.");
+        }
+        GameData game = gamesInDB.get(id-1);
+        int gameIdInDB = game.gameID();
+
+        String playerColor = args[1];
+        try {
+            server.joinGame(auth, new PlayerColorGameIDforJSON(playerColor, gameIdInDB));
+        } catch (ResponseException e) {
+            if (e.getStatus() == BAD_REQUEST_STATUS) {
+                return () -> println("Player color must either be WHITE or BLACK");
+            } else if (e.getStatus() == UNAUTHORIZED_STATUS) {
+                return () -> println("Game not found.");
+            } else if (e.getStatus() == ALREADY_TAKEN_STATUS) {
+                return () -> println("That color is already taken.");
+            }
+            throw e;
+        }
+
+        chess.ChessGame.TeamColor color = (playerColor == null ? null :
+                (playerColor.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK));
+
+        setResult(new ReplResult(Client.State.GAMEPLAY, gameIdInDB, color));
+        return () ->
+            println("Joined ", game.gameName(), " as ", color);
     }
 
     private Runnable observeGame(String[] args) {
@@ -178,5 +221,9 @@ public class PostLoginUI extends UiPhase {
         revertTextColor();
         println("Something went wrong. It appears you aren't signed in.");
         println("To sign in again, use the logout command to go to the register/login page.");
+    }
+
+    private void noneActive() {
+        println("There are no active games.");
     }
 }

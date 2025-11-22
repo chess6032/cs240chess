@@ -31,8 +31,25 @@ public abstract class UiPhase {
 
     private ReplResult replResult;
 
+    protected UiPhase(List<String> commands, ServerFacade server) {
+        this.commands = commands;
+        this.server = server;
+        replResult = null;
+    }
+
     protected void setResult(ReplResult result) {
         replResult = result;
+    }
+
+    // TODO: refactor InvalidArgsFromUser exception and then use only this overload.
+    protected void validateInput(String[] args, int argsCount) throws InvalidArgsFromUser {
+        if (args == null) {
+            if (argsCount != 0) {
+                throw new InvalidArgsFromUser();
+            }
+        } else if (args.length != argsCount) {
+            throw new InvalidArgsFromUser();
+        }
     }
 
     protected void validateInput(String[] args, int argsCount, String commandFormat, String exampleCommand) throws InvalidArgsFromUser {
@@ -43,12 +60,6 @@ public abstract class UiPhase {
         } else if (args.length != argsCount) {
             throw new InvalidArgsFromUser(commandFormat, exampleCommand);
         }
-    }
-
-    protected UiPhase(List<String> commands, ServerFacade server) {
-        this.commands = commands;
-        this.server = server;
-        replResult = null;
     }
 
     public ReplResult readEvalPrint() {
