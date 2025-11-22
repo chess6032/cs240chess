@@ -10,7 +10,7 @@ import static ui.uidrawing.EscapeSequences.*;
 public abstract class UIDrawer {
 
     // out stream
-    private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private static final PrintStream OUT = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     // vars to keep track of formatting
 
@@ -26,7 +26,7 @@ public abstract class UIDrawer {
 
     // WRAPPERS & HELPERS
 
-    public static void print(Object obj) { out.print(obj); }
+    public static void print(Object obj) { OUT.print(obj); }
     public static void print(Object... params) {
         for (var param : params) {
             print(param);
@@ -38,7 +38,7 @@ public abstract class UIDrawer {
     }
     public static void println() {
         useBgColor(BgColor.DEFAULT);
-        out.println();
+        OUT.println();
         revertBgColor();
     }
     public static void println(Object... params) {

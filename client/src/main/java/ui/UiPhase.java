@@ -10,7 +10,7 @@ import java.util.*;
 public abstract class UiPhase {
 
 
-    private static final Scanner scanner = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in);
 
     protected final ServerFacade server;
     protected final List<String> commands;
@@ -69,7 +69,7 @@ public abstract class UiPhase {
         Runnable printFunc = null;
         try {
             // READ
-            String line = scanner.nextLine();
+            String line = SCANNER.nextLine();
             var cargs = parseInput(line);
             try {
                 // EVAL

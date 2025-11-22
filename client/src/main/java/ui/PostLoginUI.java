@@ -20,8 +20,8 @@ import static ui.uidrawing.UIDrawer.*;
 
 public class PostLoginUI extends UiPhase {
 
-    private final TextColor ID_COLOR = TextColor.YELLOW;
-    private final TextColor GAMENAME_COLOR = TextColor.DEFAULT;
+    private static final TextColor ID_COLOR = TextColor.YELLOW;
+    private static final TextColor GAMENAME_COLOR = TextColor.DEFAULT;
 
     private final AuthData auth;
 
