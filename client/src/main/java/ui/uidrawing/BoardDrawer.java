@@ -133,11 +133,12 @@ public class BoardDrawer extends UIDrawer {
         revertTextColor(); // reset text color
     }
 
-    private static void printRow(int row, ChessBoard board) {
+    private static void printRow(int row, ChessBoard board, boolean blacksPerspective) {
         printWithOffset(" ", row+1, " ");
 
         int alternator = row % 2 == 0 ? 1 : 0; // used for making each row's starting color alternate
-        for (int c = 0; c < ChessBoard.getBoardWidth(); ++c) {
+        for (int i = 0; i < ChessBoard.getBoardWidth(); ++i) {
+            int c = blacksPerspective ? ChessBoard.getBoardWidth() - 1 - i : i;
             useBgColor(c % 2 == alternator ? WHITE_BG : BLACK_BG); // set background to appropriate grid square color
             var piece = board.getPiece(new ChessPosition(row+1, c+1));
             printPiece(piece);
@@ -147,10 +148,11 @@ public class BoardDrawer extends UIDrawer {
         print(" ", row+1, " ");
     }
 
-    private static void printLettersRow() {
+    private static void printLettersRow(boolean blacksPerspective) {
         printWithOffset("   ");
-        for (int c = 0; c < ChessBoard.getBoardWidth(); ++c) {
-            print("%c%c ".formatted(emptyPieceChar, (char) 'a' + c));
+        for (int i = 0; i < ChessBoard.getBoardWidth(); ++i) {
+            char c = (char) ('a' + (char) (blacksPerspective ? (ChessBoard.getBoardWidth()-1-i) : i));
+            print("%c%c ".formatted(emptyPieceChar, c));
         }
         println("   ");
     }
@@ -164,17 +166,18 @@ public class BoardDrawer extends UIDrawer {
         var textColorHold = getTextColor();
         setPersistingTextColor(BOARD_TEXT_CLR);
 
+        boolean blacksPerspective = viewerTeam == TeamColor.BLACK;
+
         // print letters (for grid coords)
-        printLettersRow();
+        printLettersRow(blacksPerspective);
 
         // print grid
-        boolean blacksPerspective = viewerTeam == TeamColor.BLACK;
         for (int r = 0; r < ChessBoard.getBoardWidth(); ++r) {
-            printRow(blacksPerspective ? r : ChessBoard.getBoardWidth()-1-r, board);
+            printRow(blacksPerspective ? r : ChessBoard.getBoardWidth()-1-r, board, blacksPerspective);
             println();
         }
 
-        printLettersRow();
+        printLettersRow(blacksPerspective);
 
         setPersistingBgColor(bgColorHold);
         setPersistingTextColor(textColorHold);

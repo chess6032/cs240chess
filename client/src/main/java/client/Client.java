@@ -31,11 +31,19 @@ public class Client {
         EXIT
     }
 
-    public Client(String serverURL) {
+    public Client(String serverURL, boolean useUnicode) {
         server = new ServerFacade(serverURL);
+
+        if (useUnicode) {
+            BoardDrawer.useUniPieces();
+        }
 
         state = PRELOGIN;
         phase = new PreLoginUI(server);
+    }
+
+    public Client(String serverURL) {
+        this(serverURL, false);
     }
 
     public void run() {
