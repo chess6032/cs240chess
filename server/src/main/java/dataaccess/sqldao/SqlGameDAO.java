@@ -1,16 +1,18 @@
 package dataaccess.sqldao;
 
+import server.ChessGameSerializer;
 import model.GameData;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.SqlException;
+import server.FailedSerializationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class SqlGameDAO extends SqlDAO implements GameDAO {
 
-    //              games meta
-    // id | white username | black username | game name
+    //              games_meta
+    // id | white_username | black_username | game_name
 
     private static final String GAME_ID_HEADER = "id";
     private static final String WHITE_HEADER = "white_username";
@@ -18,8 +20,12 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     private static final String GAME_NAME_HEADER = "name";
 
     // TODO: make games table (for storing serialized ChessGame objects)
+
     //  games
     // id | game
+    private static final String CHESSGAME_TABLE_NAME = "games";
+    private static final String CHESSGAME_HEADER = "game";
+    private static final int CHESSGAME_VARCHAR = 1000;
 
     public SqlGameDAO() throws SqlException {
         super("games_meta");
@@ -27,6 +33,7 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     protected void configureDatabase() throws SqlException {
+        // GAMES META
         super.configureDatabase("""
                 CREATE TABLE IF NOT EXISTS %s (
                     %s INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -42,6 +49,17 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
                         GAME_NAME_HEADER, VAR_CHAR_SIZE
                 )
         );
+
+        // GAMES (Holds JSON-serialized ChessGame objects)
+        super.configureDatabase("""
+                CREATE TABLE IF NOT EXISTS %s (
+                    %s INT NOT NULL PRIMARY KEY,
+                    %s VARCHAR(%d) NOT NULL
+                """.formatted(
+                        CHESSGAME_TABLE_NAME,
+                        GAME_ID_HEADER,
+                        CHESSGAME_HEADER, CHESSGAME_VARCHAR
+                ));
     }
 
     // UPDATES
@@ -59,13 +77,32 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
         }
 
         String defaultUsernameValue = "NULL";
+        String newChessGameJson = "NULL";
+        try {
+            newChessGameJson = ChessGameSerializer.newChessGameJson();
+        } catch (FailedSerializationException e) {
+            throw new RuntimeException(e);
+        }
+
         String sql = """
                 INSERT INTO %s
                 (%s, %s, %s)
-                VALUES (%s, %s, ?)
+                VALUES (%s, %s, ?);
+                
+                SET @new_id = LAST_INSERT_ID();
+                
+                INSERT INTO %s
+                (%s, %s)
+                VALUES
+                (@new_id, %s);
                 """.formatted(tableName,
                 WHITE_HEADER, BLACK_HEADER, GAME_NAME_HEADER,
-                defaultUsernameValue, defaultUsernameValue);
+                defaultUsernameValue, defaultUsernameValue,
+
+                CHESSGAME_TABLE_NAME,
+                GAME_ID_HEADER, CHESSGAME_HEADER,
+                newChessGameJson
+                );
         return executeUpdate(sql, gameName);
     }
 

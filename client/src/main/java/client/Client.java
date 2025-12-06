@@ -51,6 +51,7 @@ public class Client {
         resetFormatting();
 
         while (state != EXIT) {
+            // run single iteration of REPL
             ReplResult result = phase.readEvalPrint();
             if (result == null) {
                 continue;
@@ -58,6 +59,7 @@ public class Client {
 
             var newState = result.state();
 
+            // update client info
             if (newState != EXIT) {
                 if (state == PRELOGIN) {
                     username = result.user().username();
@@ -68,6 +70,7 @@ public class Client {
                 }
             }
 
+            // update client state
             if (newState == PRELOGIN) {
                 if (!phase.getClass().equals(PreLoginUI.class)) {
                     phase = new PreLoginUI(server);
