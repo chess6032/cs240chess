@@ -1,5 +1,6 @@
 package dataaccess.sqldao;
 
+import chess.ChessGame;
 import server.ChessGameSerializer;
 import model.GameData;
 import dataaccess.GameDAO;
@@ -9,6 +10,7 @@ import server.FailedSerializationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.TreeMap;
 
 public class SqlGameDAO extends SqlDAO implements GameDAO {
 
@@ -156,8 +158,10 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public Collection<GameData> getAllGames() throws SqlException {
-        String sql = "SELECT * FROM %s".formatted(tableName);
-        return executeQuery(sql, (rs) -> {
+
+        // query games_meta
+        String sql1 = "SELECT * FROM %s".formatted(tableName);
+        Collection<GameData> gameMetas = executeQuery(sql1, (rs) -> {
             Collection<GameData> games = new ArrayList<>();
             while (rs.next()) {
                 int gameID = Integer.parseInt(rs.getString(GAME_ID_HEADER));
@@ -168,6 +172,40 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
             }
             return games;
         });
+
+        // query games
+        String sql2 = "SELECT * FROM %s".formatted(CHESSGAME_TABLE_NAME);
+        var chessGames = executeQuery(sql2, (rs) -> {
+           TreeMap<Integer, ChessGame> games = new TreeMap<>();
+           while (rs.next()) {
+               int gameID = Integer.parseInt(rs.getString(GAME_ID_HEADER));
+               ChessGame game = null;
+               try {
+                   game = ChessGameSerializer.deserialize(rs.getString(CHESSGAME_HEADER));
+               } catch (FailedDeserializationException e) {
+                   throw new RuntimeException(e);
+               }
+               games.put(gameID, game);
+           }
+           return games;
+        });
+
+        assert gameMetas.size() == chessGames.size();
+
+        // combine metadata from games_meta and ChessGame from games into a single list of GameData objects
+        Collection<GameData> games = new ArrayList<>();
+        for (var gameMeta : gameMetas) {
+            ChessGame game = chessGames.get(gameMeta.gameID());
+            if (game == null) {
+                throw new RuntimeException(gameMeta.gameID() + " exists in games_meta but not games");
+            }
+            games.add(new GameData(gameMeta.gameID(),
+                    gameMeta.whiteUsername(), gameMeta.blackUsername(),
+                    gameMeta.gameName(),
+                    game));
+        }
+
+        return games;
     }
 
     @Override

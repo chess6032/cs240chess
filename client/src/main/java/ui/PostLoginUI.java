@@ -25,7 +25,7 @@ public class PostLoginUI extends UiPhase {
 
     private final AuthData auth;
 
-    private ArrayList<GameData> gamesInDB; // for keeping track of which IDs displayed to user correlate to which games in database.
+    private final ArrayList<GameData> gamesInDB; // for keeping track of which IDs displayed to user correlate to which games in database.
 
     private void correlateGames(Collection<GameData> games) {
         gamesInDB.clear();
@@ -91,9 +91,9 @@ public class PostLoginUI extends UiPhase {
         validateInput(args, 1, "create <name>", "create letsBrawl");
         String gameName = args[0];
 
-        GameData game;
+        GameData gameData;
         try {
-            game = server.createGame(auth, gameName);
+            gameData = server.createGame(auth, gameName);
         } catch (ResponseException e) {
             if (e.getStatus() == UNAUTHORIZED_STATUS) {
                 return this::unauthorized;
@@ -101,7 +101,7 @@ public class PostLoginUI extends UiPhase {
             throw e;
         }
 
-        listGames();
+        listGames(); // regenerates list of games. (correlateGames)
 
         // no setResult because state hasn't changed
         return () -> {
@@ -117,7 +117,9 @@ public class PostLoginUI extends UiPhase {
 
         Collection<GameData> games;
         try {
-            games = server.listGames(auth).games();
+//            games = server.listGames(auth).games();
+            var listGamesResult = server.listGames(auth);
+            games = listGamesResult.games();
         } catch (ResponseException e) {
             if (e.getStatus() == UNAUTHORIZED_STATUS) {
                 return this::unauthorized;
@@ -133,6 +135,7 @@ public class PostLoginUI extends UiPhase {
     private void printGames() {
         if (gamesInDB == null || gamesInDB.isEmpty()) {
             noneActive();
+            return;
         }
 
         TextColor hold = getTextColor();
@@ -190,7 +193,7 @@ public class PostLoginUI extends UiPhase {
         chess.ChessGame.TeamColor color = (playerColor == null ? null :
                 (playerColor.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK));
 
-        setResult(new ReplResult(Client.State.GAMEPLAY, gameIdInDB, color));
+        setResult(new ReplResult(Client.State.GAMEPLAY, game, color));
         return () ->
             println("Joined ", game.gameName(), " as ", color);
     }
@@ -202,13 +205,14 @@ public class PostLoginUI extends UiPhase {
             return this::noneActive;
         }
 
+        GameData game;
         try {
-            getGameByListID(Integer.parseInt(args[0]));
+            game = getGameByListID(Integer.parseInt(args[0]));
         } catch (NumberFormatException e) {
             throw new InvalidArgsFromUser("Please enter an integer");
         }
 
-        setResult(new ReplResult(Client.State.GAMEPLAY));
+        setResult(new ReplResult(Client.State.GAMEPLAY, game, chess.ChessGame.TeamColor.WHITE));
 
         return null;
     }

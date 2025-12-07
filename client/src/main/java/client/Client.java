@@ -6,6 +6,7 @@ import static ui.uidrawing.UIDrawer.*;
 import chess.ChessBoard;
 import chess.ChessGame;
 import model.AuthData;
+import model.GameData;
 import ui.*;
 import ui.uidrawing.BoardDrawer;
 
@@ -19,7 +20,7 @@ public class Client {
     private State state;
     private String username;
     private String authToken;
-    private Integer gameID; // game ID in database
+    private GameData gameData; // game ID in database
     private ChessGame.TeamColor teamColor;
 
     private UiPhase phase;
@@ -65,7 +66,7 @@ public class Client {
                     username = result.user().username();
                     authToken = result.auth().authToken();
                 } else if (state == POSTLOGIN) {
-                    gameID = result.gameID();
+                    gameData = result.gameData();
                     teamColor = result.color();
                 }
             }
@@ -80,17 +81,7 @@ public class Client {
                     phase = new PostLoginUI(server, new AuthData(authToken, username));
                 }
             } else if (newState == GAMEPLAY) {
-                var board = new ChessBoard();
-                board.resetBoard();
-                BoardDrawer.printBoard(board, teamColor);
-                phase = new UiPhase(Collections.singletonList("quit"), null) {
-                    @Override
-                    public Runnable eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
-                        validateInput(cargs.args(), 0);
-                        setResult(new ReplResult(POSTLOGIN));
-                        return null;
-                    }
-                };
+                phase = new GameplayUI(server, gameData, teamColor);
             }
 
             state = newState;

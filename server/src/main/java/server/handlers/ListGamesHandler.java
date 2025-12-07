@@ -23,12 +23,12 @@ public class ListGamesHandler {
         // get games list
         Collection<GameData> games = gameService.listGames(ctx.header("Authorization"));
 
-        // prepare games list for serialization...
-        HashSet<GameData> gamesCleaned = new HashSet<>(); // FIXME: does order matter??
-        for (GameData game : games) {
-            // don't include the ChessGame attribute in the HTTP result.
-            gamesCleaned.add(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), null));
-        }
-        return HandlerUtility.serialize(new ListGamesResult(gamesCleaned));
+        // Previously, I didn't include the ChessGame in the response. But now I DO want the ChessGame in the response.
+        //        HashSet<GameData> gamesCleaned = new HashSet<>(); // FIXME: does order matter??
+        //        for (GameData game : games) {
+        //            // don't include the ChessGame attribute in the HTTP result.
+        //            gamesCleaned.add(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), null));
+        //        }
+        return HandlerUtility.serialize(new ListGamesResult(games));
     }
 }
