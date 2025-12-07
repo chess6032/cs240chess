@@ -3,14 +3,15 @@ package client;
 import static client.Client.State.*;
 import static ui.uidrawing.UIDrawer.*;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import ui.*;
+import ui.phases.GameplayUI;
+import ui.phases.PostLoginUI;
+import ui.phases.PreLoginUI;
+import ui.phases.UiPhase;
 import ui.uidrawing.BoardDrawer;
-
-import java.util.Collections;
 
 public class Client {
     private final ServerFacade server;
@@ -71,7 +72,7 @@ public class Client {
                 }
             }
 
-            // update client state
+            // update client state/phase
             if (newState == PRELOGIN) {
                 if (!phase.getClass().equals(PreLoginUI.class)) {
                     phase = new PreLoginUI(server);
@@ -83,7 +84,6 @@ public class Client {
             } else if (newState == GAMEPLAY) {
                 phase = new GameplayUI(server, gameData, teamColor);
             }
-
             state = newState;
         }
     }

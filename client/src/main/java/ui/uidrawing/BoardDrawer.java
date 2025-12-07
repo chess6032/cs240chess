@@ -5,6 +5,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import chess.ChessGame.TeamColor;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,8 +18,13 @@ public class BoardDrawer extends UIDrawer {
 
     // CONSTANTS
 
-    private static final BgColor BLACK_BG = BgColor.BROWN;
-    private static final BgColor WHITE_BG = BgColor.LIGHT_BROWN;
+    private static final BgColor DARK_SQUARE_BG = BgColor.BROWN;
+    private static final BgColor LIGHT_SQUARE_BG = BgColor.LIGHT_BROWN;
+
+    private static final BgColor HIGHLIGHTED_LIGHT_SQUARE_BG = BgColor.DARK_GREEN;
+    private static final BgColor HIGHLIGHTED_DARK_SQUARE_BG = BgColor.GREEN;
+    private static final BgColor HIGHLIGHTED_BLACK_PIECE_BG = BgColor.WHITE;
+    private static final BgColor HIGHLIGHTED_WHITE_PIECE_BG = BgColor.BLACK;
 
     private static final TextColor WHITE_PIECE_CLR = TextColor.WHITE;
     private static final TextColor BLACK_PIECE_CLR = TextColor.BLACK;
@@ -55,7 +61,7 @@ public class BoardDrawer extends UIDrawer {
 
     private static final String DEFAULT_BOARD_OFFSET = "          ";
 
-    // formatting vars
+    // FORMATTING VARS
 
     public static boolean usingUniPieces;
     private static Map<ChessPiece.PieceType, Integer> pieceInts;
@@ -68,6 +74,11 @@ public class BoardDrawer extends UIDrawer {
     }
 
     private static String boardOffset = DEFAULT_BOARD_OFFSET;
+
+    // OTHER VARS
+
+    private static Collection<ChessPosition> highlightedEndPositions = null;
+    private static ChessPosition highlightedPiecePosition = null;
 
     // HELPERS
 
@@ -139,8 +150,24 @@ public class BoardDrawer extends UIDrawer {
         int alternator = row % 2 == 0 ? 1 : 0; // used for making each row's starting color alternate
         for (int i = 0; i < ChessBoard.getBoardWidth(); ++i) {
             int c = blacksPerspective ? ChessBoard.getBoardWidth() - 1 - i : i;
-            useBgColor(c % 2 == alternator ? WHITE_BG : BLACK_BG); // set background to appropriate grid square color
-            var piece = board.getPiece(new ChessPosition(row+1, c+1));
+            var position = new ChessPosition(row+1, c+1);
+            boolean isLightSquare = c % 2 == alternator;
+
+            // set color of square
+            useBgColor(isLightSquare ? LIGHT_SQUARE_BG : DARK_SQUARE_BG); // set background to appropriate grid square color
+            if (highlightedEndPositions != null) {
+                if (highlightedEndPositions.contains(position)) {
+                    useBgColor(isLightSquare ? HIGHLIGHTED_DARK_SQUARE_BG : HIGHLIGHTED_LIGHT_SQUARE_BG);
+                }
+                if (position.equals(highlightedPiecePosition)) {
+                    var piece = board.getPiece(position);
+                    if (piece != null) {
+                        useBgColor(piece.getTeamColor() == TeamColor.WHITE ? HIGHLIGHTED_WHITE_PIECE_BG : HIGHLIGHTED_BLACK_PIECE_BG);
+                    }
+                }
+            }
+
+            var piece = board.getPiece(position);
             printPiece(piece);
         }
         revertBgColor(); // reset background
@@ -158,8 +185,8 @@ public class BoardDrawer extends UIDrawer {
     }
 
 
-    public static void printBoard(ChessBoard board, TeamColor viewerTeam, int boardOffsetSpaces) {
-        boardOffset = " ".repeat(boardOffsetSpaces);
+    public static void printBoard(ChessBoard board, TeamColor viewerTeam) {
+        boardOffset = DEFAULT_BOARD_OFFSET;
 
         var bgColorHold = getBgColor();
         setPersistingBgColor(BOARD_BG_CLR);
@@ -183,7 +210,17 @@ public class BoardDrawer extends UIDrawer {
         setPersistingTextColor(textColorHold);
     }
 
-    public static void printBoard(ChessBoard board, TeamColor viewerTeam) {
-        printBoard(board, viewerTeam, DEFAULT_BOARD_OFFSET.length());
+
+    public static void highlightMoves(ChessBoard board, TeamColor viewerTeam, ChessPosition position) {
+        ChessPiece piece = board.getPiece(position);
+        if (piece == null) {
+            return;
+        }
+
+        highlightedPiecePosition = position;
+        highlightedEndPositions = piece.pieceMovesEndPositions(board, position);
+        printBoard(board, viewerTeam);
+        highlightedEndPositions = null;
+        highlightedPiecePosition = null;
     }
 }
