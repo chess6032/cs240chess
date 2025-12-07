@@ -4,6 +4,7 @@ import server.ChessGameSerializer;
 import model.GameData;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.SqlException;
+import server.FailedDeserializationException;
 import server.FailedSerializationException;
 
 import java.util.ArrayList;
@@ -18,8 +19,6 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     private static final String WHITE_HEADER = "white_username";
     private static final String BLACK_HEADER = "black_username";
     private static final String GAME_NAME_HEADER = "name";
-
-    // TODO: make games table (for storing serialized ChessGame objects)
 
     //  games
     // id | game
@@ -66,7 +65,8 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public void clear() throws SqlException {
-        clearTable();
+        clearTable(); // clears games_meta
+        executeUpdate("DELETE FROM %s".formatted(CHESSGAME_TABLE_NAME)); // clears games
     }
 
     @Override
@@ -172,8 +172,8 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws SqlException {
-        String sql = "SELECT * FROM %s WHERE %s = ?".formatted(tableName, GAME_ID_HEADER);
-        return executeQuery(sql, (rs) -> {
+        String sql1 = "SELECT * FROM %s WHERE %s = ?".formatted(tableName, GAME_ID_HEADER);
+        GameData gameMeta = executeQuery(sql1, (rs) -> {
             if (rs.next()) {
                 int gameIDGD = Integer.parseInt(rs.getString(GAME_ID_HEADER));
                 String whiteUsername = rs.getString(WHITE_HEADER);
@@ -183,6 +183,32 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
             }
             return null;
         }, gameID);
+
+        if (gameMeta == null) {
+            return null;
+        }
+
+        String sql2 = "SELECT * FROM %s WHERE %s = ?".formatted(CHESSGAME_TABLE_NAME, GAME_ID_HEADER);
+        chess.ChessGame game = executeQuery(sql2, (rs) -> {
+            if (rs.next()) {
+                try {
+                    return ChessGameSerializer.deserialize(rs.getString(CHESSGAME_HEADER));
+                } catch (FailedDeserializationException e) {
+                    System.out.println("GameData.getGame: executeQuery on sql2 didn't work :(");
+                    throw new RuntimeException(e); // TODO: how do I get this to just throw SQL exception to executeQuery???
+                }
+            }
+            return null;
+        }, gameID);
+
+        if (game == null) {
+            throw new RuntimeException(gameID + " exists in games_meta but not games");
+        }
+
+        return new GameData(gameMeta.gameID(),
+                gameMeta.whiteUsername(), gameMeta.blackUsername(),
+                gameMeta.gameName(),
+                game);
     }
 
     public static void main(String[] args) {
