@@ -25,7 +25,6 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     // id | game
     private static final String CHESSGAME_TABLE_NAME = "games";
     private static final String CHESSGAME_HEADER = "game";
-    private static final int CHESSGAME_VARCHAR = 1000;
 
     public SqlGameDAO() throws SqlException {
         super("games_meta");
@@ -54,11 +53,12 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
         super.configureDatabase("""
                 CREATE TABLE IF NOT EXISTS %s (
                     %s INT NOT NULL PRIMARY KEY,
-                    %s VARCHAR(%d) NOT NULL
+                    %s TEXT
+                )
                 """.formatted(
                         CHESSGAME_TABLE_NAME,
                         GAME_ID_HEADER,
-                        CHESSGAME_HEADER, CHESSGAME_VARCHAR
+                        CHESSGAME_HEADER
                 ));
     }
 
@@ -84,26 +84,25 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
             throw new RuntimeException(e);
         }
 
-        String sql = """
+        String sql1 = """
                 INSERT INTO %s
                 (%s, %s, %s)
                 VALUES (%s, %s, ?);
-                
-                SET @new_id = LAST_INSERT_ID();
-                
+                """.formatted(tableName,
+                WHITE_HEADER, BLACK_HEADER, GAME_NAME_HEADER,
+                defaultUsernameValue, defaultUsernameValue
+                );
+        String sql2 = """
                 INSERT INTO %s
                 (%s, %s)
                 VALUES
-                (@new_id, %s);
-                """.formatted(tableName,
-                WHITE_HEADER, BLACK_HEADER, GAME_NAME_HEADER,
-                defaultUsernameValue, defaultUsernameValue,
-
-                CHESSGAME_TABLE_NAME,
-                GAME_ID_HEADER, CHESSGAME_HEADER,
-                newChessGameJson
+                (?, ?);
+                """.formatted(CHESSGAME_TABLE_NAME,
+                GAME_ID_HEADER, CHESSGAME_HEADER
                 );
-        return executeUpdate(sql, gameName);
+        int id = executeUpdate(sql1, gameName);
+        executeUpdate(sql2, id, newChessGameJson);
+        return id;
     }
 
     private boolean colorIsWhite(String playerColor) {
@@ -184,5 +183,15 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
             }
             return null;
         }, gameID);
+    }
+
+    public static void main(String[] args) {
+        try {
+            var dao = new SqlGameDAO();
+            int id = dao.createGame("skibidi");
+            System.out.print(dao.getGame(id));
+        } catch (SqlException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

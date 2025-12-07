@@ -34,6 +34,8 @@ public abstract class ChessGameSerializer {
             ChessGame game = deserialize(json);
             System.out.println("GAME:\n" + game);
 
+            System.out.println(json.length());
+
             System.out.println("\n\n\n");
 
             var board = new chess.ChessBoard();
