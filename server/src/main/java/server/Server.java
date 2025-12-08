@@ -85,6 +85,14 @@ public class Server {
             .post("/game", this::createGame)
             .get("/game", this::listGames)
             .put("/game", this::joinGame);
+
+        // WS endpoints
+        var wsHandler = new WsRequestHandler();
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(wsHandler);
+            ws.onClose(wsHandler);
+            ws.onMessage(wsHandler);
+        });
     }
 
     public int run(int desiredPort) {
