@@ -75,16 +75,25 @@ public class Server {
     }
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        // Register your endpoints and exception handlers here.
-        javalin.delete("/db", this::clear);
-        javalin.post("/user", this::register);
-        javalin.post("/session", this::login);
-        javalin.delete("/session", this::logout);
-        javalin.post("/game", this::createGame);
-        javalin.get("/game", this::listGames);
-        javalin.put("/game", this::joinGame);
+        // HTTP endpoints
+        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+            .delete("/db", this::clear)
+            .post("/user", this::register)
+            .post("/session", this::login)
+            .delete("/session", this::logout)
+            .post("/game", this::createGame)
+            .get("/game", this::listGames)
+            .put("/game", this::joinGame)
+        // Websocket stuff
+            .ws("/ws", ws -> {
+               ws.onConnect(ctx -> {
+                   ctx.enableAutomaticPings(); // pings client every 30 seconds so that the connection doesn't close.
+                   System.out.println("ws connection opened");
+               });
+               ws.onMessage(ctx -> ctx.send("pong"));
+               ws.onClose(_ -> System.out.println("ws closed"));
+            });
     }
 
     public int run(int desiredPort) {

@@ -8,8 +8,6 @@ import client.ResponseException;
 import client.ServerFacade;
 import model.GameData;
 
-import java.util.List;
-
 import static ui.uidrawing.UIDrawer.printCommand;
 import static ui.uidrawing.UIDrawer.println;
 
@@ -17,6 +15,8 @@ import ui.CommandAndArgs;
 import ui.InvalidArgsFromUser;
 import ui.ReplResult;
 import ui.uidrawing.BoardDrawer;
+
+import java.util.List;
 
 public class GameplayUI extends UiPhase {
     private final GameData gameData;
@@ -27,6 +27,7 @@ public class GameplayUI extends UiPhase {
                 "help",
                 "redraw",
                 "highlight",
+                "ping",
                 "leave"
         ), server);
         this.gameData = gameData;
@@ -43,6 +44,7 @@ public class GameplayUI extends UiPhase {
             case "help" -> this::help;
             case "redraw" -> this::drawBoard;
             case "highlight" -> highlightLegalMoves(cargs.args());
+            case "ping" -> { setResult(new ReplResult(true)); yield(null); }
             case "leave" -> { setResult(new ReplResult(Client.State.POSTLOGIN)); yield(null); }
             default -> {
                 setResult(new ReplResult(Client.State.EXIT));
@@ -93,6 +95,7 @@ public class GameplayUI extends UiPhase {
     private void help() {
         printCommand("redraw");
         printCommand("highlight <position>");
+        printCommand("ping");
         printCommand("leave");
     }
 }

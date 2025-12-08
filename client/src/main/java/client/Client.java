@@ -13,7 +13,18 @@ import ui.phases.PreLoginUI;
 import ui.phases.UiPhase;
 import ui.uidrawing.BoardDrawer;
 
-public class Client {
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.Endpoint;
+import jakarta.websocket.EndpointConfig;
+import jakarta.websocket.MessageHandler;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Scanner;
+
+public class Client extends Endpoint {
     private final ServerFacade server;
 
     private static final String INTRO_MESSAGE = "♕ 240 Chess Client";
@@ -26,6 +37,13 @@ public class Client {
 
     private UiPhase phase;
 
+    public Session session;
+
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
+        println("ws connection opened");
+    }
+
     public enum State {
         PRELOGIN,
         POSTLOGIN,
@@ -33,7 +51,9 @@ public class Client {
         EXIT
     }
 
-    public Client(String serverURL, boolean useUnicode) {
+    public Client(String serverURL, boolean useUnicode) throws Exception {
+        // pre-phase 6 stuff
+
         server = new ServerFacade(serverURL);
 
         if (useUnicode) {
@@ -42,13 +62,25 @@ public class Client {
 
         state = PRELOGIN;
         phase = new PreLoginUI(server);
+
+        // websocket stuff
+
+        URI uri = new URI("ws://localhost:8080/ws"); // TODO: give it the actual port
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        session = container.connectToServer(this, uri);
+
+        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            public void onMessage(String message) {
+                println(message);
+            }
+        });
     }
 
-    public Client(String serverURL) {
-        this(serverURL, false);
+    public void send(String message) throws IOException {
+        session.getBasicRemote().sendText(message);
     }
 
-    public void run() {
+    public void run() throws IOException {
         println(INTRO_MESSAGE);
         resetFormatting();
 
@@ -69,6 +101,8 @@ public class Client {
                 } else if (state == POSTLOGIN) {
                     gameData = result.gameData();
                     teamColor = result.color();
+                } else if (state == GAMEPLAY) {
+                    gameplayWebsockets(result);
                 }
             }
 
@@ -85,6 +119,14 @@ public class Client {
                 phase = new GameplayUI(server, gameData, teamColor);
             }
             state = newState;
+        }
+    }
+
+    private void gameplayWebsockets(ReplResult result) throws IOException {
+        assert phase.getClass() == GameplayUI.class;
+
+        if (result.ping()) {
+            send("ping");
         }
     }
 }
