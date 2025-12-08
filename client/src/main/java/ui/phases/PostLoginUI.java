@@ -213,7 +213,7 @@ public class PostLoginUI extends UiPhase {
             throw new InvalidArgsFromUser("Please enter an integer");
         }
 
-        setResult(new ReplResult(Client.State.GAMEPLAY, game, chess.ChessGame.TeamColor.WHITE));
+        setResult(new ReplResult(Client.State.GAMEPLAY, game, null));
 
         return null;
     }

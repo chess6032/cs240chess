@@ -72,6 +72,8 @@ public class Client {
                 }
             }
 
+            // do websocket here maybe?
+
             // update client state/phase
             if (newState == PRELOGIN) {
                 if (!phase.getClass().equals(PreLoginUI.class)) {

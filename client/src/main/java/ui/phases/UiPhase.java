@@ -42,6 +42,21 @@ public abstract class UiPhase {
         }
     }
 
+    protected void validateInput(String[] args, int[] argsCounts) throws InvalidArgsFromUser {
+        if (args == null) {
+            if (argsCounts != null) {
+                throw new InvalidArgsFromUser();
+            }
+        } else {
+            for (var count : argsCounts) {
+                if (args.length == count) {
+                    return;
+                }
+            }
+            throw new InvalidArgsFromUser();
+        }
+    }
+
     protected void validateInput(String[] args, int argsCount, String commandFormat, String exampleCommand) throws InvalidArgsFromUser {
         if (args == null) {
             if (argsCount != 0) {

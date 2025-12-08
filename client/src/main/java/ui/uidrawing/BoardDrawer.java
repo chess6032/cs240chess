@@ -185,7 +185,12 @@ public class BoardDrawer extends UIDrawer {
     }
 
 
-    public static void printBoard(ChessBoard board, TeamColor viewerTeam) {
+    public static void printBoard(ChessBoard board, TeamColor team) {
+        TeamColor viewerTeam = TeamColor.WHITE;
+        if (team != null) {
+            viewerTeam = team;
+        }
+
         boardOffset = DEFAULT_BOARD_OFFSET;
 
         var bgColorHold = getBgColor();
