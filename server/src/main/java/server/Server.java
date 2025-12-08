@@ -77,14 +77,14 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        // Register your endpoints and exception handlers here.
-        javalin.delete("/db", this::clear);
-        javalin.post("/user", this::register);
-        javalin.post("/session", this::login);
-        javalin.delete("/session", this::logout);
-        javalin.post("/game", this::createGame);
-        javalin.get("/game", this::listGames);
-        javalin.put("/game", this::joinGame);
+        // HTTP endpoints
+        javalin.delete("/db", this::clear)
+            .post("/user", this::register)
+            .post("/session", this::login)
+            .delete("/session", this::logout)
+            .post("/game", this::createGame)
+            .get("/game", this::listGames)
+            .put("/game", this::joinGame);
     }
 
     public int run(int desiredPort) {
