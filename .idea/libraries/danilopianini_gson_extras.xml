@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="danilopianini.gson.extras" type="repository">
+    <properties maven-id="org.danilopianini:gson-extras:1.3.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/danilopianini/gson-extras/1.3.0/gson-extras-1.3.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/errorprone/error_prone_annotations/2.27.0/error_prone_annotations-2.27.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

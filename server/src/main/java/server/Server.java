@@ -87,12 +87,16 @@ public class Server {
             .put("/game", this::joinGame);
 
         // WS endpoints
-        var wsHandler = new WsRequestHandler();
+        var wsHandler = new WsRequestHandler(this);
         javalin.ws("/ws", ws -> {
             ws.onConnect(wsHandler);
             ws.onClose(wsHandler);
             ws.onMessage(wsHandler);
         });
+    }
+
+    public String getUsernameForAuth(String authToken) throws SqlException {
+        return authDAO.findUserOfAuth(authToken);
     }
 
     public int run(int desiredPort) {
