@@ -1,6 +1,4 @@
-package server.handlers;
-
-import org.eclipse.jetty.websocket.api.Session; // this is different from jakarta.websocket.Session?
+package server.handlers.wshandling;
 
 public class GameHasNoConnectionsException extends Exception {
     public GameHasNoConnectionsException(int gameID) {

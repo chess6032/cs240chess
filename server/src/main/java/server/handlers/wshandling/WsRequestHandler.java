@@ -1,4 +1,4 @@
-package server.handlers;
+package server.handlers.wshandling;
 
 import chess.ChessGame;
 import chess.InvalidMoveException;
@@ -26,9 +26,6 @@ import websocket.messages.LoadMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.NotificationMessage.NotificationType;
 import websocket.messages.ServerMessage;
-
-
-
 
 import static websocket.commands.UserGameCommand.buildUserGameCommandGson;
 import static websocket.messages.ServerMessage.buildServerMessageGson;
@@ -115,16 +112,6 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-//    private void sendMessageToManyWithExclusions(Collection<UsernameAndSession> usersAndSeshes, Session[] excludedSessions, ServerMessage message) throws IOException {
-//        for (var userAndSesh : usersAndSeshes) {
-//            for (var excludedSesh : excludedSessions) {
-//                if (!excludedSesh.equals(userAndSesh.session())) {
-//                    sendMessage(userAndSesh.session(), message);
-//                }
-//            }
-//        }
-//    }
-
     private void sendMessageToManyWithExclusion(Collection<UsernameAndSession> usersAndSeshes, Session excludedSession, ServerMessage message) throws IOException {
         for (var userAndSesh : usersAndSeshes) {
             if (!excludedSession.equals(userAndSesh.session())) {
@@ -204,7 +191,6 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         // send messages
 
         // send LOAD_GAME to players & observers
-        Session otherPlayer = connMan.getSessionOfUser(gameID, username);
         var newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
         sendMessageToMany(connMan.getSessionsInGameID(gameID), new LoadMessage(newGameData));
 
@@ -266,37 +252,5 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else {
             return null;
         }
-    }
-
-    private static void testUserGameCommandDeserialization() {
-        // test UserGameCommand subclass deserialization
-        var specialGson = buildUserGameCommandGson();
-
-//        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth1", 67);
-        var mmCommand = new MakeMoveCommand("auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));
-        var cCommand = new ConnectCommand("auth3", 420, null);
-        System.out.println(mmCommand);
-        System.out.println(cCommand);
-
-        System.out.println();
-
-//        System.out.println(specialGson.fromJson(new Gson().toJson(ugCommand), UserGameCommand.class));
-        System.out.println(specialGson.fromJson(new Gson().toJson(mmCommand), UserGameCommand.class));
-        System.out.println(specialGson.fromJson(new Gson().toJson(cCommand), UserGameCommand.class));
-    }
-
-    private static void testServerMessageSubclassSerialization() {
-        // test ServerMessage subclass serialization
-        var specialGson = buildServerMessageGson();
-
-        ServerMessage err = new ErrorServerMessage("Tragedy");
-        System.out.println(err);
-        System.out.println(specialGson.toJson(err));
-
-        System.out.println();
-
-        ServerMessage load = new LoadMessage(new GameData(69, null, null, null, new chess.ChessGame()));
-        System.out.println(load);
-        System.out.println(specialGson.toJson(load));
     }
 }

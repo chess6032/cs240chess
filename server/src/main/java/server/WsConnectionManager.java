@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jetty.websocket.api.Session; // this is different from jakarta.websocket.Session?
 //import org.glassfish.grizzly.utils.ArraySet;
-import server.handlers.UsernameAndSession;
+import server.handlers.wshandling.UsernameAndSession;
 
 public class WsConnectionManager {
     private final ConcurrentHashMap<Integer, Set<UsernameAndSession>> connections = new ConcurrentHashMap<>();

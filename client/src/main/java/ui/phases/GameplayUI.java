@@ -160,9 +160,9 @@ public class GameplayUI extends UiPhase {
         var startPos = inputPosToChessPos(args[0]);
         var endPos = inputPosToChessPos(args[1]);
         // verify parse was successful
-//        if (startPos == null || endPos == null) {
-//            throw new InvalidArgsFromUser("GameplayUI.updateMove: bad input for positions");
-//        }
+        if (startPos == null || endPos == null) {
+            throw new InvalidArgsFromUser("GameplayUI.updateMove: bad input for positions");
+        }
 //
 //        var board = gameData.game().getBoard();
 //        var piece = board.getPiece(startPos);

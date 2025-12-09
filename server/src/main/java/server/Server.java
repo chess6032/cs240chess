@@ -8,8 +8,8 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 
 import dataaccess.*;
-import dataaccess.memorydao.*;
 import server.handlers.*;
+import server.handlers.wshandling.WsRequestHandler;
 import service.GameService;
 import service.UserService;
 
