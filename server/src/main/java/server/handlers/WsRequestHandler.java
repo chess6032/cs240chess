@@ -8,8 +8,7 @@ import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session; // this is different from jakarta.websocket.Session?
 import org.jetbrains.annotations.NotNull;
 import server.Server;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.exceptions.UnauthorizedException;
 
 import java.io.IOException;
@@ -41,12 +40,15 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 //                    UserGameCommand.class
 //            );
 
+            // I got this lovely piece of code from a good friend of mine whose name starts with "C" and ends in "laude".
+            // It creates a special Gson object using RuntimeTypeAdapterFactory gson-extras to allow for deserializing
+            // into different classes from the same input.
             RuntimeTypeAdapterFactory<UserGameCommand> adapter =
                     RuntimeTypeAdapterFactory.of(UserGameCommand.class, "commandType")
+                            .registerSubtype(ConnectCommand.class, "CONNECT")
                             .registerSubtype(MakeMoveCommand.class, "MAKE_MOVE")
-                            .registerSubtype(UserGameCommand.class, "CONNECT")
-                            .registerSubtype(UserGameCommand.class, "LEAVE")
-                            .registerSubtype(UserGameCommand.class, "RESIGN");
+                            .registerSubtype(LeaveCommand.class, "LEAVE")
+                            .registerSubtype(ResignCommand.class, "RESIGN");
 
             Gson gson = new GsonBuilder()
                     .registerTypeAdapterFactory(adapter)
@@ -102,5 +104,25 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void resign(Session session, String username, UserGameCommand command) throws UnauthorizedException {
 
+    }
+
+    public static void main(String[] args) {
+        //
+        RuntimeTypeAdapterFactory<UserGameCommand> adapter =
+                RuntimeTypeAdapterFactory.of(UserGameCommand.class, "commandType")
+                        .registerSubtype(ConnectCommand.class, "CONNECT")
+                        .registerSubtype(MakeMoveCommand.class, "MAKE_MOVE")
+                        .registerSubtype(LeaveCommand.class, "LEAVE")
+                        .registerSubtype(ResignCommand.class, "RESIGN");
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapterFactory(adapter)
+                .create();
+
+        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, "auth1", 67);
+        var mmCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));
+
+        System.out.println(gson.fromJson(new Gson().toJson(ugCommand), UserGameCommand.class));
+        System.out.println(gson.fromJson(new Gson().toJson(mmCommand), UserGameCommand.class));
     }
 }

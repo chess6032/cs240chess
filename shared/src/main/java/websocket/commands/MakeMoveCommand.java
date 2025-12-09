@@ -15,4 +15,12 @@ public class MakeMoveCommand extends UserGameCommand {
     public ChessMove getMove() {
         return move;
     }
+
+    @Override
+    public String toString() {
+        return "MakeMoveCommand{" +
+                "move=" + move +
+                ", " + super.toString() +
+                "}";
+    }
 }
