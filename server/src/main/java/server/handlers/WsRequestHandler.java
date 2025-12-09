@@ -2,20 +2,28 @@ package server.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import dataaccess.exceptions.SqlException;
 import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session; // this is different from jakarta.websocket.Session?
 import org.jetbrains.annotations.NotNull;
-import server.Server;
 import websocket.commands.*;
 import websocket.exceptions.UnauthorizedException;
 
+import server.Server;
+import server.WsConnectionManager;
+import websocket.messages.ErrorServerMessage;
+import websocket.messages.ServerMessage;
+
 import java.io.IOException;
+import java.util.Collection;
 
 public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final Server server;
+    private final WsConnectionManager connections = new WsConnectionManager();
+
+    private final Gson userGameCommandGson = buildUserGameCommandGson();
+    private final Gson serverMessageGson = buildServerMessageGson();
 
     public WsRequestHandler(Server server) {
         this.server = server;
@@ -35,73 +43,107 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         Session session = ctx.session;
 
         try {
-            var gson = createSpecialGson();
+//            var gson = buildUserGameCommandGson();
 
-            UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
+            UserGameCommand command = userGameCommandGson.fromJson(ctx.message(), UserGameCommand.class);
             gameID = command.getGameID();
             System.out.println(command);
 
             String username = getUsername(command.getAuthToken());
-            saveSession(gameID, session); // ?
+            if (username == null) {
+                throw new UnauthorizedException("No username associated with " + command.getAuthToken());
+            }
+            saveSession(gameID, session);
 
             switch (command.getCommandType()) {
-                default -> throw new UnauthorizedException("ur mom");
-//                case CONNECT -> connectUser(gameID, session, username, command);
-//                case MAKE_MOVE -> makeMove(gameID, session, username, (MakeMoveCommand) command );
-//                case LEAVE -> leaveGame(gameID, session, username, command);
-//                case RESIGN -> resign(gameID, session, username, command);
+                case CONNECT -> connectUser(gameID, session, username, (ConnectCommand) command);
+                case MAKE_MOVE -> makeMove(gameID, session, username, (MakeMoveCommand) command );
+                case LEAVE -> leaveGame(gameID, session, username, (LeaveCommand) command);
+                case RESIGN -> resign(gameID, session, username, (ResignCommand) command);
             }
         } catch (UnauthorizedException e) {
-            sendMessage(session, gameID, "Error: unauthorized");
+            sendMessage(session, new ErrorServerMessage("unauthorized"));
         } catch (Exception e) {
             e.printStackTrace();
-            sendMessage(session, gameID, "Error: " + e.getMessage());
+            sendMessage(session, new ErrorServerMessage(e.getMessage()));
         }
     }
+
 
     @Override
     public void handleClose(@NotNull WsCloseContext wsCloseContext) throws Exception {
         System.out.println("Websocket closed.");
     }
 
-    private void sendMessage(Session session, int gameID, String message) throws IOException {
-        session.getRemote().sendString(message);
+    private void saveSession(int gameID, Session session) {
+        if (!connections.saveSession(gameID, session)) {
+            throw new RuntimeException("Failed to save session: (" + gameID + ") " + session);
+        }
     }
 
-    private void saveSession(int gameID, Session session) {
-        // FIXME: ?
+    private void sendMessage(Session session, ServerMessage message) throws IOException {
+        session.getRemote().sendString(buildServerMessageGson().toJson(message));
+    }
 
+    private void sendMessages(Collection<Session> sessions, ServerMessage message) throws IOException {
+        for (var session : sessions) {
+            sendMessage(session, message);
+        }
     }
 
     private String getUsername(String authToken) throws SqlException {
         return server.getUsernameForAuth(authToken);
     }
 
-    private void connectUser(Session session, String username, UserGameCommand command) throws UnauthorizedException {
+    private void connectUser(int gameID, Session connector, String username, ConnectCommand command) throws GameHasNoConnectionsException {
+        assert connections.sessionIsInThisGame(connector, gameID);
 
-    }
-    private void makeMove(Session session, String username, UserGameCommand command) throws UnauthorizedException {
-
-    }
-
-    private void leaveGame(Session session, String username, UserGameCommand command) throws UnauthorizedException {
-
-    }
-
-    private void resign(Session session, String username, UserGameCommand command) throws UnauthorizedException {
-
+//        var loadMessage = new ServerMessage(LOAD_GAME);
+//        sendMessage(connector, loadMessage);
+//
+//        var sessionsInThisGame = connections.sessionsInGameID(gameID);
+//        var
+//        sendMessage()
     }
 
+    private void makeMove(int gameID, Session session, String username, MakeMoveCommand command) {
 
-    private static Gson createSpecialGson() {
+    }
+
+    private void leaveGame(int gameID, Session session, String username, LeaveCommand command) {
+
+    }
+
+    private void resign(int gameID, Session session, String username, ResignCommand command) {
+
+    }
+
+
+    private static Gson buildUserGameCommandGson() {
         return new GsonBuilder()
                 .registerTypeAdapter(UserGameCommand.class, new UserGameCommand.UserGameCommandAdapter())
                 .create();
     }
 
+    private static Gson buildServerMessageGson() {
+        return new GsonBuilder()
+                .registerTypeAdapter(ServerMessage.class, new ServerMessage.ServerMessageAdapter())
+                .create();
+    }
+
+
     public static void main(String[] args) {
-        // test subclass deserialization
-        var gson = createSpecialGson();
+        // test ServerMessage subclass serialization
+        var gson = buildServerMessageGson();
+
+        ServerMessage err = new ErrorServerMessage("Tragedy");
+        System.out.println(err);
+        System.out.println(gson.toJson(err));
+    }
+
+    private static void testUserGameCommandDeserialization() {
+        // test UserGameCommand subclass deserialization
+        var gson = buildUserGameCommandGson();
 
 //        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth1", 67);
         var mmCommand = new MakeMoveCommand("auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));

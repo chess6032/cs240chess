@@ -1,5 +1,9 @@
 package websocket.messages;
 
+import com.google.gson.*;
+
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -8,7 +12,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
-public class ServerMessage {
+public abstract class ServerMessage {
     ServerMessageType serverMessageType;
 
     public enum ServerMessageType {
@@ -25,6 +29,28 @@ public class ServerMessage {
         return this.serverMessageType;
     }
 
+    public static class ServerMessageAdapter implements JsonSerializer<ServerMessage> {
+        @Override
+        public JsonElement serialize(ServerMessage serverMessage, Type type, JsonSerializationContext ctx) {
+            JsonObject result = new JsonObject();
+
+            // type discriminator
+            result.addProperty("serverMessageType", serverMessage.getServerMessageType().name());
+
+            // serialize actual object, with all its fields
+            JsonElement serialized = ctx.serialize(serverMessage, serverMessage.getClass());
+
+            // merge serialized fields into result
+            if (serialized.isJsonObject()) {
+                for (Map.Entry<String, JsonElement> entry : serialized.getAsJsonObject().entrySet()) {
+                    result.add(entry.getKey(), entry.getValue());
+                }
+            }
+
+            return result;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -39,5 +65,12 @@ public class ServerMessage {
     @Override
     public int hashCode() {
         return Objects.hash(getServerMessageType());
+    }
+
+    @Override
+    public String toString() {
+        return "ServerMessage{" +
+                "serverMessageType=" + serverMessageType +
+                '}';
     }
 }

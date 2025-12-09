@@ -55,6 +55,8 @@ public class Client {
                 continue;
             }
 
+            // FIXME: if some state update before user inputs something...then what?
+
             var newState = result.state();
 
             // update client info

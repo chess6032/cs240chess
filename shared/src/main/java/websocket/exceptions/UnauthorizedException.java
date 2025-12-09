@@ -1,7 +1,7 @@
 package websocket.exceptions;
 
-public class UnauthorizedException extends Exception {
-    public UnauthorizedException(String message) {
-        super(message);
-    }
+public class UnauthorizedException extends RuntimeException {
+  public UnauthorizedException(String message) {
+    super(message);
+  }
 }
