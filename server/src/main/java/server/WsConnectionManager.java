@@ -37,16 +37,6 @@ public class WsConnectionManager {
         return sessions.remove(userAndSesh);
     }
 
-//    public int gameSessionIsActiveIn(Session session) {
-//        for (var gameID : connections.keySet()) {
-//            var connectionsToGame = connections.get(gameID);
-//            if (connectionsToGame.contains(session)) {
-//                return gameID;
-//            }
-//        }
-//        return -1; // session isn't playing any games (or smth idrk)
-//    }
-
     public boolean sessionIsInThisGame(UsernameAndSession userAndSesh, int gameID) {
         var connectionsToGame = connections.get(gameID);
         if (connectionsToGame == null) {

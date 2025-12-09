@@ -112,7 +112,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void sendMessageToManyWithExclusion(Collection<UsernameAndSession> usersAndSeshes, Session excludedSession, ServerMessage message) throws IOException {
+    private void sendMessageToManyWithExclusion(Collection<UsernameAndSession> usersAndSeshes, Session excludedSession,
+                                                ServerMessage message) throws IOException {
         for (var userAndSesh : usersAndSeshes) {
             if (!excludedSession.equals(userAndSesh.session())) {
                 sendMessage(userAndSesh.session(), message);
@@ -150,7 +151,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         sendMessageToManyWithExclusion(sessionsInThisGame, sender, new NotificationMessage(NotificationType.PLAYER_JOINED, notificationInfo));
     }
 
-    private void makeMove(int gameID, Session sender, String username, MakeMoveCommand command) throws AnticipatedBadBehaviorException, SqlException, IOException {
+    private void makeMove(int gameID, Session sender, String username, MakeMoveCommand command) throws AnticipatedBadBehaviorException,
+            SqlException, IOException {
         // the passoff servers DO send a ChessMove when they send a makeMove ws request
 
         // query db
@@ -200,7 +202,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                         new NotificationInfo(username, team, move)));
     }
 
-    private void leaveGame(int gameID, Session sender, String username, LeaveCommand command) throws SqlException, IOException, GameHasNoConnectionsException {
+    private void leaveGame(int gameID, Session sender, String username, LeaveCommand command) throws SqlException, IOException {
         assert connMan.sessionIsInThisGame(new UsernameAndSession(username, sender), gameID);
 
         // update db: remove player from game
@@ -215,7 +217,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 new NotificationMessage(NotificationType.PLAYER_LEFT, new NotificationInfo(username, command.getTeam(), null)));
     }
 
-    private void resign(int gameID, Session sender, String username, ResignCommand command) throws SqlException, IOException, AnticipatedBadBehaviorException {
+    private void resign(int gameID, Session sender, String username, ResignCommand command) throws SqlException, IOException,
+            AnticipatedBadBehaviorException {
         assert connMan.sessionIsInThisGame(new UsernameAndSession(username, sender), gameID);
 
         // query db

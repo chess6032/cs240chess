@@ -127,15 +127,16 @@ public class GameplayUI extends UiPhase {
         printCommand("help");
         printCommand("redraw");
         printCommand("highlight <position>");
-        if (!amObserving()) printCommand("move <start position> <end position> <pawn promotion>");
-        if (!amObserving()) printCommand("resign");
+        if (!amObserving()) { printCommand("move <start position> <end position> <pawn promotion>"); }
+        if (!amObserving()) { printCommand("resign"); }
         printCommand("leave");
     }
 
     private Runnable resign() throws InvalidArgsFromUser {
         if (amObserving()) {
             throw new InvalidArgsFromUser();
-            // FIXME: this will print "Invalid Input", whereas all other invalid commands print "Can't find command:"...but this is just the quickest, easiest way I could think to implement this.
+            // FIXME: this will print "Invalid Input", whereas all other invalid commands print "Can't find command:"
+            //  ...but this is just the quickest, easiest way I could think to implement this.
         }
         setResult(new ReplResult(Client.State.POSTLOGIN));
         return () -> {
@@ -200,7 +201,7 @@ public class GameplayUI extends UiPhase {
         }
 
         println(ui.getMove());
-        if (func != null) func.run();
+        if (func != null) { func.run(); }
     }
 
 }
