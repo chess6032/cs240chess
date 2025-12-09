@@ -160,35 +160,35 @@ public class GameplayUI extends UiPhase {
         var startPos = inputPosToChessPos(args[0]);
         var endPos = inputPosToChessPos(args[1]);
         // verify parse was successful
-        if (startPos == null || endPos == null) {
-            throw new InvalidArgsFromUser("GameplayUI.updateMove: bad input for positions");
-        }
-
-        var board = gameData.game().getBoard();
-        var piece = board.getPiece(startPos);
-        // verify startPos contains a piece the player can move
-        if (piece == null || piece.getTeamColor() != team) {
-            throw new InvalidArgsFromUser("GameplayUI.updateMove: no piece or can't move piece at " + startPos);
-        }
-
-        var possibleEndPos = piece.pieceMovesEndPositions(board, startPos);
-        // verify startPos -> endPos is a legal move
-        if (!possibleEndPos.contains(endPos)) {
-            throw new InvalidArgsFromUser("GameplayUI.updateMove: " + piece + " at " + startPos + " can't move to " + endPos);
-        }
-
-        PieceType promotion = null;
-        // if piece is pawn, see if it can promote
-        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            if (endPos.getRow() == (team == TeamColor.WHITE ? 8 : 1)) {
-                validateInput(args, 3);
-                promotion = parsePromotionInput(args[2]);
-                if (promotion == null) {
-                    throw new InvalidArgsFromUser("bad promotion input for pawn");
-                }
-            }
-        }
-        move = new ChessMove(startPos, endPos, promotion);
+//        if (startPos == null || endPos == null) {
+//            throw new InvalidArgsFromUser("GameplayUI.updateMove: bad input for positions");
+//        }
+//
+//        var board = gameData.game().getBoard();
+//        var piece = board.getPiece(startPos);
+//        // verify startPos contains a piece the player can move
+//        if (piece == null || piece.getTeamColor() != team) {
+//            throw new InvalidArgsFromUser("GameplayUI.updateMove: no piece or can't move piece at " + startPos);
+//        }
+//
+//        var possibleEndPos = piece.pieceMovesEndPositions(board, startPos);
+//        // verify startPos -> endPos is a legal move
+//        if (!possibleEndPos.contains(endPos)) {
+//            throw new InvalidArgsFromUser("GameplayUI.updateMove: " + piece + " at " + startPos + " can't move to " + endPos);
+//        }
+//
+//        PieceType promotion = null;
+//        // if piece is pawn, see if it can promote
+//        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+//            if (endPos.getRow() == (team == TeamColor.WHITE ? 8 : 1)) {
+//                validateInput(args, 3);
+//                promotion = parsePromotionInput(args[2]);
+//                if (promotion == null) {
+//                    throw new InvalidArgsFromUser("bad promotion input for pawn");
+//                }
+//            }
+//        }
+//        move = new ChessMove(startPos, endPos, promotion);
 
         return () -> {
             print("Making move: ");

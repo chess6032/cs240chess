@@ -38,13 +38,13 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
     public void joinGame(String authToken, String playerColor, int gameID) throws AuthTokenNotFoundException, GameNotFoundException,
             AlreadyTakenException, MissingAttributeException, SqlException {
 
-        if (playerColor != null) {
-            if (/*playerColor == null || */ gameID <= 0 ||
+//        if (playerColor != null) {
+            if (playerColor == null ||  gameID <= 0 ||
                     !(playerColor.equals("WHITE") || playerColor.equals("BLACK"))) {
                 throw new MissingAttributeException("GameService.joinGame: mistyped player color or game ID. " +
                         "player color: " + playerColor + ", gameID: " + gameID);
             }
-        }
+//        }
 
 
         String username = authDAO.findUserOfAuth(authToken);
@@ -57,12 +57,13 @@ public record GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
             throw new GameNotFoundException("GameService.joinGame: game w/ ID not found: " + gameID);
         }
 
-        if (playerColor != null) {
+//        if (playerColor != null) {
             // playerColor == null means we're getting an observer who wants to join the game
+            // PSYCH observers are never supposed to call joinGame
             if (!gameDAO.addPlayerToGame(gameID, username, playerColor)) {
                 throw new AlreadyTakenException("GameService.joinGame: gameID = " + gameID + ". Color already taken: " + playerColor);
             }
-        }
+//        }
 
 
         // FIXME: do I need to check if player has already joined this game?

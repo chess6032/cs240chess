@@ -1,6 +1,7 @@
 package server.handlers;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import io.javalin.websocket.*;
 import model.NotificationInfo;
@@ -10,7 +11,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import server.SessionSaveFailException;
-import service.GameService;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.*;
 import model.GameData;
@@ -38,7 +38,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     private final Server server;
 //    private final GameService gameService;
     private final GameDAO gameDAO;
-    private final WsConnectionManager connections = new WsConnectionManager();
+    private final WsConnectionManager connMan = new WsConnectionManager();
 
     private final Gson userGameCommandGson = buildUserGameCommandGson();
     private final Gson serverMessageGson = buildServerMessageGson();
@@ -72,7 +72,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new UnauthorizedException("No username associated with " + command.getAuthToken());
             }
 
-            saveSession(gameID, session);
+            saveSession(gameID, username, session);
 
             switch (command.getCommandType()) {
                 case CONNECT -> connectUser(gameID, session, username, (ConnectCommand) command);
@@ -96,9 +96,9 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed.");
     }
 
-    private void saveSession(int gameID, Session session) {
+    private void saveSession(int gameID, String username, Session session) {
         try {
-            connections.saveSession(gameID, session);
+            connMan.saveSession(gameID, new UsernameAndSession(username, session));
         } catch (SessionSaveFailException e) {
             System.out.println("Failed to save session: " + e.getMessage());
         }
@@ -109,18 +109,24 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         session.getRemote().sendString(serverMessageGson.toJson(message));
     }
 
-    private void sendMessageToMany(Collection<Session> sessions, ServerMessage message) throws IOException {
-        for (var session : sessions) {
-            sendMessage(session, message);
+    private void sendMessageToMany(Collection<UsernameAndSession> sessions, ServerMessage message) throws IOException {
+        for (var userAndSesh : sessions) {
+            sendMessage(userAndSesh.session(), message);
         }
     }
 
-    private void sendMessageToManyWithExclusion(Collection<Session> sessions, Session excludedSession, ServerMessage message) throws IOException {
-        for (var session : sessions) {
-            if (!session.equals(excludedSession)) {
-                sendMessage(session, message);
+    private void sendMessageToManyWithExclusions(Collection<UsernameAndSession> usersAndSeshes, Session[] excludedSessions, ServerMessage message) throws IOException {
+        for (var userAndSesh : usersAndSeshes) {
+            for (var excludedSesh : excludedSessions) {
+                if (!excludedSesh.equals(userAndSesh.session())) {
+                    sendMessage(userAndSesh.session(), message);
+                }
             }
         }
+    }
+
+    private void sendMessageToManyWithExclusion(Collection<UsernameAndSession> usersAndSeshes, Session excludedSession, ServerMessage message) throws IOException {
+        sendMessageToManyWithExclusions(usersAndSeshes, new Session[]{excludedSession}, message);
     }
 
     private String getUsername(String authToken) throws SqlException {
@@ -130,7 +136,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void connectUser(int gameID, Session sender, String username, ConnectCommand command) throws GameHasNoConnectionsException,
             IOException, SqlException
     {
-        assert connections.sessionIsInThisGame(sender, gameID);
+        assert connMan.sessionIsInThisGame(new UsernameAndSession(username, sender), gameID);
 
         // query db
         GameData gameData = gameDAO.getGame(gameID);
@@ -148,32 +154,67 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         sendMessage(sender, new LoadMessage(gameData));
 
-        var sessionsInThisGame = connections.sessionsInGameID(gameID);
+        var sessionsInThisGame = connMan.getSessionsInGameID(gameID);
         var notificationInfo = new NotificationInfo(username, team, null);
         sendMessageToManyWithExclusion(sessionsInThisGame, sender, new NotificationMessage(NotificationType.PLAYER_JOINED, notificationInfo));
     }
 
-    private void makeMove(int gameID, Session sender, String username, MakeMoveCommand command) throws IOException, Exception {
-        throw new Exception("poop your pants, nerd!");
+    private void makeMove(int gameID, Session sender, String username, MakeMoveCommand command) throws AnticipatedBadBehaviorException, SqlException, IOException {
+        // the passoff servers DO send a ChessMove when they send a makeMove ws request
+
+        // query db
+        GameData gameData = gameDAO.getGame(gameID);
+        ChessGame game = gameData.game();
+
+        var team = getTeamColorOfUsername(username, gameData);
+        if (team == null) {
+            throw new AnticipatedBadBehaviorException("can't play if you're not a player");
+        }
+
+        var move = command.getMove();
+
+        try {
+            game.makeMove(move);
+        } catch (InvalidMoveException e) {
+            throw new AnticipatedBadBehaviorException("that's an invalid move, I'm afraid");
+        }
+
+        // update db
+        gameDAO.setGame(gameID, game);
+
+        // send messages
+
+        // send LOAD_GAME to players
+        Session otherPlayer = connMan.getSessionOfUser(gameID, username);
+        var newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+        sendMessage(sender, new LoadMessage(newGameData));
+        if (otherPlayer != null && !sender.equals(otherPlayer)) {
+            sendMessage(otherPlayer, new LoadMessage(newGameData));
+        }
+
+        // send NOTIFICATION to observers
+        sendMessageToManyWithExclusions(connMan.getSessionsInGameID(gameID), new Session[]{sender, otherPlayer},
+                new NotificationMessage(NotificationType.PLAYER_MADE_MOVE,
+                        new NotificationInfo(username, team, move)));
     }
 
     private void leaveGame(int gameID, Session sender, String username, LeaveCommand command) throws SqlException, IOException, GameHasNoConnectionsException {
-        assert connections.sessionIsInThisGame(sender, gameID);
+        assert connMan.sessionIsInThisGame(new UsernameAndSession(username, sender), gameID);
 
         // update db: remove player from game
         gameDAO.removePlayerFromGame(gameID, username);
 
         // remove sender from connections manager
-        connections.removeSession(gameID, sender);
+        connMan.removeSession(gameID, new UsernameAndSession(username, sender));
 
         // send messages
 
-        sendMessageToManyWithExclusion(connections.sessionsInGameID(gameID), sender,
+        sendMessageToManyWithExclusion(connMan.getSessionsInGameID(gameID), sender,
                 new NotificationMessage(NotificationType.PLAYER_LEFT, new NotificationInfo(username, command.getTeam(), null)));
     }
 
     private void resign(int gameID, Session sender, String username, ResignCommand command) throws SqlException, IOException, AnticipatedBadBehaviorException {
-        assert connections.sessionIsInThisGame(sender, gameID);
+        assert connMan.sessionIsInThisGame(new UsernameAndSession(username, sender), gameID);
 
         // query db
         var gameData = gameDAO.getGame(gameID);
@@ -194,7 +235,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         gameDAO.setGame(gameID, game);
 
         // send message
-        sendMessageToMany(connections.sessionsInGameID(gameID),
+        sendMessageToMany(connMan.getSessionsInGameID(gameID),
                 new NotificationMessage(NotificationType.PLAYER_RESIGNED, new NotificationInfo(username, team, null)));
     }
 
