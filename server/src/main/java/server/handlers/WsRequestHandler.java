@@ -17,6 +17,9 @@ import websocket.messages.ServerMessage;
 import java.io.IOException;
 import java.util.Collection;
 
+import static websocket.commands.UserGameCommand.buildUserGameCommandGson;
+import static websocket.messages.ServerMessage.buildServerMessageGson;
+
 public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final Server server;
@@ -117,20 +120,6 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void resign(int gameID, Session session, String username, ResignCommand command) {
 
     }
-
-
-    private static Gson buildUserGameCommandGson() {
-        return new GsonBuilder()
-                .registerTypeAdapter(UserGameCommand.class, new UserGameCommand.UserGameCommandAdapter())
-                .create();
-    }
-
-    private static Gson buildServerMessageGson() {
-        return new GsonBuilder()
-                .registerTypeAdapter(ServerMessage.class, new ServerMessage.ServerMessageAdapter())
-                .create();
-    }
-
 
     public static void main(String[] args) {
         // test ServerMessage subclass serialization

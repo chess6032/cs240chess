@@ -51,6 +51,12 @@ public abstract class ServerMessage {
         }
     }
 
+    public static Gson buildServerMessageGson() {
+        return new GsonBuilder()
+                .registerTypeAdapter(ServerMessage.class, new ServerMessage.ServerMessageAdapter())
+                .create();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

@@ -1,8 +1,6 @@
 package websocket.commands;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
+import com.google.gson.*;
 
 import java.lang.reflect.Type;
 import java.util.Objects;
@@ -58,6 +56,12 @@ public abstract class UserGameCommand {
                 default -> null;
             };
         }
+    }
+
+    public static Gson buildUserGameCommandGson() {
+        return new GsonBuilder()
+                .registerTypeAdapter(UserGameCommand.class, new UserGameCommand.UserGameCommandAdapter())
+                .create();
     }
 
     @Override
