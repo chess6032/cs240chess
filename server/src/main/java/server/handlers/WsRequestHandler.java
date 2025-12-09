@@ -115,18 +115,22 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void sendMessageToManyWithExclusions(Collection<UsernameAndSession> usersAndSeshes, Session[] excludedSessions, ServerMessage message) throws IOException {
-        for (var userAndSesh : usersAndSeshes) {
-            for (var excludedSesh : excludedSessions) {
-                if (!excludedSesh.equals(userAndSesh.session())) {
-                    sendMessage(userAndSesh.session(), message);
-                }
-            }
-        }
-    }
+//    private void sendMessageToManyWithExclusions(Collection<UsernameAndSession> usersAndSeshes, Session[] excludedSessions, ServerMessage message) throws IOException {
+//        for (var userAndSesh : usersAndSeshes) {
+//            for (var excludedSesh : excludedSessions) {
+//                if (!excludedSesh.equals(userAndSesh.session())) {
+//                    sendMessage(userAndSesh.session(), message);
+//                }
+//            }
+//        }
+//    }
 
     private void sendMessageToManyWithExclusion(Collection<UsernameAndSession> usersAndSeshes, Session excludedSession, ServerMessage message) throws IOException {
-        sendMessageToManyWithExclusions(usersAndSeshes, new Session[]{excludedSession}, message);
+        for (var userAndSesh : usersAndSeshes) {
+            if (!excludedSession.equals(userAndSesh.session())) {
+                sendMessage(userAndSesh.session(), message);
+            }
+        }
     }
 
     private String getUsername(String authToken) throws SqlException {
@@ -184,16 +188,13 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // send messages
 
-        // send LOAD_GAME to players
+        // send LOAD_GAME to players & observers
         Session otherPlayer = connMan.getSessionOfUser(gameID, username);
         var newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
-        sendMessage(sender, new LoadMessage(newGameData));
-        if (otherPlayer != null && !sender.equals(otherPlayer)) {
-            sendMessage(otherPlayer, new LoadMessage(newGameData));
-        }
+        sendMessageToMany(connMan.getSessionsInGameID(gameID), new LoadMessage(newGameData));
 
         // send NOTIFICATION to observers
-        sendMessageToManyWithExclusions(connMan.getSessionsInGameID(gameID), new Session[]{sender, otherPlayer},
+        sendMessageToManyWithExclusion(connMan.getSessionsInGameID(gameID), sender,
                 new NotificationMessage(NotificationType.PLAYER_MADE_MOVE,
                         new NotificationInfo(username, team, move)));
     }
