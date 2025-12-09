@@ -58,7 +58,14 @@ public class ChessGame {
      */
     public enum TeamColor {
         WHITE,
-        BLACK
+        BLACK;
+
+        public static String toString(TeamColor team) {
+            if (team == null) {
+                return null;
+            }
+            return team.name();
+        }
     }
 
     /**

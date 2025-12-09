@@ -1,12 +1,14 @@
 package server.handlers;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.GameDAO;
-import dataaccess.exceptions.SqlException;
+import dataaccess.exceptions.*;
 import io.javalin.websocket.*;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session; // this is different from jakarta.websocket.Session?
 import org.jetbrains.annotations.NotNull;
+import service.GameService;
 import websocket.commands.*;
 import websocket.exceptions.UnauthorizedException;
 
@@ -14,9 +16,11 @@ import server.Server;
 import server.WsConnectionManager;
 import websocket.messages.ErrorServerMessage;
 import websocket.messages.LoadMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static websocket.commands.UserGameCommand.buildUserGameCommandGson;
@@ -25,6 +29,7 @@ import static websocket.messages.ServerMessage.buildServerMessageGson;
 public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final Server server;
+//    private final GameService gameService;
     private final GameDAO gameDAO;
     private final WsConnectionManager connections = new WsConnectionManager();
 
@@ -33,6 +38,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public WsRequestHandler(Server server) {
         this.server = server;
+//        gameService = server.getGameService();
         gameDAO = server.getGameDAO();
     }
 
@@ -44,7 +50,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         // deserialize UserGameCommand
-        System.out.println("message received: " + ctx.message());
+        System.out.println("MESSAGE RECEIVED: " + ctx.message());
 
         int gameID = -1;
         Session session = ctx.session;
@@ -80,13 +86,14 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed.");
     }
 
-    private void saveSession(int gameID, Session session) {
+    private void saveSession(int gameID, Session session) throws Exception {
         if (!connections.saveSession(gameID, session)) {
-            throw new RuntimeException("Failed to save session: (" + gameID + ") " + session);
+            throw new Exception("Failed to save session: (" + gameID + ") " + session);
         }
     }
 
     private void sendMessage(Session session, ServerMessage message) throws IOException {
+        System.out.println("SENDING MESSAGE: " + message);
         session.getRemote().sendString(serverMessageGson.toJson(message));
     }
 
@@ -96,23 +103,41 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
+    private void sendMessageToManyWithExclusion(Collection<Session> sessions, Session excludedSession, ServerMessage message) throws IOException {
+        for (var session : sessions) {
+            if (!session.equals(excludedSession)) {
+                sendMessage(session, message);
+            }
+        }
+    }
+
     private String getUsername(String authToken) throws SqlException {
         return server.getUsernameForAuth(authToken);
     }
 
-    private void connectUser(int gameID, Session connector, String username, ConnectCommand command) throws GameHasNoConnectionsException, IOException, SqlException {
+    private void connectUser(int gameID, Session connector, String username, ConnectCommand command) throws GameHasNoConnectionsException,
+            IOException, SqlException
+    {
         assert connections.sessionIsInThisGame(connector, gameID);
 
+        // query db
         GameData gameData = gameDAO.getGame(gameID);
+
+        var team = command.getTeam();
+        // update db
+        if (team != null) { // null team means this is an observer
+            gameDAO.addPlayerToGame(gameID, username, ChessGame.TeamColor.toString(team));
+        }
+
+        // send messages
 
         sendMessage(connector, new LoadMessage(gameData));
 
-//        var loadMessage = new ServerMessage(LOAD_GAME);
-//        sendMessage(connector, loadMessage);
-//
-//        var sessionsInThisGame = connections.sessionsInGameID(gameID);
-//        var
-//        sendMessage()
+        var sessionsInThisGame = connections.sessionsInGameID(gameID);
+        String message = (team == null ?
+                "is watching you..." : // null team means this is an observer
+                "joined as " + team.name());
+        sendMessageToManyWithExclusion(sessionsInThisGame, connector, new NotificationMessage(username + " " + message));
     }
 
     private void makeMove(int gameID, Session session, String username, MakeMoveCommand command) {
@@ -137,7 +162,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 //        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth1", 67);
         var mmCommand = new MakeMoveCommand("auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));
-        var cCommand = new ConnectCommand("auth3", 420);
+        var cCommand = new ConnectCommand("auth3", 420, null);
         System.out.println(mmCommand);
         System.out.println(cCommand);
 

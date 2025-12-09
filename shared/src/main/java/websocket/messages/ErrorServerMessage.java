@@ -10,6 +10,10 @@ public class ErrorServerMessage extends ServerMessage {
         this.errorMessage = "Error: " + errorMessage;
     }
 
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -31,7 +35,6 @@ public class ErrorServerMessage extends ServerMessage {
     public String toString() {
         return "ErrorMessage{" +
                 "errorMessage='" + errorMessage + '\'' +
-                ", " + super.toString() +
                 '}';
     }
 }
