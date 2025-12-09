@@ -35,7 +35,7 @@ public class ChessGame {
         return !gameIsOver;
     }
 
-    private void resign(TeamColor team) {
+    public void resign(TeamColor team) {
         if (team == null) {
             return;
         }
