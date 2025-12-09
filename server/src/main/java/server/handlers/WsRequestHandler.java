@@ -35,11 +35,6 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         Session session = ctx.session;
 
         try {
-//            UserGameCommand command = new Gson().fromJson(
-//                    ctx.message(),
-//                    UserGameCommand.class
-//            );
-
             var gson = createSpecialGson();
 
             UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
@@ -93,25 +88,15 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private static Gson createSpecialGson() {
-        // I got this lovely piece of code from a good friend of mine whose name starts with "C" and ends in "laude".
-        // It creates a special Gson object using RuntimeTypeAdapterFactory gson-extras to allow for deserializing
-        // into different classes from the same input.
-
-        RuntimeTypeAdapterFactory<UserGameCommand> adapter =
-                RuntimeTypeAdapterFactory.of(UserGameCommand.class, "commandType")
-                        .registerSubtype(ConnectCommand.class, "CONNECT")
-                        .registerSubtype(MakeMoveCommand.class, "MAKE_MOVE")
-                        .registerSubtype(LeaveCommand.class, "LEAVE")
-                        .registerSubtype(ResignCommand.class, "RESIGN");
-
-        return new GsonBuilder()
-                .registerTypeAdapterFactory(adapter)
-                .create();
-    }
-
     private void resign(Session session, String username, UserGameCommand command) throws UnauthorizedException {
 
+    }
+
+
+    private static Gson createSpecialGson() {
+        return new GsonBuilder()
+                .registerTypeAdapter(UserGameCommand.class, new UserGameCommand.UserGameCommandAdapter())
+                .create();
     }
 
     public static void main(String[] args) {

@@ -44,10 +44,6 @@ public class Client {
         phase = new PreLoginUI(server);
     }
 
-    public Client(String serverURL) {
-        this(serverURL, false);
-    }
-
     public void run() {
         println(INTRO_MESSAGE);
         resetFormatting();
