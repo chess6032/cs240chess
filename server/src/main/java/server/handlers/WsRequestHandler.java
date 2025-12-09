@@ -107,7 +107,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     public static void main(String[] args) {
-        //
+        // test subclass deserialization
         RuntimeTypeAdapterFactory<UserGameCommand> adapter =
                 RuntimeTypeAdapterFactory.of(UserGameCommand.class, "commandType")
                         .registerSubtype(ConnectCommand.class, "CONNECT")
@@ -119,10 +119,13 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 .registerTypeAdapterFactory(adapter)
                 .create();
 
-        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, "auth1", 67);
+        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth1", 67);
         var mmCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));
+        var cCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, "auth3", 420);
+
 
         System.out.println(gson.fromJson(new Gson().toJson(ugCommand), UserGameCommand.class));
         System.out.println(gson.fromJson(new Gson().toJson(mmCommand), UserGameCommand.class));
+        System.out.println(gson.fromJson(new Gson().toJson(cCommand), UserGameCommand.class));
     }
 }
