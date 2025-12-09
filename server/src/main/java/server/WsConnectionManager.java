@@ -48,19 +48,4 @@ public class WsConnectionManager {
     public Collection<UsernameAndSession> getSessionsInGameID(int gameID) {
         return connections.get(gameID);
     }
-
-    public Session getSessionOfUser(int gameID, String username) {
-        if (!connections.containsKey(gameID)) {
-            return null;
-        }
-
-        var usernameAndSessions = connections.get(gameID);
-        for (var userAndSesh : usernameAndSessions) {
-            if (username.equals(userAndSesh.username())) {
-                return userAndSesh.session();
-            }
-        }
-        return null;
-    }
-
 }
