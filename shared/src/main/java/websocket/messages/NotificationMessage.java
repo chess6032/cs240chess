@@ -1,18 +1,39 @@
 package websocket.messages;
 
+import model.NotificationInfo;
+
 import java.util.Objects;
 
 public class NotificationMessage extends ServerMessage {
 
-    private final String message;
-
-    public NotificationMessage(String msg) {
-        super(ServerMessageType.NOTIFICATION);
-        this.message = msg;
+    public enum NotificationType {
+        PLAYER_JOINED,
+        OBSERVER_JOINED,
+        PLAYER_MADE_MOVE,
+        PLAYER_LEFT,
+        PLAYER_RESIGNED,
+        PLAYER_IN_CHECK,
+        PLAYER_IN_CHECKMATE
     }
 
-    public String getMessage() {
-        return message;
+    private final NotificationInfo info;
+    private final NotificationType type;
+
+    private final String message; // the passoff tests require that NotificationMessage have a member called "message"
+
+    public NotificationMessage(NotificationInfo info, NotificationType type) {
+        super(ServerMessageType.NOTIFICATION);
+        this.info = info;
+        this.type = type;
+        message = toString();
+    }
+
+    public NotificationInfo getInfo() {
+        return info;
+    }
+
+    public NotificationType getType() {
+        return type;
     }
 
     @Override
@@ -24,18 +45,19 @@ public class NotificationMessage extends ServerMessage {
             return false;
         }
         NotificationMessage that = (NotificationMessage) o;
-        return Objects.equals(message, that.message);
+        return Objects.equals(info, that.info) && type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), message);
+        return Objects.hash(super.hashCode(), info, type);
     }
 
     @Override
     public String toString() {
         return "NotificationMessage{" +
-                "message='" + message + '\'' +
+                "info=" + info +
+                ", type=" + type +
                 '}';
     }
 }

@@ -2,26 +2,32 @@ package server.handlers;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.GameDAO;
-import dataaccess.exceptions.*;
 import io.javalin.websocket.*;
-import model.GameData;
+import model.NotificationInfo;
 import org.eclipse.jetty.websocket.api.Session; // this is different from jakarta.websocket.Session?
 import org.jetbrains.annotations.NotNull;
+import java.io.IOException;
+import java.util.Collection;
+
 import service.GameService;
-import websocket.commands.*;
-import websocket.exceptions.UnauthorizedException;
+import dataaccess.GameDAO;
+import dataaccess.exceptions.*;
+import model.GameData;
 
 import server.Server;
 import server.WsConnectionManager;
+
+import websocket.commands.*;
+import websocket.exceptions.UnauthorizedException;
+
 import websocket.messages.ErrorServerMessage;
 import websocket.messages.LoadMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.NotificationMessage.NotificationType;
 import websocket.messages.ServerMessage;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+
+
 
 import static websocket.commands.UserGameCommand.buildUserGameCommandGson;
 import static websocket.messages.ServerMessage.buildServerMessageGson;
@@ -134,10 +140,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         sendMessage(connector, new LoadMessage(gameData));
 
         var sessionsInThisGame = connections.sessionsInGameID(gameID);
-        String message = (team == null ?
-                "is watching you..." : // null team means this is an observer
-                "joined as " + team.name());
-        sendMessageToManyWithExclusion(sessionsInThisGame, connector, new NotificationMessage(username + " " + message));
+        var notificationInfo = new NotificationInfo(username, team, null);
+        sendMessageToManyWithExclusion(sessionsInThisGame, connector, new NotificationMessage(notificationInfo, NotificationType.PLAYER_JOINED));
     }
 
     private void makeMove(int gameID, Session session, String username, MakeMoveCommand command) {
@@ -149,10 +153,6 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void resign(int gameID, Session session, String username, ResignCommand command) {
-
-    }
-
-    public static void main(String[] args) {
 
     }
 
