@@ -176,12 +176,27 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         var move = command.getMove();
+        if (move == null) {
+            throw new AnticipatedBadBehaviorException("this was not anticipated...");
+        }
+
+        // let's make sure player is trying to move their own piece
+        var piece = game.getBoard().getPiece(move.getStartPosition());
+        if (piece == null || piece.getTeamColor() != team) {
+            throw new AnticipatedBadBehaviorException("you can't move a piece that's not yours, dawg");
+        }
+
+        if (!game.isGameActive()) {
+            // FIXME: I'm passing the "Make Move Game Over" passoff test...but this isn't running? Somehow, instead it's sending the "invalid move" message below...
+            throw new AnticipatedBadBehaviorException("this game is already over");
+        }
 
         try {
             game.makeMove(move);
         } catch (InvalidMoveException e) {
             throw new AnticipatedBadBehaviorException("that's an invalid move, I'm afraid");
         }
+
 
         // update db
         gameDAO.setGame(gameID, game);

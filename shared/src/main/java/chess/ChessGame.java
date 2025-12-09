@@ -184,9 +184,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (gameIsOver) {
-            throw new InvalidMoveException();
-        }
+//        if (gameIsOver) {
+//            throw new InvalidMoveException();
+//        }
 
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if (piece == null || piece.getTeamColor() != teamTurn) {
@@ -393,6 +393,7 @@ public class ChessGame {
         return "ChessGame{\n" +
                 board + "\n" +
                 teamTurn + "'s turn\n" +
+                (gameIsOver ? "game is ended" : "game is active\n") +
                 '}';
     }
 }
