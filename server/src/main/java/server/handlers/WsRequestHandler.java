@@ -167,8 +167,10 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 new NotificationMessage(NotificationType.PLAYER_LEFT, new NotificationInfo(username, command.getTeam(), null)));
     }
 
-    private void resign(int gameID, Session session, String username, ResignCommand command) {
+    private void resign(int gameID, Session sender, String username, ResignCommand command) {
+        assert connections.sessionIsInThisGame(sender, gameID);
 
+        // update db: make game inactive
     }
 
     private static void testUserGameCommandDeserialization() {
