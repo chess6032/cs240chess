@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import com.google.gson.JsonSerializer;
+
 import java.util.Objects;
 
 /**
@@ -35,6 +37,10 @@ public abstract class UserGameCommand {
     }
     public Integer getGameID() {
         return gameID;
+    }
+
+    public static abstract class UserGameCommandAdapter implements JsonSerializer<UserGameCommand> {
+
     }
 
     @Override

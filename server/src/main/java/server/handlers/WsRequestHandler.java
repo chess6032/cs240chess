@@ -43,16 +43,18 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
             var gson = createSpecialGson();
 
             UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
+            gameID = command.getGameID();
             System.out.println(command);
 
             String username = getUsername(command.getAuthToken());
             saveSession(gameID, session); // ?
 
             switch (command.getCommandType()) {
-                case CONNECT -> connectUser(session, username, command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command );
-                case LEAVE -> leaveGame(session, username, command);
-                case RESIGN -> resign(session, username, command);
+                default -> throw new UnauthorizedException("ur mom");
+//                case CONNECT -> connectUser(gameID, session, username, command);
+//                case MAKE_MOVE -> makeMove(gameID, session, username, (MakeMoveCommand) command );
+//                case LEAVE -> leaveGame(gameID, session, username, command);
+//                case RESIGN -> resign(gameID, session, username, command);
             }
         } catch (UnauthorizedException e) {
             sendMessage(session, gameID, "Error: unauthorized");
