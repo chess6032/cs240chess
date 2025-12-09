@@ -1,11 +1,12 @@
 package server;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jetty.websocket.api.Session; // this is different from jakarta.websocket.Session?
-import org.glassfish.grizzly.utils.ArraySet;
+//import org.glassfish.grizzly.utils.ArraySet;
 import server.handlers.UsernameAndSession;
 
 public class WsConnectionManager {
@@ -14,7 +15,7 @@ public class WsConnectionManager {
 
     public void saveSession(int gameID, UsernameAndSession userAndSesh) throws SessionSaveFailException {
         if (!connections.containsKey(gameID)) {
-            connections.put(gameID, new ArraySet<>(UsernameAndSession.class));
+            connections.put(gameID, new HashSet<>());
         }
         var sessions = connections.get(gameID);
 
