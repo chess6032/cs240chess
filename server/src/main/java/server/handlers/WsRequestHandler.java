@@ -135,11 +135,13 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         // query db
         GameData gameData = gameDAO.getGame(gameID);
 
-        var team = command.getTeam();
+        var team = getTeamColorOfUsername(username, gameData);
         // update db: add player to game
         if (team != null) { // null team means this is an observer
             System.out.println(" ~~~~~~~~~ BY MY POWERS OF **DEDUCTION** I HAVE CONLCUDED THAT THIS **CLIENT** IS **PLAYING**");
             gameDAO.addPlayerToGame(gameID, username, ChessGame.TeamColor.toString(team));
+        } else {
+            System.out.println(" ~~~~~~~~~ BY MY POWERS OF **DEDUCTION** I HAVE CONLCUDED THAT THIS **CLIENT** IS **OBSERVINGGGGGGG**");
         }
 
         // send messages
