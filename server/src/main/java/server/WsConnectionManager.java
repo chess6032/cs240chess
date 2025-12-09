@@ -12,15 +12,17 @@ public class WsConnectionManager {
     private final ConcurrentHashMap<Integer, Set<Session>> connections = new ConcurrentHashMap<>();
     // FIXME: can one session be connected to multiple game IDs?
 
-    public boolean saveSession(int gameID, Session session) {
+    public void saveSession(int gameID, Session session) throws SessionSaveFailException {
         if (!connections.containsKey(gameID)) {
             connections.put(gameID, new ArraySet<>(Session.class));
         }
         var sessions = connections.get(gameID);
         if (sessions.contains(session)) {
-            return false; // session already connected
+            throw new SessionSaveFailException("Session already connected to " + gameID);
         }
-        return sessions.add(session);
+        if (!sessions.add(session)) {
+            throw new SessionSaveFailException("idek what went wrong here can't lie: " + gameID);
+        }
     }
 
     public boolean removeSession(int gameID, Session session) {

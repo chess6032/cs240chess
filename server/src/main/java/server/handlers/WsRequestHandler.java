@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.Collection;
 
+import server.SessionSaveFailException;
 import service.GameService;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.*;
@@ -70,7 +71,14 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (username == null) {
                 throw new UnauthorizedException("No username associated with " + command.getAuthToken());
             }
-            saveSession(gameID, session);
+
+            try {
+                if (!connections.sessionIsInThisGame(session, gameID)) {
+                    saveSession(gameID, session);
+                }
+            } catch(GameHasNoConnectionsException _) {
+                saveSession(gameID, session);
+            }
 
             switch (command.getCommandType()) {
                 case CONNECT -> connectUser(gameID, session, username, (ConnectCommand) command);
@@ -80,6 +88,9 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch (UnauthorizedException e) {
             sendMessage(session, new ErrorServerMessage("unauthorized"));
+        } catch (SessionSaveFailException e) {
+            e.printStackTrace();
+            sendMessage(session, new ErrorServerMessage(e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             sendMessage(session, new ErrorServerMessage(e.getMessage()));
@@ -92,10 +103,11 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed.");
     }
 
-    private void saveSession(int gameID, Session session) throws Exception {
-        if (!connections.saveSession(gameID, session)) {
-            throw new Exception("Failed to save session: (" + gameID + ") " + session);
-        }
+    private void saveSession(int gameID, Session session) throws SessionSaveFailException {
+        connections.saveSession(gameID, session);
+//        if (!connections.saveSession(gameID, session)) {
+//            throw new Exception("Failed to save session: (" + gameID + ") " + session);
+//        }
     }
 
     private void sendMessage(Session session, ServerMessage message) throws IOException {
@@ -121,35 +133,46 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         return server.getUsernameForAuth(authToken);
     }
 
-    private void connectUser(int gameID, Session connector, String username, ConnectCommand command) throws GameHasNoConnectionsException,
+    private void connectUser(int gameID, Session sender, String username, ConnectCommand command) throws GameHasNoConnectionsException,
             IOException, SqlException
     {
-        assert connections.sessionIsInThisGame(connector, gameID);
+        assert connections.sessionIsInThisGame(sender, gameID);
 
         // query db
         GameData gameData = gameDAO.getGame(gameID);
 
         var team = command.getTeam();
-        // update db
+        // update db: add player to game
         if (team != null) { // null team means this is an observer
             gameDAO.addPlayerToGame(gameID, username, ChessGame.TeamColor.toString(team));
         }
 
         // send messages
 
-        sendMessage(connector, new LoadMessage(gameData));
+        sendMessage(sender, new LoadMessage(gameData));
 
         var sessionsInThisGame = connections.sessionsInGameID(gameID);
         var notificationInfo = new NotificationInfo(username, team, null);
-        sendMessageToManyWithExclusion(sessionsInThisGame, connector, new NotificationMessage(notificationInfo, NotificationType.PLAYER_JOINED));
+        sendMessageToManyWithExclusion(sessionsInThisGame, sender, new NotificationMessage(NotificationType.PLAYER_JOINED, notificationInfo));
     }
 
     private void makeMove(int gameID, Session session, String username, MakeMoveCommand command) {
 
     }
 
-    private void leaveGame(int gameID, Session session, String username, LeaveCommand command) {
+    private void leaveGame(int gameID, Session sender, String username, LeaveCommand command) throws SqlException, IOException, GameHasNoConnectionsException {
+        assert connections.sessionIsInThisGame(sender, gameID);
 
+        // update db: remove player from game
+        gameDAO.removePlayerFromGame(gameID, username);
+
+        // remove sender from connections manager
+        connections.removeSession(gameID, sender);
+
+        // send messages
+
+        sendMessageToManyWithExclusion(connections.sessionsInGameID(gameID), sender,
+                new NotificationMessage(NotificationType.PLAYER_LEFT, new NotificationInfo(username, command.getTeam(), null)));
     }
 
     private void resign(int gameID, Session session, String username, ResignCommand command) {

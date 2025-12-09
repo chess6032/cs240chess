@@ -21,7 +21,7 @@ public class NotificationMessage extends ServerMessage {
 
     private final String message; // the passoff tests require that NotificationMessage have a member called "message"
 
-    public NotificationMessage(NotificationInfo info, NotificationType type) {
+    public NotificationMessage(NotificationType type, NotificationInfo info) {
         super(ServerMessageType.NOTIFICATION);
         this.info = info;
         this.type = type;

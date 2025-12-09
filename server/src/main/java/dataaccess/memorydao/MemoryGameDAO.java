@@ -63,6 +63,11 @@ public class MemoryGameDAO implements GameDAO {
         // FIXME: do I have to check if the user has already joined this game?
     }
 
+    @Override
+    public boolean removePlayerFromGame(int gameID, String username) {
+        return false;
+    }
+
     private boolean isColorAvailable(GameData gameData, String playerColor) {
         if (playerColor.equals("WHITE")) {
             return gameData.whiteUsername() == null;

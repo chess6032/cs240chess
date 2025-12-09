@@ -149,6 +149,34 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
         return true;
     }
 
+    // TODO: test this
+    @Override
+    public boolean removePlayerFromGame(int gameID, String username) throws SqlException {
+        GameData game = getGame(gameID);
+        if (game == null) {
+            return false;
+        }
+
+        // find column to remove username from
+        String usernameHeader;
+        if (game.whiteUsername() != null && game.whiteUsername().equals(username)) {
+            usernameHeader = WHITE_HEADER;
+        } else if (game.blackUsername() != null && game.blackUsername().equals(username)) {
+            usernameHeader = BLACK_HEADER;
+        } else {
+            return false;
+        }
+
+        String sql = """
+                UPDATE %s
+                SET %s = NULL
+                WHERE %s = ?
+                """.formatted(tableName, usernameHeader, GAME_ID_HEADER);
+
+        executeUpdate(sql, gameID);
+        return true;
+    }
+
     // QUERIES
 
     @Override
