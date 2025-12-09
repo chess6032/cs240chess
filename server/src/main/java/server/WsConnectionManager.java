@@ -45,10 +45,10 @@ public class WsConnectionManager {
         return -1; // session isn't playing any games (or smth idrk)
     }
 
-    public boolean sessionIsInThisGame(Session session, int gameID) throws GameHasNoConnectionsException {
+    public boolean sessionIsInThisGame(Session session, int gameID) {
         var connectionsToGame = connections.get(gameID);
         if (connectionsToGame == null) {
-            throw new GameHasNoConnectionsException(gameID); // no sessions are connected to that game
+            return false;
         }
         return connectionsToGame.contains(session);
     }

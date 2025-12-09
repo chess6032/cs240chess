@@ -72,13 +72,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new UnauthorizedException("No username associated with " + command.getAuthToken());
             }
 
-            try {
-                if (!connections.sessionIsInThisGame(session, gameID)) {
-                    saveSession(gameID, session);
-                }
-            } catch(GameHasNoConnectionsException _) {
-                saveSession(gameID, session);
-            }
+            saveSession(gameID, session);
 
             switch (command.getCommandType()) {
                 case CONNECT -> connectUser(gameID, session, username, (ConnectCommand) command);
@@ -88,9 +82,6 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch (UnauthorizedException e) {
             sendMessage(session, new ErrorServerMessage("unauthorized"));
-        } catch (SessionSaveFailException e) {
-            e.printStackTrace();
-            sendMessage(session, new ErrorServerMessage(e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             sendMessage(session, new ErrorServerMessage(e.getMessage()));
@@ -103,11 +94,12 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed.");
     }
 
-    private void saveSession(int gameID, Session session) throws SessionSaveFailException {
-        connections.saveSession(gameID, session);
-//        if (!connections.saveSession(gameID, session)) {
-//            throw new Exception("Failed to save session: (" + gameID + ") " + session);
-//        }
+    private void saveSession(int gameID, Session session) {
+        try {
+            connections.saveSession(gameID, session);
+        } catch (SessionSaveFailException e) {
+            System.out.println("Failed to save session: " + e.getMessage());
+        }
     }
 
     private void sendMessage(Session session, ServerMessage message) throws IOException {
