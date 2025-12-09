@@ -1,6 +1,7 @@
 package dataaccess.sqldao;
 
 import chess.ChessGame;
+import org.eclipse.jetty.server.Authentication;
 import server.ChessGameSerializer;
 import model.GameData;
 import dataaccess.GameDAO;
@@ -175,6 +176,28 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
 
         executeUpdate(sql, gameID);
         return true;
+    }
+
+    @Override
+    public void setGame(int gameID, ChessGame game) throws SqlException {
+        // FIXME: This is HORRIBLE practice but at this point idc
+
+        String gameJson;
+        try {
+            gameJson = ChessGameSerializer.serialize(game);
+        } catch (FailedSerializationException e) {
+            throw new RuntimeException(e);
+        }
+
+        String sql = """
+                UPDATE %s
+                SET %s = ?
+                WHERE %s = ?
+                """.formatted(CHESSGAME_TABLE_NAME,
+                    CHESSGAME_HEADER,
+                    GAME_ID_HEADER);
+
+        executeUpdate(sql, gameJson, gameID);
     }
 
     // QUERIES

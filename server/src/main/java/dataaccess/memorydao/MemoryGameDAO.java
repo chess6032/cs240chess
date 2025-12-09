@@ -68,6 +68,12 @@ public class MemoryGameDAO implements GameDAO {
         return false;
     }
 
+    @Override
+    public void setGame(int gameID, ChessGame game) {
+        return;
+    }
+
+
     private boolean isColorAvailable(GameData gameData, String playerColor) {
         if (playerColor.equals("WHITE")) {
             return gameData.whiteUsername() == null;

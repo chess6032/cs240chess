@@ -82,6 +82,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch (UnauthorizedException e) {
             sendMessage(session, new ErrorServerMessage("unauthorized"));
+        } catch (AnticipatedBadBehaviorException e) {
+            sendMessage(session, new ErrorServerMessage(e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             sendMessage(session, new ErrorServerMessage(e.getMessage()));
@@ -136,6 +138,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         var team = command.getTeam();
         // update db: add player to game
         if (team != null) { // null team means this is an observer
+            System.out.println(" ~~~~~~~~~ BY MY POWERS OF **DEDUCTION** I HAVE CONLCUDED THAT THIS **CLIENT** IS **PLAYING**");
             gameDAO.addPlayerToGame(gameID, username, ChessGame.TeamColor.toString(team));
         }
 
@@ -148,8 +151,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         sendMessageToManyWithExclusion(sessionsInThisGame, sender, new NotificationMessage(NotificationType.PLAYER_JOINED, notificationInfo));
     }
 
-    private void makeMove(int gameID, Session session, String username, MakeMoveCommand command) {
-
+    private void makeMove(int gameID, Session sender, String username, MakeMoveCommand command) throws IOException, Exception {
+        throw new Exception("poop your pants, nerd!");
     }
 
     private void leaveGame(int gameID, Session sender, String username, LeaveCommand command) throws SqlException, IOException, GameHasNoConnectionsException {
@@ -167,10 +170,41 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 new NotificationMessage(NotificationType.PLAYER_LEFT, new NotificationInfo(username, command.getTeam(), null)));
     }
 
-    private void resign(int gameID, Session sender, String username, ResignCommand command) {
+    private void resign(int gameID, Session sender, String username, ResignCommand command) throws SqlException, IOException, AnticipatedBadBehaviorException {
         assert connections.sessionIsInThisGame(sender, gameID);
 
+        // query db
+        var gameData = gameDAO.getGame(gameID);
+        var team = getTeamColorOfUsername(username, gameData);
+        var game = gameData.game();
+        if (game == null) {
+            throw new AnticipatedBadBehaviorException("game does not exist");
+        }
+        if (!game.isGameActive()) {
+            throw new AnticipatedBadBehaviorException("game is already over");
+        }
+        if (team == null) {
+            throw new AnticipatedBadBehaviorException("must be a player to resign");
+        }
+
         // update db: make game inactive
+        game.resign(team);
+        gameDAO.setGame(gameID, game);
+
+        // send message
+        sendMessageToMany(connections.sessionsInGameID(gameID),
+                new NotificationMessage(NotificationType.PLAYER_RESIGNED, new NotificationInfo(username, team, null)));
+    }
+
+    private ChessGame.TeamColor getTeamColorOfUsername(String username, GameData gameData) {
+        // FIXME: what if player has joined a game as both black AND white?
+        if (gameData.whiteUsername() != null && username.equals(gameData.whiteUsername())) {
+            return ChessGame.TeamColor.WHITE;
+        } else if (gameData.blackUsername() != null && username.equals(gameData.blackUsername())) {
+            return ChessGame.TeamColor.BLACK;
+        } else {
+            return null;
+        }
     }
 
     private static void testUserGameCommandDeserialization() {
