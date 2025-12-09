@@ -1,9 +1,10 @@
 package server.handlers;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import dataaccess.GameDAO;
 import dataaccess.exceptions.SqlException;
 import io.javalin.websocket.*;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session; // this is different from jakarta.websocket.Session?
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.*;
@@ -12,6 +13,7 @@ import websocket.exceptions.UnauthorizedException;
 import server.Server;
 import server.WsConnectionManager;
 import websocket.messages.ErrorServerMessage;
+import websocket.messages.LoadMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -23,6 +25,7 @@ import static websocket.messages.ServerMessage.buildServerMessageGson;
 public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final Server server;
+    private final GameDAO gameDAO;
     private final WsConnectionManager connections = new WsConnectionManager();
 
     private final Gson userGameCommandGson = buildUserGameCommandGson();
@@ -30,6 +33,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public WsRequestHandler(Server server) {
         this.server = server;
+        gameDAO = server.getGameDAO();
     }
 
     @Override
@@ -46,11 +50,9 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         Session session = ctx.session;
 
         try {
-//            var gson = buildUserGameCommandGson();
-
             UserGameCommand command = userGameCommandGson.fromJson(ctx.message(), UserGameCommand.class);
+            System.out.println("   command from message: " + command);
             gameID = command.getGameID();
-            System.out.println(command);
 
             String username = getUsername(command.getAuthToken());
             if (username == null) {
@@ -85,10 +87,10 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void sendMessage(Session session, ServerMessage message) throws IOException {
-        session.getRemote().sendString(buildServerMessageGson().toJson(message));
+        session.getRemote().sendString(serverMessageGson.toJson(message));
     }
 
-    private void sendMessages(Collection<Session> sessions, ServerMessage message) throws IOException {
+    private void sendMessageToMany(Collection<Session> sessions, ServerMessage message) throws IOException {
         for (var session : sessions) {
             sendMessage(session, message);
         }
@@ -98,8 +100,12 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         return server.getUsernameForAuth(authToken);
     }
 
-    private void connectUser(int gameID, Session connector, String username, ConnectCommand command) throws GameHasNoConnectionsException {
+    private void connectUser(int gameID, Session connector, String username, ConnectCommand command) throws GameHasNoConnectionsException, IOException, SqlException {
         assert connections.sessionIsInThisGame(connector, gameID);
+
+        GameData gameData = gameDAO.getGame(gameID);
+
+        sendMessage(connector, new LoadMessage(gameData));
 
 //        var loadMessage = new ServerMessage(LOAD_GAME);
 //        sendMessage(connector, loadMessage);
@@ -122,17 +128,12 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     public static void main(String[] args) {
-        // test ServerMessage subclass serialization
-        var gson = buildServerMessageGson();
 
-        ServerMessage err = new ErrorServerMessage("Tragedy");
-        System.out.println(err);
-        System.out.println(gson.toJson(err));
     }
 
     private static void testUserGameCommandDeserialization() {
         // test UserGameCommand subclass deserialization
-        var gson = buildUserGameCommandGson();
+        var specialGson = buildUserGameCommandGson();
 
 //        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth1", 67);
         var mmCommand = new MakeMoveCommand("auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));
@@ -142,8 +143,23 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         System.out.println();
 
-//        System.out.println(gson.fromJson(new Gson().toJson(ugCommand), UserGameCommand.class));
-        System.out.println(gson.fromJson(new Gson().toJson(mmCommand), UserGameCommand.class));
-        System.out.println(gson.fromJson(new Gson().toJson(cCommand), UserGameCommand.class));
+//        System.out.println(specialGson.fromJson(new Gson().toJson(ugCommand), UserGameCommand.class));
+        System.out.println(specialGson.fromJson(new Gson().toJson(mmCommand), UserGameCommand.class));
+        System.out.println(specialGson.fromJson(new Gson().toJson(cCommand), UserGameCommand.class));
+    }
+
+    private static void testServerMessageSubclassSerialization() {
+        // test ServerMessage subclass serialization
+        var specialGson = buildServerMessageGson();
+
+        ServerMessage err = new ErrorServerMessage("Tragedy");
+        System.out.println(err);
+        System.out.println(specialGson.toJson(err));
+
+        System.out.println();
+
+        ServerMessage load = new LoadMessage(new GameData(69, null, null, null, new chess.ChessGame()));
+        System.out.println(load);
+        System.out.println(specialGson.toJson(load));
     }
 }
