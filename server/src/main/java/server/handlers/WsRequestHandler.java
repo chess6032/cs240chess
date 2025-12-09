@@ -40,21 +40,10 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 //                    UserGameCommand.class
 //            );
 
-            // I got this lovely piece of code from a good friend of mine whose name starts with "C" and ends in "laude".
-            // It creates a special Gson object using RuntimeTypeAdapterFactory gson-extras to allow for deserializing
-            // into different classes from the same input.
-            RuntimeTypeAdapterFactory<UserGameCommand> adapter =
-                    RuntimeTypeAdapterFactory.of(UserGameCommand.class, "commandType")
-                            .registerSubtype(ConnectCommand.class, "CONNECT")
-                            .registerSubtype(MakeMoveCommand.class, "MAKE_MOVE")
-                            .registerSubtype(LeaveCommand.class, "LEAVE")
-                            .registerSubtype(ResignCommand.class, "RESIGN");
-
-            Gson gson = new GsonBuilder()
-                    .registerTypeAdapterFactory(adapter)
-                    .create();
+            var gson = createSpecialGson();
 
             UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
+            System.out.println(command);
 
             String username = getUsername(command.getAuthToken());
             saveSession(gameID, session); // ?
@@ -102,12 +91,11 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private void resign(Session session, String username, UserGameCommand command) throws UnauthorizedException {
+    private static Gson createSpecialGson() {
+        // I got this lovely piece of code from a good friend of mine whose name starts with "C" and ends in "laude".
+        // It creates a special Gson object using RuntimeTypeAdapterFactory gson-extras to allow for deserializing
+        // into different classes from the same input.
 
-    }
-
-    public static void main(String[] args) {
-        // test subclass deserialization
         RuntimeTypeAdapterFactory<UserGameCommand> adapter =
                 RuntimeTypeAdapterFactory.of(UserGameCommand.class, "commandType")
                         .registerSubtype(ConnectCommand.class, "CONNECT")
@@ -115,16 +103,28 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                         .registerSubtype(LeaveCommand.class, "LEAVE")
                         .registerSubtype(ResignCommand.class, "RESIGN");
 
-        Gson gson = new GsonBuilder()
+        return new GsonBuilder()
                 .registerTypeAdapterFactory(adapter)
                 .create();
+    }
 
-        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth1", 67);
-        var mmCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));
-        var cCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, "auth3", 420);
+    private void resign(Session session, String username, UserGameCommand command) throws UnauthorizedException {
 
+    }
 
-        System.out.println(gson.fromJson(new Gson().toJson(ugCommand), UserGameCommand.class));
+    public static void main(String[] args) {
+        // test subclass deserialization
+        var gson = createSpecialGson();
+
+//        var ugCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, "auth1", 67);
+        var mmCommand = new MakeMoveCommand("auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));
+        var cCommand = new ConnectCommand("auth3", 420);
+        System.out.println(mmCommand);
+        System.out.println(cCommand);
+
+        System.out.println();
+
+//        System.out.println(gson.fromJson(new Gson().toJson(ugCommand), UserGameCommand.class));
         System.out.println(gson.fromJson(new Gson().toJson(mmCommand), UserGameCommand.class));
         System.out.println(gson.fromJson(new Gson().toJson(cCommand), UserGameCommand.class));
     }
