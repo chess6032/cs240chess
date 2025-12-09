@@ -20,6 +20,46 @@ public class ChessGame {
     private final Stack<ChessBoard> savedBoards;
     private ChessMove lastMove;
 
+    // ------------- PHASE 6 STUFF -------------
+    private TeamColor victor = null;
+    private boolean gameIsOver = false;
+
+    private void setVictor(TeamColor team) {
+        victor = team;
+    }
+    private void endGame() {
+        gameIsOver = true;
+    }
+
+    public boolean isGameActive() {
+        return !gameIsOver;
+    }
+
+    private void resign(TeamColor team) {
+        if (team == null) {
+            return;
+        }
+        setVictor(TeamColor.opposite(team));
+        endGame();
+    }
+
+    public void evaluateIfGameIsOver() {
+        if (gameIsOver) {
+            return;
+        }
+        if (isInCheckmate(teamTurn)) {
+            setVictor(TeamColor.opposite(teamTurn));
+            endGame();
+        } else if (isInStalemate(teamTurn)) {
+            endGame();
+        }
+    }
+
+    public TeamColor getWinner() {
+        return victor;
+    }
+    // ------------- ------------- -------------
+
 //    private final EnPassantHandler enPassHandler;
 
     public ChessGame() {
@@ -65,6 +105,13 @@ public class ChessGame {
                 return null;
             }
             return team.name();
+        }
+
+        public static TeamColor opposite(TeamColor team) {
+            if (team == null) {
+                return null;
+            }
+            return team == BLACK ? WHITE : BLACK;
         }
     }
 
