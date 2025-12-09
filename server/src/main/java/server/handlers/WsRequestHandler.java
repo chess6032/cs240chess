@@ -186,8 +186,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
             throw new AnticipatedBadBehaviorException("you can't move a piece that's not yours, dawg");
         }
 
+        game.evaluateIfGameIsOver();
         if (!game.isGameActive()) {
-            // FIXME: I'm passing the "Make Move Game Over" passoff test...but this isn't running? Somehow, instead it's sending the "invalid move" message below...
             throw new AnticipatedBadBehaviorException("this game is already over");
         }
 
@@ -239,6 +239,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         if (game == null) {
             throw new AnticipatedBadBehaviorException("game does not exist");
         }
+
+        game.evaluateIfGameIsOver();
         if (!game.isGameActive()) {
             throw new AnticipatedBadBehaviorException("game is already over");
         }

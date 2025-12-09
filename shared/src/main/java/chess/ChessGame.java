@@ -43,6 +43,7 @@ public class ChessGame {
         endGame();
     }
 
+    // TODO: call this somewhere
     public void evaluateIfGameIsOver() {
         if (gameIsOver) {
             return;
