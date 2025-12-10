@@ -262,7 +262,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // send messages
         sendMessageToManyWithExclusion(connMan.getSessionsInGameID(gameID), sender,
-                new NotificationMessage(NotificationType.PLAYER_LEFT, new NotificationInfo(username, team, null)));
+                new NotificationMessage(NotificationType.CLIENT_LEFT, new NotificationInfo(username, team, null)));
     }
 
     private void resign(int gameID, Session sender, String username, ResignCommand command) throws SqlException, IOException,

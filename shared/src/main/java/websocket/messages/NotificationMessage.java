@@ -10,7 +10,7 @@ public class NotificationMessage extends ServerMessage {
         PLAYER_JOINED,
         OBSERVER_JOINED,
         PLAYER_MADE_MOVE,
-        PLAYER_LEFT,
+        CLIENT_LEFT,
         PLAYER_RESIGNED,
         PLAYER_IN_CHECK,
         PLAYER_IN_CHECKMATE,

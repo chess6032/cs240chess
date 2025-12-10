@@ -4,7 +4,6 @@ import static chess.ChessGame.TeamColor;
 import static ui.uidrawing.UIDrawer.*;
 
 import chess.ChessMove;
-import chess.ChessPiece;
 import chess.ChessPiece.PieceType;
 import chess.ChessPosition;
 import client.Client;
@@ -19,7 +18,8 @@ import ui.InvalidArgsFromUser;
 import ui.ReplResult;
 import ui.uidrawing.BoardDrawer;
 import ui.uidrawing.TextColor;
-import ui.uidrawing.UIDrawer;
+import websocket.messages.ErrorServerMessage;
+import websocket.messages.NotificationMessage;
 
 public class GameplayUI extends UiPhase {
     private final GameData gameData;
@@ -41,7 +41,7 @@ public class GameplayUI extends UiPhase {
             throw new RuntimeException("HEY! Don't enter Gameplay UI without a ChessGame!");
         }
         team = teamColor;
-        drawBoard();
+//        drawBoard();
     }
 
     public ChessMove getMove() {
@@ -83,7 +83,7 @@ public class GameplayUI extends UiPhase {
         BoardDrawer.printBoard(gameData.game().getBoard(), team);
     }
 
-    private ChessPosition inputPosToChessPos(String input) {
+    private static ChessPosition inputPosToChessPos(String input) {
         if (input == null || input.length() != 2) {
             return null;
         }
@@ -103,7 +103,7 @@ public class GameplayUI extends UiPhase {
         return new ChessPosition(row, col);
     }
 
-    private String chessPosToString(ChessPosition position) {
+    private static String chessPosToString(ChessPosition position) {
         if (position == null) {
             return null;
         }
@@ -113,7 +113,26 @@ public class GameplayUI extends UiPhase {
         return "" + col + row;
     }
 
-    private PieceType parsePromotionInput(String input) {
+    private static String chessMoveToString(ChessMove move) {
+        if (move == null) {
+            return null;
+        }
+        if (move.getEndPosition() == null || move.getStartPosition() == null) {
+            return null;
+        }
+
+        String start = chessPosToString(move.getStartPosition());
+        String end = chessPosToString(move.getEndPosition());
+
+        String str = start + " -> " + end;
+        if (move.getPromotionPiece() != null) {
+            str += " (promoted to " + move.getPromotionPiece() + ")";
+        }
+
+        return str;
+    }
+
+    public static PieceType parsePromotionInput(String input) {
         return switch (input) {
             case "q" -> PieceType.QUEEN;
             case "r" -> PieceType.ROOK;
@@ -167,9 +186,9 @@ public class GameplayUI extends UiPhase {
 
         return () -> {
             print("Making move: ");
-            UIDrawer.useTextColor(TextColor.BLUE);
+            useTextColor(TextColor.BLUE);
             print(chessPosToString(move.getStartPosition()), " -> ", chessPosToString(move.getEndPosition()));
-            UIDrawer.revertTextColor();
+            revertTextColor();
             println();
         };
     }
@@ -183,34 +202,34 @@ public class GameplayUI extends UiPhase {
         return team == null;
     }
 
-    public static void main(String[] args) throws Exception {
-        new GameplayUI(null, null, null).parsePromotionInput(null);
-        // FIXME: ^ parsePromotionInput isn't currently being used, which pisses off the autograder,
-        //  but I'll want it for later so I'm just going to throw it here for the time being.
+    public static void printWsError(ErrorServerMessage err) {
+        useTextColor(TextColor.RED);
+        println(err.getErrorMessage());
+        revertTextColor();
+    }
 
-        // test updateMove
-        var board = new chess.ChessBoard();
-        board.resetBoard();
-        board.removePiece(new ChessPosition(7, 1));
-        board.removePiece(new ChessPosition(8, 1));
-        board.addPiece(new ChessPosition(7, 1), new ChessPiece(TeamColor.WHITE, PieceType.PAWN));
-        var game = new chess.ChessGame();
-        game.setBoard(board);
+    public static Runnable evaluateWsNotifPrint(NotificationMessage notif) {
+        String username = notif.getInfo().username();
+        TeamColor team = notif.getInfo().team();
+        ChessMove move = notif.getInfo().move();
 
-        var ui = new GameplayUI(null, new GameData(-1, null, null, null, game), TeamColor.WHITE);
-//        ui.drawBoard();
-        ui.eval(new CommandAndArgs("highlight", new String[]{"a7"})).run();
+        String msg = switch (notif.getType()) {
+            case PLAYER_JOINED -> username + " joined game as " + team;
+            case OBSERVER_JOINED -> username + " is watching you...";
+            case PLAYER_MADE_MOVE -> username + " (" + team + ") made move: " + chessMoveToString(move);
+            case CLIENT_LEFT -> username + " is no longer with us :(";
+            case PLAYER_RESIGNED -> username + " gave up!";
+            case PLAYER_IN_CHECK -> username + " is in check";
+            case PLAYER_IN_CHECKMATE -> username + " is in checkmate";
+            case STALE_MATE -> username + " is in stalemate";
+        };
 
-        Runnable func = null;
-        try {
-            func = ui.eval(new CommandAndArgs("move", new String[]{"a7", "a8", "q"}));
-        } catch (InvalidArgsFromUser e) {
-            System.out.println(e.getMessage());
-
-        }
-
-        println(ui.getMove());
-        if (func != null) { func.run(); }
+        return () -> {
+            useTextColor(TextColor.YELLOW);
+            println();
+            println(msg);
+            revertTextColor();
+        };
     }
 
 }
