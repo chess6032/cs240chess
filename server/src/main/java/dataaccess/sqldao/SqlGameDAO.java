@@ -182,6 +182,8 @@ public class SqlGameDAO extends SqlDAO implements GameDAO {
     public void setGame(int gameID, ChessGame game) throws SqlException {
         // FIXME: This is HORRIBLE practice but at this point idc
 
+        game.evaluateIfGameIsOver();
+
         String gameJson;
         try {
             gameJson = ChessGameSerializer.serialize(game);

@@ -21,7 +21,7 @@ public class MakeMoveCommand extends UserGameCommand {
     public String toString() {
         return "MakeMoveCommand{" +
                 "move=" + move +
-                ", " + super.toString() +
+                ", " + super.toString(false) +
                 "}";
     }
 

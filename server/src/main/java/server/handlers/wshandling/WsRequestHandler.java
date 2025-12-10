@@ -2,6 +2,8 @@ package server.handlers.wshandling;
 
 import chess.ChessGame;
 import chess.InvalidMoveException;
+import chess.InvalidMoveException.MoveError;
+
 import com.google.gson.Gson;
 import io.javalin.websocket.*;
 import model.NotificationInfo;
@@ -57,7 +59,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         // deserialize UserGameCommand
         var id = ++numMessagesReceived;
-        System.out.println("-------------- (" + id + ") MESSAGE RECEIVED --------------\n" + ctx.message());
+        System.out.println("=================== (" + id + ") MESSAGE RECEIVED " /*+ ctx.message()*/ + "===================");
 
         int gameID = -1;
         Session session = ctx.session;
@@ -80,7 +82,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             if (gameDAO.getGame(gameID) == null) {
                 System.out.println("    - Given gameID does not exist in db: " + gameID);
-                throw new AnticipatedBadBehaviorException("game doesn't exist");
+                throw new AnticipatedBadBehaviorException("game doesn't exist.");
             }
 
             System.out.println("Processing message " + id + "...");
@@ -90,17 +92,17 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case LEAVE -> leaveGame(gameID, session, username, (LeaveCommand) command);
                 case RESIGN -> resign(gameID, session, username, (ResignCommand) command);
             }
-            System.out.println("=================== " + id + " processed with no errors ===================");
+            System.out.println("-------------- " + id + " processed with no errors --------------");
         } catch (UnauthorizedException e) {
-            sendMessage(session, new ErrorServerMessage("unauthorized"));
-            System.out.println("=================== " + id + " was unauthorized ===================");
+            sendMessage(session, new ErrorServerMessage("unauthorized."));
+            System.out.println("-------------- " + id + " was unauthorized -------------- ");
         } catch (AnticipatedBadBehaviorException e) {
             sendMessage(session, new ErrorServerMessage(e.getMessage()));
-            System.out.println("=================== " + id + " was naughty ===================");
+            System.out.println("-------------- " + id + " was naughty --------------");
         } catch (Exception e) {
             e.printStackTrace();
             sendMessage(session, new ErrorServerMessage(e.getMessage()));
-            System.out.println("=================== " + id + " made something go terribly wrong ===================");
+            System.out.println("-------------- " + id + " made something go terribly wrong --------------");
         }
     }
 
@@ -180,29 +182,39 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         var team = getTeamColorOfUsername(username, gameData);
         if (team == null) {
-            throw new AnticipatedBadBehaviorException("can't play if you're not a player");
+            throw new AnticipatedBadBehaviorException("can't play if you're not a playah.");
         }
-
+        if (game.getTeamTurn() != team) {
+            throw new AnticipatedBadBehaviorException("it's not your turn, silly!");
+        }
+//
         var move = command.getMove();
         if (move == null) {
             throw new AnticipatedBadBehaviorException("this was not anticipated...");
         }
-
-        // let's make sure player is trying to move their own piece
-        var piece = game.getBoard().getPiece(move.getStartPosition());
-        if (piece == null || piece.getTeamColor() != team) {
-            throw new AnticipatedBadBehaviorException("you can't move a piece that's not yours, dawg");
-        }
-
-        game.evaluateIfGameIsOver();
-        if (!game.isGameActive()) {
-            throw new AnticipatedBadBehaviorException("this game is already over");
-        }
+//
+//        // let's make sure player is trying to move their own piece
+//        var piece = game.getBoard().getPiece(move.getStartPosition());
+//        if (piece == null || piece.getTeamColor() != team) {
+//            throw new AnticipatedBadBehaviorException("you can't move a piece that's not yours, dawg");
+//        }
+//
+//        game.evaluateIfGameIsOver();
+//        if (!game.isGameActive()) {
+//            throw new AnticipatedBadBehaviorException("this game is already over");
+//        }
 
         try {
             game.makeMove(move);
         } catch (InvalidMoveException e) {
-            throw new AnticipatedBadBehaviorException("that's an invalid move, I'm afraid");
+            String msg = switch(e.getMoveError()) {
+                case MoveError.GAME_ALREADY_OVER -> "this game is already over.";
+                case MoveError.NO_PIECE_AT_START_POS -> "there isn't a piece there.";
+                case MoveError.NOT_PLAYERS_PIECE -> "you can't move a piece that's not yours, dawg.";
+                case MoveError.ILLEGAL_MOVE -> "that's not a legal move, I'm afraid.";
+            };
+            throw new AnticipatedBadBehaviorException(msg);
+//            throw new AnticipatedBadBehaviorException("that's an invalid move, I'm afraid");
         }
 
 
@@ -246,15 +258,15 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         var team = getTeamColorOfUsername(username, gameData);
         var game = gameData.game();
         if (game == null) {
-            throw new AnticipatedBadBehaviorException("game does not exist");
+            throw new AnticipatedBadBehaviorException("game does not exist.");
         }
 
-        game.evaluateIfGameIsOver();
+//        game.evaluateIfGameIsOver();
         if (!game.isGameActive()) {
-            throw new AnticipatedBadBehaviorException("game is already over");
+            throw new AnticipatedBadBehaviorException("game is already over.");
         }
         if (team == null) {
-            throw new AnticipatedBadBehaviorException("must be a player to resign");
+            throw new AnticipatedBadBehaviorException("must be a player to resign.");
         }
 
         // update db: make game inactive

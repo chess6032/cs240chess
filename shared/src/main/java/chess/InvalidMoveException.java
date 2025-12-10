@@ -5,9 +5,21 @@ package chess;
  */
 public class InvalidMoveException extends Exception {
 
-    public InvalidMoveException() {}
+    private final MoveError err;
 
-    public InvalidMoveException(String message) {
-        super(message);
+    public enum MoveError {
+        GAME_ALREADY_OVER,
+        NO_PIECE_AT_START_POS,
+        NOT_PLAYERS_PIECE,
+        ILLEGAL_MOVE
+    }
+
+    public InvalidMoveException(MoveError err) {
+        super(err.name());
+        this.err = err;
+    }
+
+    public MoveError getMoveError() {
+        return err;
     }
 }

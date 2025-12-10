@@ -82,12 +82,17 @@ public abstract class UserGameCommand {
         return Objects.hash(getCommandType(), getAuthToken(), getGameID());
     }
 
+    protected String toString(boolean includeRedundantInfoForSubclasses) {
+        return "" +
+                (includeRedundantInfoForSubclasses ? "UserGameCommand{" : "") +
+                (includeRedundantInfoForSubclasses ? "commandType=" + commandType + ", " : "") +
+                "authToken='" + authToken + '\'' +
+                ", gameID=" + gameID +
+                (includeRedundantInfoForSubclasses ? '}' : "");
+    }
+
     @Override
     public String toString() {
-        return "UserGameCommand{" +
-                "commandType=" + commandType +
-                ", authToken='" + authToken + '\'' +
-                ", gameID=" + gameID +
-                '}';
+        return toString(true);
     }
 }

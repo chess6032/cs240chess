@@ -12,6 +12,6 @@ public class LeaveCommand extends UserGameCommand {
 
     @Override
     public String toString() {
-        return "LeaveCommand{}";
+        return "LeaveCommand{" + super.toString(false) + "}";
     }
 }

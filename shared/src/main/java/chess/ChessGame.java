@@ -4,8 +4,9 @@ import chess.advancedmoves.EnPassantHandler;
 
 import java.util.*;
 
-import chess.ChessPiece.PieceType;
 import chess.advancedmoves.EnPassantMove;
+
+import chess.InvalidMoveException.MoveError;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -186,16 +187,20 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         if (gameIsOver) {
-            return;
+            // TODO: throw InvalidMoveException
+            throw new InvalidMoveException(MoveError.GAME_ALREADY_OVER);
         }
 
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        if (piece == null || piece.getTeamColor() != teamTurn) {
-            throw new InvalidMoveException();
+        if (piece == null) {
+            throw new InvalidMoveException(MoveError.NO_PIECE_AT_START_POS);
+        }
+        if (piece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException(MoveError.NOT_PLAYERS_PIECE);
         }
 
         if (!validMoves(move.getStartPosition()).contains(move)) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException(MoveError.ILLEGAL_MOVE);
         }
 
         if (move.equals(EnPassantHandler.calculateEnPassantMove(board, lastMove, move.getStartPosition()))) {

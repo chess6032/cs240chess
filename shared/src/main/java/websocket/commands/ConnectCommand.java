@@ -11,6 +11,6 @@ public class ConnectCommand extends UserGameCommand {
 
     @Override
     public String toString() {
-        return "ConnectCommand{}";
+        return "ConnectCommand{" + super.toString(false) + "}";
     }
 }

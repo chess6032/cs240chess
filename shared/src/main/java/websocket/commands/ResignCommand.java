@@ -12,6 +12,6 @@ public class ResignCommand extends UserGameCommand {
 
     @Override
     public String toString() {
-        return "ResignCommand{}";
+        return "ResignCommand{" + super.toString(false) + "}";
     }
 }
