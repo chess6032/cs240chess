@@ -2,9 +2,7 @@ package websocket;
 
 import com.google.gson.Gson;
 import model.GameData;
-import websocket.commands.ConnectCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.ErrorServerMessage;
 import websocket.messages.LoadMessage;
 import websocket.messages.NotificationMessage;
@@ -23,7 +21,7 @@ public class GsonTypeAdapterTests {
         var specialGson = buildUserGameCommandGson();
 
         var mmCommand = new MakeMoveCommand("auth2", 69, new chess.ChessMove(new chess.ChessPosition(1, 1), new chess.ChessPosition(8, 8), null));
-        var cCommand = new ConnectCommand("auth3", 420, null);
+        var cCommand = new ConnectCommand("auth3", 420);
         System.out.println(mmCommand);
         System.out.println(cCommand);
 
@@ -32,7 +30,6 @@ public class GsonTypeAdapterTests {
         System.out.println(specialGson.fromJson(new Gson().toJson(mmCommand), UserGameCommand.class));
         System.out.println(specialGson.fromJson(new Gson().toJson(cCommand), UserGameCommand.class));
     }
-
 
     @DisplayName("Serialize ServerMessage")
     @Test
@@ -63,9 +60,35 @@ public class GsonTypeAdapterTests {
         for (ServerMessage msg : new ServerMessage[]{err, load, notif}) {
             System.out.println(msg);
             System.out.println(new Gson().toJson(msg));
+
             ServerMessage deserialized = specialGson.fromJson(new Gson().toJson(msg), ServerMessage.class);
             System.out.println(deserialized);
+
             Assertions.assertEquals(msg, deserialized);
+            System.out.println();
+        }
+    }
+
+    @DisplayName("Serialize UserGameCommand")
+    @Test
+    public void testUserGameCommandSerialization() {
+        var specialGson = buildUserGameCommandGson();
+
+        UserGameCommand con = new ConnectCommand(null, -1);
+        UserGameCommand move = new MakeMoveCommand(null, -2, null);
+        UserGameCommand res = new ResignCommand(null, -3);
+        UserGameCommand leave = new LeaveCommand(null, -4);
+
+        for (UserGameCommand command : new UserGameCommand[]{con, move, res, leave}) {
+            System.out.println(command);
+
+            String serialized = specialGson.toJson(command);
+            System.out.println(serialized);
+
+            UserGameCommand deserialized = specialGson.fromJson(serialized, UserGameCommand.class);
+            System.out.println(deserialized);
+
+            Assertions.assertEquals(command, deserialized);
             System.out.println();
         }
     }

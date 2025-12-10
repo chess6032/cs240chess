@@ -3,6 +3,7 @@ package websocket.commands;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -40,7 +41,7 @@ public abstract class UserGameCommand {
         return gameID;
     }
 
-    public static class UserGameCommandTypeAdapter implements JsonDeserializer<UserGameCommand> {
+    public static class UserGameCommandTypeAdapter implements JsonDeserializer<UserGameCommand>, JsonSerializer<UserGameCommand> {
         @Override
         public UserGameCommand deserialize(JsonElement el, Type type, JsonDeserializationContext ctx) {
             if (!el.isJsonObject()) {
@@ -55,6 +56,26 @@ public abstract class UserGameCommand {
                 case "RESIGN" -> ctx.deserialize(el, ResignCommand.class);
                 default -> null;
             };
+        }
+
+        @Override
+        public JsonElement serialize(UserGameCommand userGameCommand, Type type, JsonSerializationContext ctx) {
+            JsonObject result = new JsonObject();
+
+            // type discriminator
+            result.addProperty("commandType", userGameCommand.getCommandType().name());
+
+            // serialize actual object, with all its fields
+            JsonElement serialized = ctx.serialize(userGameCommand, userGameCommand.getClass());
+
+            // merge serialized fields into result
+            if (serialized.isJsonObject()) {
+                for (Map.Entry<String, JsonElement> entry : serialized.getAsJsonObject().entrySet()) {
+                    result.add(entry.getKey(), entry.getValue());
+                }
+            }
+
+            return result;
         }
     }
 
