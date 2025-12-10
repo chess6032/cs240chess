@@ -56,10 +56,11 @@ public class GameplayUiTests {
     @DisplayName("printing NotificationMessage")
     @Test
     public void testPrintNotif() {
+        int i = 1;
         for (NotificationType notifType : NotificationType.values()) {
             UIDrawer.print(notifType);
             GameplayUI.evaluateWsNotifPrint(new NotificationMessage(notifType,
-                    new NotificationInfo("username", ChessGame.TeamColor.WHITE, new ChessMove(new ChessPosition(1, 1),
+                    new NotificationInfo("Bobby" + i++, ChessGame.TeamColor.WHITE, new ChessMove(new ChessPosition(1, 1),
                             new ChessPosition(1, 3), ChessPiece.PieceType.QUEEN))))
                 .run();
             UIDrawer.println();

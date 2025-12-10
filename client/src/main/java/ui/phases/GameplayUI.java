@@ -239,15 +239,17 @@ public class GameplayUI extends UiPhase {
         TeamColor team = notif.getInfo().team();
         ChessMove move = notif.getInfo().move();
 
+        String teamStr = " (" + team + ")";
+
         String msg = switch (notif.getType()) {
             case PLAYER_JOINED -> username + " joined game as " + team;
             case OBSERVER_JOINED -> username + " is watching you...";
-            case PLAYER_MADE_MOVE -> username + " (" + team + ") made move: " + chessMoveToString(move);
+            case PLAYER_MADE_MOVE -> username + teamStr + " made move: " + chessMoveToString(move);
             case CLIENT_LEFT -> username + " is no longer with us :(";
-            case PLAYER_RESIGNED -> username + " gave up!";
-            case PLAYER_IN_CHECK -> username + " is in check";
-            case PLAYER_IN_CHECKMATE -> username + " is in checkmate";
-            case STALE_MATE -> username + " is in stalemate";
+            case PLAYER_RESIGNED -> username + teamStr + " gave up!";
+            case PLAYER_IN_CHECK -> username + teamStr + " is in check";
+            case PLAYER_IN_CHECKMATE -> username + teamStr + " is in checkmate";
+            case STALE_MATE -> username + teamStr + " is in stalemate";
         };
 
         return () -> {
