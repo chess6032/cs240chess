@@ -37,6 +37,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     private final GameDAO gameDAO;
     private final WsConnectionManager connMan = new WsConnectionManager();
 
+    private static long numMessagesReceived = 0;
+
     private final Gson userGameCommandGson = buildUserGameCommandGson();
     private final Gson serverMessageGson = buildServerMessageGson();
 
@@ -54,36 +56,51 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         // deserialize UserGameCommand
-        System.out.println("MESSAGE RECEIVED: " + ctx.message());
+        var id = ++numMessagesReceived;
+        System.out.println("-------------- (" + id + ") MESSAGE RECEIVED --------------\n" + ctx.message());
 
         int gameID = -1;
         Session session = ctx.session;
 
         try {
+
             UserGameCommand command = userGameCommandGson.fromJson(ctx.message(), UserGameCommand.class);
-            System.out.println("   command from message: " + command);
+            System.out.println("    - Command from message: " + command);
             gameID = command.getGameID();
 
             String username = getUsername(command.getAuthToken());
+            System.out.println("    - Username associated with auth tkn: " + username);
             if (username == null) {
                 throw new UnauthorizedException("No username associated with " + command.getAuthToken());
             }
 
-            saveSession(gameID, username, session);
+            if (saveSession(gameID, username, session)) {
+                System.out.println("    - Saving session for the first time");
+            }
 
+            if (gameDAO.getGame(gameID) == null) {
+                System.out.println("    - Given gameID does not exist in db: " + gameID);
+                throw new AnticipatedBadBehaviorException("game doesn't exist");
+            }
+
+            System.out.println("Processing message " + id + "...");
             switch (command.getCommandType()) {
                 case CONNECT -> connectUser(gameID, session, username, (ConnectCommand) command);
                 case MAKE_MOVE -> makeMove(gameID, session, username, (MakeMoveCommand) command );
                 case LEAVE -> leaveGame(gameID, session, username, (LeaveCommand) command);
                 case RESIGN -> resign(gameID, session, username, (ResignCommand) command);
             }
+            System.out.println("=================== " + id + " processed with no errors ===================");
         } catch (UnauthorizedException e) {
             sendMessage(session, new ErrorServerMessage("unauthorized"));
+            System.out.println("=================== " + id + " was unauthorized ===================");
         } catch (AnticipatedBadBehaviorException e) {
             sendMessage(session, new ErrorServerMessage(e.getMessage()));
+            System.out.println("=================== " + id + " was naughty ===================");
         } catch (Exception e) {
             e.printStackTrace();
             sendMessage(session, new ErrorServerMessage(e.getMessage()));
+            System.out.println("=================== " + id + " made something go terribly wrong ===================");
         }
     }
 
@@ -93,12 +110,14 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed.");
     }
 
-    private void saveSession(int gameID, String username, Session session) {
+    private boolean saveSession(int gameID, String username, Session session) {
         try {
             connMan.saveSession(gameID, new UsernameAndSession(username, session));
         } catch (SessionSaveFailException e) {
-            System.out.println("Failed to save session: " + e.getMessage());
+//            System.out.println("Failed to save session: " + e.getMessage());
+            return false;
         }
+        return true;
     }
 
     private void sendMessage(Session session, ServerMessage message) throws IOException {
@@ -205,6 +224,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void leaveGame(int gameID, Session sender, String username, LeaveCommand command) throws SqlException, IOException {
         assert connMan.sessionIsInThisGame(new UsernameAndSession(username, sender), gameID);
 
+        var team = getTeamColorOfUsername(username, gameDAO.getGame(gameID));
+
         // update db: remove player from game
         gameDAO.removePlayerFromGame(gameID, username);
 
@@ -212,9 +233,8 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         connMan.removeSession(gameID, new UsernameAndSession(username, sender));
 
         // send messages
-
         sendMessageToManyWithExclusion(connMan.getSessionsInGameID(gameID), sender,
-                new NotificationMessage(NotificationType.PLAYER_LEFT, new NotificationInfo(username, command.getTeam(), null)));
+                new NotificationMessage(NotificationType.PLAYER_LEFT, new NotificationInfo(username, team, null)));
     }
 
     private void resign(int gameID, Session sender, String username, ResignCommand command) throws SqlException, IOException,
