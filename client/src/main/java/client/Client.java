@@ -4,6 +4,7 @@ import static client.Client.State.*;
 import static ui.uidrawing.UIDrawer.*;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import model.AuthData;
 import model.GameData;
 import ui.*;
@@ -12,6 +13,7 @@ import ui.phases.PostLoginUI;
 import ui.phases.PreLoginUI;
 import ui.phases.UiPhase;
 import ui.uidrawing.BoardDrawer;
+import websocket.commands.*;
 import websocket.messages.*;
 
 public class Client {
@@ -75,7 +77,11 @@ public class Client {
                 }
             }
 
-            // do websocket here maybe?
+            // TODO: do websocket here maybe?
+            if (state == GAMEPLAY) {
+                assert phase.getClass() == GameplayUI.class;
+                sendWsMessageIfNecessary();
+            }
 
             // update client state/phase
             if (newState == PRELOGIN) {
@@ -88,7 +94,9 @@ public class Client {
                 }
             }
             else if (newState == GAMEPLAY) {
-                phase = new GameplayUI(server, gameData, teamColor);
+//                phase = new GameplayUI(server, gameData, teamColor);
+                sendConnectCommand();
+                // TODO: do all that latch stuff from echo to wait for a load game message
             }
             state = newState;
         }
@@ -121,5 +129,31 @@ public class Client {
         ((GameplayUI) phase).drawBoard();
     }
 
-//    public void
+    private void sendWsMessageIfNecessary() {
+        var commandType = ((GameplayUI) phase).getCommandType();
+        if (commandType != null) {
+            assert commandType != UserGameCommand.CommandType.CONNECT;
+            switch (commandType) {
+                case UserGameCommand.CommandType.MAKE_MOVE -> sendMakeMoveCommand(((GameplayUI) phase).getMove());
+                case UserGameCommand.CommandType.LEAVE -> sendLeaveCommand();
+                case UserGameCommand.CommandType.RESIGN -> sendResignCommand();
+            }
+        }
+    }
+
+    private void sendConnectCommand() {
+
+    }
+
+    private void sendMakeMoveCommand(ChessMove move) {
+
+    }
+
+    private void sendLeaveCommand() {
+
+    }
+
+    private void sendResignCommand() {
+
+    }
 }

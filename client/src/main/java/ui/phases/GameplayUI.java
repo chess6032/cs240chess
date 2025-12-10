@@ -18,6 +18,7 @@ import ui.InvalidArgsFromUser;
 import ui.ReplResult;
 import ui.uidrawing.BoardDrawer;
 import ui.uidrawing.TextColor;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorServerMessage;
 import websocket.messages.NotificationMessage;
 
@@ -25,7 +26,8 @@ public class GameplayUI extends UiPhase {
     private final GameData gameData;
     private final TeamColor team;
 
-    private ChessMove move = null;
+    private UserGameCommand.CommandType commandType = null;
+    private ChessMove chessMove = null;
 
     public GameplayUI(ServerFacade server, GameData gameData, TeamColor teamColor) {
         super(List.of(
@@ -45,7 +47,17 @@ public class GameplayUI extends UiPhase {
     }
 
     public ChessMove getMove() {
-        return move;
+        return chessMove;
+    }
+
+    public UserGameCommand.CommandType getCommandType() {
+        return commandType;
+    }
+
+    public void setGameplayUiResult(UserGameCommand.CommandType type, ChessMove move) {
+        commandType = type;
+        chessMove = move;
+        assert type != UserGameCommand.CommandType.MAKE_MOVE || (move != null);
     }
 
     @Override
@@ -157,6 +169,7 @@ public class GameplayUI extends UiPhase {
             // FIXME: this will print "Invalid Input", whereas all other invalid commands print "Can't find command:"
             //  ...but this is just the quickest, easiest way I could think to implement this.
         }
+        setGameplayUiResult(UserGameCommand.CommandType.RESIGN, null);
         setResult(new ReplResult(Client.State.POSTLOGIN));
         return () -> {
             println("Coward!");
@@ -166,7 +179,7 @@ public class GameplayUI extends UiPhase {
     private Runnable updateMove(String[] args) throws InvalidArgsFromUser {
         if (amObserving()) {
             throw new InvalidArgsFromUser();
-            // FIXME: same thing as in resign
+            // FIXME: same problem as what's in resign
         }
 
         validateInput(args, new int[]{2, 3});
@@ -191,14 +204,14 @@ public class GameplayUI extends UiPhase {
             throw new InvalidArgsFromUser("GameplayUI.updateMove: bad input for promotion");
         }
 
-        move = new ChessMove(startPos, endPos, promotion);
+        setGameplayUiResult(UserGameCommand.CommandType.MAKE_MOVE, new ChessMove(startPos, endPos, promotion));
 
         return () -> {
             print("Making move: ");
             useTextColor(TextColor.BLUE);
-            print(chessPosToString(move.getStartPosition()), " -> ", chessPosToString(move.getEndPosition()));
-            if (move.getPromotionPiece() != null) {
-                print( " (promoting to" + move.getPromotionPiece() + ")");
+            print(chessPosToString(chessMove.getStartPosition()), " -> ", chessPosToString(chessMove.getEndPosition()));
+            if (chessMove.getPromotionPiece() != null) {
+                print( " (promoting to" + chessMove.getPromotionPiece() + ")");
             }
             revertTextColor();
             println();
@@ -206,6 +219,7 @@ public class GameplayUI extends UiPhase {
     }
 
     private void leave() {
+        setGameplayUiResult(UserGameCommand.CommandType.LEAVE, null);
         setResult(new ReplResult(Client.State.POSTLOGIN));
         printlnItalics("Leaving game...");
     }

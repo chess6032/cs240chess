@@ -83,4 +83,6 @@ public class WebsocketFacade extends Endpoint {
 //        UIDrawer.printlnItalics("Press Enter to exit...");
 //        System.in.read();
 //    }
+
+    // USER GAME COMMAND SENDERS
 }
