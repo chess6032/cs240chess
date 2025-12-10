@@ -16,6 +16,8 @@ import ui.uidrawing.BoardDrawer;
 import websocket.commands.*;
 import websocket.messages.*;
 
+import java.io.IOException;
+
 public class Client {
     private final ServerFacade server;
     private final WebsocketFacade ws;
@@ -96,7 +98,7 @@ public class Client {
             else if (newState == GAMEPLAY) {
 //                phase = new GameplayUI(server, gameData, teamColor);
                 sendConnectCommand();
-                // TODO: do all that latch stuff from echo to wait for a load game message
+                println("moving on from connect command");
             }
             state = newState;
         }
@@ -119,13 +121,14 @@ public class Client {
     }
 
     public void handleLoadGame(LoadGameMessage msg) {
-        assert phase.getClass() == GameplayUI.class;
+//        assert phase.getClass() == GameplayUI.class;
 
         var meta = msg.getGameMeta();
         var game = msg.getChessGame();
         var gameData = new GameData(meta.gameID(), meta.whiteUsername(), meta.blackUsername(), meta.gameName(), game);
 
         phase = new GameplayUI(server, gameData, teamColor);
+        println();
         ((GameplayUI) phase).drawBoard();
     }
 
@@ -141,19 +144,28 @@ public class Client {
         }
     }
 
-    private void sendConnectCommand() {
+    private boolean sendConnectCommand() {
+        println("sending CONNECT command...");
+        try {
+            ws.sendAndWait(new ConnectCommand(authToken, gameData.gameID()));
+//            println("connect command sent");
+        } catch (Exception e) {
+            GameplayUI.printWsError(new ErrorServerMessage(e.getMessage()));
+            return false;
+        }
+        return true;
 
     }
 
     private void sendMakeMoveCommand(ChessMove move) {
-
+        println("sending MAKE_MOVE command (" + move + ")...");
     }
 
     private void sendLeaveCommand() {
-
+        println("sending LEAVE command...");
     }
 
     private void sendResignCommand() {
-
+        println("sending RESIGN command...");
     }
 }

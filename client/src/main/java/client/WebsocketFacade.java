@@ -9,9 +9,20 @@ import java.net.URISyntaxException;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 
+// ------- FOR LATCHES -------
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+// ---------------------------
+
 public class WebsocketFacade extends Endpoint {
     public Session session;
     private final Client client;
+
+    // ------- FOR LATCHES -------
+    private CountDownLatch responseLatch;
+    private volatile boolean isOpen = false;
+    private final static long TIMEOUT_SECONDS = 5;
+    // ---------------------------
 
     public WebsocketFacade(Client client) throws Exception {
         this.client = client;
@@ -31,6 +42,8 @@ public class WebsocketFacade extends Endpoint {
                 // deserialize message
                 ServerMessage msg = ServerMessage.buildServerMessageGson().fromJson(json, ServerMessage.class);
 
+                releaseWaitingThreads(); // FIXME: is this fine?
+
                 // process message
                 switch(msg.getServerMessageType()) {
                     case ERROR -> handleErrorMessage((ErrorServerMessage) msg);
@@ -38,6 +51,7 @@ public class WebsocketFacade extends Endpoint {
                     case NOTIFICATION -> handleNotificationMessage((NotificationMessage) msg);
                     case null, default -> handleErrorMessage(new ErrorServerMessage("uhmm... I don't know how to handle this message..."));
                 }
+
             }
         });
     }
@@ -46,15 +60,59 @@ public class WebsocketFacade extends Endpoint {
     // this method must be overridden, but we don't have to actually do anything in it. lol.
     public void onOpen(Session session, EndpointConfig endpointConfig) {
 //        UIDrawer.println("ws opened");
+        isOpen = true;
     }
 
     @Override
     public void onClose(Session session, jakarta.websocket.CloseReason closeReason) {
 //        UIDrawer.println("ws closed: " + closeReason);
+        isOpen = false;
+        releaseWaitingThreads();
     }
 
-    public void send(UserGameCommand command) throws IOException {
+    @Override
+    public void onError(Session session, Throwable thr) {
+        isOpen = false;
+        releaseWaitingThreads();
+    }
+
+    public void send(UserGameCommand command) throws IOException, WsConnectionAlreadyClosedException {
+        if (!isOpen || !session.isOpen()) {
+            throw new WsConnectionAlreadyClosedException();
+        }
         session.getBasicRemote().sendText(UserGameCommand.buildUserGameCommandGson().toJson(command));
+    }
+
+    private void releaseWaitingThreads() {
+        // unlock responseLatch.await
+        if (responseLatch != null) {
+            responseLatch.countDown(); // counter: 1 -> 0
+        }
+    }
+
+    public void sendAndWait(UserGameCommand command) throws IOException, WsTimeoutException, InterruptedException,
+            WsConnectionClosedWhileWaitingException, WsConnectionAlreadyClosedException {
+        responseLatch = new CountDownLatch(1);
+        send(command);
+
+        try {
+            // wait for WS response (with timeout)
+            boolean receivedResponse = responseLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+            if (!receivedResponse) {
+                // response not received before timeout
+                throw new WsTimeoutException();
+            }
+
+            if (!isOpen) {
+                // connection was closed during wait.
+               throw new WsConnectionClosedWhileWaitingException();
+            }
+        } catch (InterruptedException e) {
+            // interrupted while waiting for response
+            Thread.currentThread().interrupt();
+            throw e;
+        }
     }
 
     // SERVER MESSAGE HANDLERS
@@ -70,19 +128,4 @@ public class WebsocketFacade extends Endpoint {
     private void handleNotificationMessage(NotificationMessage msg) {
         client.handleNotification(msg);
     }
-
-    // main method for quick testing
-
-//    public static void main(String[] args) throws Exception {
-//        var ws = new WebsocketFacade("ws://localhost:8080/ws");
-//        String authTkn = "89c7c64f-e304-48f8-9a0f-b1876718800c";
-//        int gameID = 1567;
-//        ws.send(new ConnectCommand(authTkn, gameID));
-//        ws.send(new ResignCommand(authTkn, gameID));
-//
-//        UIDrawer.printlnItalics("Press Enter to exit...");
-//        System.in.read();
-//    }
-
-    // USER GAME COMMAND SENDERS
 }

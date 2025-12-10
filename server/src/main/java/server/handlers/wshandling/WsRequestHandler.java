@@ -67,6 +67,9 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         int gameID = -1;
         Session session = ctx.session;
+//        if (!session.isOpen()) {
+//            return;
+//        }
 
         try {
 

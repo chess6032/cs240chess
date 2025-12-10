@@ -2,6 +2,7 @@ package server;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,7 +14,8 @@ public class WsConnectionManager {
     private final ConcurrentHashMap<Integer, Set<UsernameAndSession>> connections = new ConcurrentHashMap<>();
     // FIXME: can one session be connected to multiple game IDs?
 
-    public void saveSession(int gameID, UsernameAndSession userAndSesh) throws SessionSaveFailException {
+    public synchronized void saveSession(int gameID, UsernameAndSession userAndSesh) throws SessionSaveFailException {
+
         if (!connections.containsKey(gameID)) {
             connections.put(gameID, new HashSet<>());
         }
@@ -27,7 +29,7 @@ public class WsConnectionManager {
         }
     }
 
-    public boolean removeSession(int gameID, UsernameAndSession userAndSesh) {
+    public synchronized boolean removeSession(int gameID, UsernameAndSession userAndSesh) {
         if (!connections.containsKey(gameID)) {
             // game doesn't exist, or no sessions are playing/observing that game
             return false;
@@ -41,15 +43,35 @@ public class WsConnectionManager {
         return true;
     }
 
-    public boolean sessionIsInThisGame(UsernameAndSession userAndSesh, int gameID) {
+    public synchronized boolean sessionIsInThisGame(UsernameAndSession userAndSesh, int gameID) {
         var connectionsToGame = connections.get(gameID);
         if (connectionsToGame == null) {
+            return false;
+        }
+        if (!checkSession(gameID, userAndSesh)) {
             return false;
         }
         return connectionsToGame.contains(userAndSesh);
     }
 
-    public Collection<UsernameAndSession> getSessionsInGameID(int gameID) {
-        return connections.get(gameID);
+    public synchronized Collection<UsernameAndSession> getSessionsInGameID(int gameID) {
+        var uASes = connections.get(gameID);
+        if (uASes == null) {
+            return new HashSet<>();
+        }
+
+//        Iterator<UsernameAndSession> itr = uASes.iterator();
+        for (var uAS : uASes) {
+            checkSession(gameID, uAS); // FIXME: error occurs here I think
+        }
+        return uASes;
+    }
+
+    private synchronized boolean checkSession(int gameID, UsernameAndSession userAndSesh) {
+        if (!userAndSesh.session().isOpen()) {
+            removeSession(gameID, userAndSesh);
+            return false;
+        }
+        return connections.get(gameID).contains(userAndSesh);
     }
 }
