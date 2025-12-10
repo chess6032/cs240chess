@@ -15,6 +15,7 @@ import ui.uidrawing.BoardDrawer;
 
 public class Client {
     private final ServerFacade server;
+    private final WebsocketFacade ws;
 
     private static final String INTRO_MESSAGE = "♕ 240 Chess Client";
 
@@ -33,8 +34,10 @@ public class Client {
         EXIT
     }
 
-    public Client(String serverURL, boolean useUnicode) {
-        server = new ServerFacade(serverURL);
+    public Client(String serverURL, boolean useUnicode) throws Exception {
+        server = new ServerFacade("http://" + serverURL);
+        ws = new WebsocketFacade("ws://" + serverURL + "/ws");
+//        ws = null;
 
         if (useUnicode) {
             BoardDrawer.useUniPieces();

@@ -24,7 +24,7 @@ import websocket.commands.*;
 import websocket.exceptions.UnauthorizedException;
 
 import websocket.messages.ErrorServerMessage;
-import websocket.messages.LoadMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.NotificationMessage.NotificationType;
 import websocket.messages.ServerMessage;
@@ -50,8 +50,11 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         gameDAO = server.getGameDAO();
     }
 
+
+
     @Override
-    public void handleConnect(@NotNull WsConnectContext wsConnectContext) throws Exception {
+    public void handleConnect(@NotNull WsConnectContext ctx) throws Exception {
+        ctx.enableAutomaticPings(); // ping client every 30 seconds so that connection doesn't automatically close
         System.out.println("Websocket connected.");
     }
 
@@ -91,6 +94,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case MAKE_MOVE -> makeMove(gameID, session, username, (MakeMoveCommand) command );
                 case LEAVE -> leaveGame(gameID, session, username, (LeaveCommand) command);
                 case RESIGN -> resign(gameID, session, username, (ResignCommand) command);
+                case null, default -> throw new Exception("uhh... no action associated with " + command.getCommandType());
             }
             System.out.println("-------------- " + id + " processed with no errors --------------");
         } catch (UnauthorizedException e) {
@@ -165,7 +169,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // send messages
 
-        sendMessage(sender, new LoadMessage(gameData));
+        sendMessage(sender, new LoadGameMessage(gameData));
 
         var sessionsInThisGame = connMan.getSessionsInGameID(gameID);
         var notificationInfo = new NotificationInfo(username, team, null);
@@ -213,7 +217,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // send LOAD_GAME to players & observers
         var newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
-        sendMessageToMany(connMan.getSessionsInGameID(gameID), new LoadMessage(newGameData));
+        sendMessageToMany(connMan.getSessionsInGameID(gameID), new LoadGameMessage(newGameData));
 
         // send NOTIFICATION to observers
         sendMessageToManyWithExclusion(connMan.getSessionsInGameID(gameID), sender,

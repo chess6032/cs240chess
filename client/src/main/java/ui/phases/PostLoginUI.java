@@ -82,9 +82,10 @@ public class PostLoginUI extends UiPhase {
         setResult(new ReplResult(Client.State.PRELOGIN));
 
         return () -> {
-            print(EscapeSequences.SET_TEXT_ITALIC);
-            println("Logging out...");
-            print(EscapeSequences.RESET_TEXT_ITALIC);
+//            print(EscapeSequences.SET_TEXT_ITALIC);
+//            println("Logging out...");
+//            print(EscapeSequences.RESET_TEXT_ITALIC);
+            printlnItalics("Logging out...");
         };
     }
 

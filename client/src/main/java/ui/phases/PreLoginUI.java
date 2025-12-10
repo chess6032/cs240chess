@@ -95,8 +95,9 @@ public class PreLoginUI extends UiPhase{
 
     private void quit() {
         setResult(new ReplResult(Client.State.EXIT));
-        print(EscapeSequences.SET_TEXT_ITALIC);
-        println("Exiting chess...");
-        print(EscapeSequences.RESET_TEXT_ITALIC);
+//        print(EscapeSequences.SET_TEXT_ITALIC);
+//        println("Exiting chess...");
+//        print(EscapeSequences.RESET_TEXT_ITALIC);
+        printlnItalics("Quitting chess...");
     }
 }

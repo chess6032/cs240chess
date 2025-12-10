@@ -56,7 +56,7 @@ public class GameplayUI extends UiPhase {
             case "highlight" -> highlightLegalMoves(cargs.args());
             case "move" -> updateMove(cargs.args());
             case "resign" -> resign();
-            case "leave" -> { setResult(new ReplResult(Client.State.POSTLOGIN)); yield(null); }
+            case "leave" -> this::leave;
             default -> {
                 setResult(new ReplResult(Client.State.EXIT));
                 yield() -> println("Erm... what the sigma??");
@@ -172,6 +172,11 @@ public class GameplayUI extends UiPhase {
             UIDrawer.revertTextColor();
             println();
         };
+    }
+
+    private void leave() {
+        setResult(new ReplResult(Client.State.POSTLOGIN));
+        printlnItalics("Leaving game...");
     }
 
     private boolean amObserving() {

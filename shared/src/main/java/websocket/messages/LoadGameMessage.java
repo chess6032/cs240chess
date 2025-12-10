@@ -5,11 +5,11 @@ import model.GameData;
 
 import java.util.Objects;
 
-public class LoadMessage extends ServerMessage {
+public class LoadGameMessage extends ServerMessage {
     private final GameData gameMeta;
     private final chess.ChessGame game;
 
-    public LoadMessage(GameData gameData) {
+    public LoadGameMessage(GameData gameData) {
         super(ServerMessageType.LOAD_GAME);
         this.gameMeta = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), null);
         this.game = gameData.game();
@@ -31,7 +31,7 @@ public class LoadMessage extends ServerMessage {
         if (!super.equals(o)) {
             return false;
         }
-        LoadMessage that = (LoadMessage) o;
+        LoadGameMessage that = (LoadGameMessage) o;
         return Objects.equals(gameMeta, that.gameMeta) && Objects.equals(game, that.game);
     }
 

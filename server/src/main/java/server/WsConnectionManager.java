@@ -34,7 +34,11 @@ public class WsConnectionManager {
         }
 
         var sessions = connections.get(gameID);
-        return sessions.remove(userAndSesh);
+        if (!sessions.remove(userAndSesh)) {
+            return false;
+        }
+        userAndSesh.session().close();
+        return true;
     }
 
     public boolean sessionIsInThisGame(UsernameAndSession userAndSesh, int gameID) {

@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import websocket.commands.*;
 import websocket.messages.ErrorServerMessage;
-import websocket.messages.LoadMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -43,7 +43,7 @@ public class GsonTypeAdapterTests {
 
         System.out.println();
 
-        ServerMessage load = new LoadMessage(new GameData(69, null, null, null, new chess.ChessGame()));
+        ServerMessage load = new LoadGameMessage(new GameData(69, null, null, null, new chess.ChessGame()));
         System.out.println(load);
         System.out.println(specialGson.toJson(load));
     }
@@ -54,7 +54,7 @@ public class GsonTypeAdapterTests {
         var specialGson = buildServerMessageGson();
 
         ServerMessage err = new ErrorServerMessage(null);
-        ServerMessage load = new LoadMessage(new GameData(-67, null, null, null, null));
+        ServerMessage load = new LoadGameMessage(new GameData(-67, null, null, null, null));
         ServerMessage notif = new NotificationMessage(null, null);
 
         for (ServerMessage msg : new ServerMessage[]{err, load, notif}) {

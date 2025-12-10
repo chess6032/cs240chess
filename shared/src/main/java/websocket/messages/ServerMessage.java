@@ -58,7 +58,7 @@ public abstract class ServerMessage {
 
             String msgType = el.getAsJsonObject().get("serverMessageType").getAsString();
             return switch (msgType) {
-                case "LOAD_GAME" -> ctx.deserialize(el, LoadMessage.class);
+                case "LOAD_GAME" -> ctx.deserialize(el, LoadGameMessage.class);
                 case "ERROR" -> ctx.deserialize(el, ErrorServerMessage.class);
                 case "NOTIFICATION" -> ctx.deserialize(el, NotificationMessage.class);
                 default -> null;

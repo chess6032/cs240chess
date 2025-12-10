@@ -46,6 +46,12 @@ public abstract class UIDrawer {
         println();
     }
 
+    public static void printlnItalics(Object obj) {
+        print(EscapeSequences.SET_TEXT_ITALIC);
+        println(obj);
+        print(EscapeSequences.RESET_TEXT_ITALIC);
+    }
+
     public static void eraseScreen() {
         print(ERASE_SCREEN);
     }
