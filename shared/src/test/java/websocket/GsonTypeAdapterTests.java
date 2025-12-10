@@ -7,6 +7,7 @@ import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorServerMessage;
 import websocket.messages.LoadMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import static websocket.commands.UserGameCommand.buildUserGameCommandGson;
@@ -48,5 +49,24 @@ public class GsonTypeAdapterTests {
         ServerMessage load = new LoadMessage(new GameData(69, null, null, null, new chess.ChessGame()));
         System.out.println(load);
         System.out.println(specialGson.toJson(load));
+    }
+
+    @DisplayName("Deserialize ServerMessage")
+    @Test
+    public void testServerMessageDeserialization() {
+        var specialGson = buildServerMessageGson();
+
+        ServerMessage err = new ErrorServerMessage(null);
+        ServerMessage load = new LoadMessage(new GameData(-67, null, null, null, null));
+        ServerMessage notif = new NotificationMessage(null, null);
+
+        for (ServerMessage msg : new ServerMessage[]{err, load, notif}) {
+            System.out.println(msg);
+            System.out.println(new Gson().toJson(msg));
+            ServerMessage deserialized = specialGson.fromJson(new Gson().toJson(msg), ServerMessage.class);
+            System.out.println(deserialized);
+            Assertions.assertEquals(msg, deserialized);
+            System.out.println();
+        }
     }
 }

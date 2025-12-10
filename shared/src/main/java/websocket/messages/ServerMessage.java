@@ -29,7 +29,7 @@ public abstract class ServerMessage {
         return this.serverMessageType;
     }
 
-    public static class ServerMessageAdapter implements JsonSerializer<ServerMessage> {
+    public static class ServerMessageTypeAdapter implements JsonSerializer<ServerMessage>, JsonDeserializer<ServerMessage> {
         @Override
         public JsonElement serialize(ServerMessage serverMessage, Type type, JsonSerializationContext ctx) {
             JsonObject result = new JsonObject();
@@ -49,11 +49,26 @@ public abstract class ServerMessage {
 
             return result;
         }
+
+        @Override
+        public ServerMessage deserialize(JsonElement el, Type type, JsonDeserializationContext ctx) {
+            if (!el.isJsonObject()) {
+                return null;
+            }
+
+            String msgType = el.getAsJsonObject().get("serverMessageType").getAsString();
+            return switch (msgType) {
+                case "LOAD_GAME" -> ctx.deserialize(el, LoadMessage.class);
+                case "ERROR" -> ctx.deserialize(el, ErrorServerMessage.class);
+                case "NOTIFICATION" -> ctx.deserialize(el, NotificationMessage.class);
+                default -> null;
+            };
+        }
     }
 
     public static Gson buildServerMessageGson() {
         return new GsonBuilder()
-                .registerTypeAdapter(ServerMessage.class, new ServerMessage.ServerMessageAdapter())
+                .registerTypeAdapter(ServerMessage.class, new ServerMessageTypeAdapter())
                 .create();
     }
 

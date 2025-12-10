@@ -192,17 +192,6 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         if (move == null) {
             throw new AnticipatedBadBehaviorException("this was not anticipated...");
         }
-//
-//        // let's make sure player is trying to move their own piece
-//        var piece = game.getBoard().getPiece(move.getStartPosition());
-//        if (piece == null || piece.getTeamColor() != team) {
-//            throw new AnticipatedBadBehaviorException("you can't move a piece that's not yours, dawg");
-//        }
-//
-//        game.evaluateIfGameIsOver();
-//        if (!game.isGameActive()) {
-//            throw new AnticipatedBadBehaviorException("this game is already over");
-//        }
 
         try {
             game.makeMove(move);
@@ -214,7 +203,6 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case MoveError.ILLEGAL_MOVE -> "that's not a legal move, I'm afraid.";
             };
             throw new AnticipatedBadBehaviorException(msg);
-//            throw new AnticipatedBadBehaviorException("that's an invalid move, I'm afraid");
         }
 
 

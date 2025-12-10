@@ -40,7 +40,7 @@ public abstract class UserGameCommand {
         return gameID;
     }
 
-    public static class UserGameCommandAdapter implements JsonDeserializer<UserGameCommand> {
+    public static class UserGameCommandTypeAdapter implements JsonDeserializer<UserGameCommand> {
         @Override
         public UserGameCommand deserialize(JsonElement el, Type type, JsonDeserializationContext ctx) {
             if (!el.isJsonObject()) {
@@ -60,7 +60,7 @@ public abstract class UserGameCommand {
 
     public static Gson buildUserGameCommandGson() {
         return new GsonBuilder()
-                .registerTypeAdapter(UserGameCommand.class, new UserGameCommand.UserGameCommandAdapter())
+                .registerTypeAdapter(UserGameCommand.class, new UserGameCommandTypeAdapter())
                 .create();
     }
 

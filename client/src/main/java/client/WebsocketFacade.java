@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import ui.uidrawing.UIDrawer;
+import websocket.messages.ServerMessage;
 
 public class WebsocketFacade extends Endpoint {
     public Session session;
@@ -24,7 +25,9 @@ public class WebsocketFacade extends Endpoint {
         // create handlers
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-
+                // deserialize message
+                var gson = ServerMessage.buildServerMessageGson();
+                
             }
         });
     }
@@ -32,17 +35,17 @@ public class WebsocketFacade extends Endpoint {
     @Override
     // this method must be overridden, but we don't have to actually do anything in it. lol.
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-        UIDrawer.println("ws opened");
+//        UIDrawer.println("ws opened");
     }
 
     @Override
     public void onClose(Session session, jakarta.websocket.CloseReason closeReason) {
-        UIDrawer.println("ws closed: " + closeReason);
+//        UIDrawer.println("ws closed: " + closeReason);
     }
 
     @Override
     public void onError(Session session, Throwable thr) {
-        UIDrawer.println("ws error: " + thr.getMessage());
+//        UIDrawer.println("ws error: " + thr.getMessage());
     }
 
     public void send(String message) throws IOException {
