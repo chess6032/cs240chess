@@ -13,7 +13,8 @@ public class NotificationMessage extends ServerMessage {
         PLAYER_LEFT,
         PLAYER_RESIGNED,
         PLAYER_IN_CHECK,
-        PLAYER_IN_CHECKMATE
+        PLAYER_IN_CHECKMATE,
+        STALE_MATE
     }
 
     private final NotificationInfo info;

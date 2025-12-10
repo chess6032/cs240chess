@@ -1,6 +1,7 @@
 package server.handlers.wshandling;
 
 import chess.ChessGame;
+import chess.ChessGame.TeamColor;
 import chess.InvalidMoveException;
 import chess.InvalidMoveException.MoveError;
 
@@ -151,8 +152,7 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void connectUser(int gameID, Session sender, String username, ConnectCommand command) throws GameHasNoConnectionsException,
-            IOException, SqlException
-    {
+            IOException, SqlException, AnticipatedBadBehaviorException {
         assert connMan.sessionIsInThisGame(new UsernameAndSession(username, sender), gameID);
 
         // query db
@@ -162,18 +162,23 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         // update db: add player to game
         if (team != null) { // null team means this is an observer
             System.out.println(" ~~~~~~~~~ BY MY POWERS OF **DEDUCTION** I HAVE CONLCUDED THAT THIS **CLIENT** IS **PLAYING**");
-            gameDAO.addPlayerToGame(gameID, username, ChessGame.TeamColor.toString(team));
+            if (gameDAO.addPlayerToGame(gameID, username, ChessGame.TeamColor.toString(team))) {
+                throw new AnticipatedBadBehaviorException(team + " is already taken.");
+            }
         } else {
             System.out.println(" ~~~~~~~~~ BY MY POWERS OF **DEDUCTION** I HAVE CONLCUDED THAT THIS **CLIENT** IS **OBSERVINGGGGGGG**");
         }
 
         // send messages
 
+        // LOAD to root
         sendMessage(sender, new LoadGameMessage(gameData));
 
+        // NOTIF to other clients
         var sessionsInThisGame = connMan.getSessionsInGameID(gameID);
         var notificationInfo = new NotificationInfo(username, team, null);
-        sendMessageToManyWithExclusion(sessionsInThisGame, sender, new NotificationMessage(NotificationType.PLAYER_JOINED, notificationInfo));
+        NotificationType notifType = (team == null ? NotificationType.OBSERVER_JOINED : NotificationType.PLAYER_JOINED);
+        sendMessageToManyWithExclusion(sessionsInThisGame, sender, new NotificationMessage(notifType, notificationInfo));
     }
 
     private void makeMove(int gameID, Session sender, String username, MakeMoveCommand command) throws AnticipatedBadBehaviorException,
@@ -223,6 +228,25 @@ public class WsRequestHandler implements WsConnectHandler, WsMessageHandler, WsC
         sendMessageToManyWithExclusion(connMan.getSessionsInGameID(gameID), sender,
                 new NotificationMessage(NotificationType.PLAYER_MADE_MOVE,
                         new NotificationInfo(username, team, move)));
+
+        // BREAK: Move resulted in check/stalemate
+        var oppTeam = TeamColor.opposite(team);
+        var oppUsername = (oppTeam == TeamColor.WHITE ? gameData.blackUsername() : gameData.whiteUsername());
+        NotificationType type  = null;
+        if (game.isInStalemate(oppTeam)) {
+            type = NotificationType.STALE_MATE;
+        }
+        else if (game.isInCheckmate(oppTeam)) {
+            type = NotificationType.PLAYER_IN_CHECKMATE;
+        }
+        else if (game.isInCheck(oppTeam)) {
+            type = NotificationType.PLAYER_IN_CHECK;
+        }
+        if (type != null) {
+            sendMessageToMany(connMan.getSessionsInGameID(gameID),
+                    new NotificationMessage(type,
+                            new NotificationInfo(oppUsername, oppTeam, null)));
+        }
     }
 
     private void leaveGame(int gameID, Session sender, String username, LeaveCommand command) throws SqlException, IOException {
