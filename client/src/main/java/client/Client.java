@@ -12,10 +12,12 @@ import ui.phases.PostLoginUI;
 import ui.phases.PreLoginUI;
 import ui.phases.UiPhase;
 import ui.uidrawing.BoardDrawer;
+import websocket.messages.*;
 
 public class Client {
     private final ServerFacade server;
     private final WebsocketFacade ws;
+    private final String wsURL;
 
     private static final String INTRO_MESSAGE = "♕ 240 Chess Client";
 
@@ -36,8 +38,8 @@ public class Client {
 
     public Client(String serverURL, boolean useUnicode) throws Exception {
         server = new ServerFacade("http://" + serverURL);
-        ws = new WebsocketFacade("ws://" + serverURL + "/ws");
-//        ws = null;
+        wsURL = "ws://" + serverURL + "/ws";
+        ws = new WebsocketFacade(this);
 
         if (useUnicode) {
             BoardDrawer.useUniPieces();
@@ -58,7 +60,7 @@ public class Client {
                 continue;
             }
 
-            // FIXME: if some state update before user inputs something...then what?
+            // FIXME: if some state update happens before user inputs something...then what?
 
             var newState = result.state();
 
@@ -84,10 +86,40 @@ public class Client {
                 if (!phase.getClass().equals(PostLoginUI.class)) {
                     phase = new PostLoginUI(server, new AuthData(authToken, username));
                 }
-            } else if (newState == GAMEPLAY) {
+            }
+            else if (newState == GAMEPLAY) {
                 phase = new GameplayUI(server, gameData, teamColor);
             }
             state = newState;
         }
     }
+
+    public String getWsURL() {
+        return wsURL;
+    }
+
+    // WEBSOCKET HANDLERS
+
+    public void handleError(ErrorServerMessage msg) {
+        assert phase.getClass() == GameplayUI.class;
+        GameplayUI.printWsError(msg);
+    }
+
+    public void handleNotification(NotificationMessage msg) {
+        assert phase.getClass() == GameplayUI.class;
+        GameplayUI.evaluateWsNotifPrint(msg).run();
+    }
+
+    public void handleLoadGame(LoadGameMessage msg) {
+        assert phase.getClass() == GameplayUI.class;
+
+        var meta = msg.getGameMeta();
+        var game = msg.getChessGame();
+        var gameData = new GameData(meta.gameID(), meta.whiteUsername(), meta.blackUsername(), meta.gameName(), game);
+
+        phase = new GameplayUI(server, gameData, teamColor);
+        ((GameplayUI) phase).drawBoard();
+    }
+
+//    public void
 }

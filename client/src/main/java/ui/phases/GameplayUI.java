@@ -79,7 +79,7 @@ public class GameplayUI extends UiPhase {
         return () -> BoardDrawer.highlightMoves(gameData.game().getBoard(), team, position);
     }
 
-    private void drawBoard() {
+    public void drawBoard() {
         BoardDrawer.printBoard(gameData.game().getBoard(), team);
     }
 
@@ -179,15 +179,27 @@ public class GameplayUI extends UiPhase {
         // parse user input
         var startPos = inputPosToChessPos(args[0]);
         var endPos = inputPosToChessPos(args[1]);
+        PieceType promotion = null;
+        if (args.length > 2) {
+            promotion = parsePromotionInput(args[2]);
+        }
         // verify parse was successful
         if (startPos == null || endPos == null) {
             throw new InvalidArgsFromUser("GameplayUI.updateMove: bad input for positions");
         }
+        if (args.length > 2 && promotion == null) {
+            throw new InvalidArgsFromUser("GameplayUI.updateMove: bad input for promotion");
+        }
+
+        move = new ChessMove(startPos, endPos, promotion);
 
         return () -> {
             print("Making move: ");
             useTextColor(TextColor.BLUE);
             print(chessPosToString(move.getStartPosition()), " -> ", chessPosToString(move.getEndPosition()));
+            if (move.getPromotionPiece() != null) {
+                print( " (promoting to" + move.getPromotionPiece() + ")");
+            }
             revertTextColor();
             println();
         };
