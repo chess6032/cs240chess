@@ -33,6 +33,8 @@ public class Client {
 
     private UiPhase phase;
 
+    boolean readPortionInterruptedByWsMessage = false;
+
     public enum State {
         PRELOGIN,
         POSTLOGIN,
@@ -64,6 +66,10 @@ public class Client {
             }
 
             ReplResultFR funcAndResult = phase.readEvalPrint();
+            if (readPortionInterruptedByWsMessage) {
+                readPortionInterruptedByWsMessage = false;
+                continue;
+            }
             Runnable printFunc = funcAndResult.printFunc();
             ReplResult result = funcAndResult.result();
             if (result == null) {
@@ -128,16 +134,19 @@ public class Client {
 
     public void handleError(ErrorServerMessage msg) {
         assert phase.getClass() == GameplayUI.class;
+        readPortionInterruptedByWsMessage = true;
         GameplayUI.printWsError(msg);
     }
 
     public void handleNotification(NotificationMessage msg) {
         assert phase.getClass() == GameplayUI.class;
+        readPortionInterruptedByWsMessage = true;
         GameplayUI.evaluateWsNotifPrint(msg).run();
     }
 
     public void handleLoadGame(LoadGameMessage msg) {
 //        assert phase.getClass() == GameplayUI.class;
+        readPortionInterruptedByWsMessage = true;
 
         var meta = msg.getGameMeta();
         var game = msg.getChessGame();
