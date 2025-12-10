@@ -48,7 +48,9 @@ public class WsConnectionManager {
         if (connectionsToGame == null) {
             return false;
         }
-        if (!checkSession(gameID, userAndSesh)) {
+        if (!userAndSesh.session().isOpen()) {
+            removeSession(gameID, userAndSesh);
+            userAndSesh.session().close();
             return false;
         }
         return connectionsToGame.contains(userAndSesh);
@@ -60,18 +62,19 @@ public class WsConnectionManager {
             return new HashSet<>();
         }
 
-//        Iterator<UsernameAndSession> itr = uASes.iterator();
-        for (var uAS : uASes) {
-            checkSession(gameID, uAS); // FIXME: error occurs here I think
+        Iterator<UsernameAndSession> itr = uASes.iterator();
+        while (itr.hasNext()) {
+            var uAS = itr.next();
+            if (!uAS.session().isOpen()) {
+                itr.remove(); // safe removal via iterator
+                uAS.session().close(); // just to be sure
+            }
         }
+
+//        for (var uAS : uASes) {
+//            checkSession(gameID, uAS); // FIXME: error occurs here I think
+//        }
         return uASes;
     }
 
-    private synchronized boolean checkSession(int gameID, UsernameAndSession userAndSesh) {
-        if (!userAndSesh.session().isOpen()) {
-            removeSession(gameID, userAndSesh);
-            return false;
-        }
-        return connections.get(gameID).contains(userAndSesh);
-    }
 }

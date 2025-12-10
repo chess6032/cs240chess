@@ -59,8 +59,15 @@ public class Client {
 
         while (state != EXIT) {
             // run single iteration of REPL
-            ReplResult result = phase.readEvalPrint();
+            if (phase == null) {
+                continue;
+            }
+
+            ReplResultFR funcAndResult = phase.readEvalPrint();
+            Runnable printFunc = funcAndResult.printFunc();
+            ReplResult result = funcAndResult.result();
             if (result == null) {
+                printThatThang(printFunc);
                 continue;
             }
 
@@ -95,12 +102,21 @@ public class Client {
                     phase = new PostLoginUI(server, new AuthData(authToken, username));
                 }
             }
-            else if (newState == GAMEPLAY) {
+            else if (newState == GAMEPLAY && state != GAMEPLAY) {
 //                phase = new GameplayUI(server, gameData, teamColor);
+                phase = null;
                 sendConnectCommand();
-                println("moving on from connect command");
+//                println("moving on from connect command");
             }
             state = newState;
+
+            printThatThang(printFunc);
+        }
+    }
+
+    private void printThatThang(Runnable printFunc) {
+        if (printFunc != null) {
+            printFunc.run();
         }
     }
 
@@ -133,6 +149,7 @@ public class Client {
     }
 
     private void sendWsMessageIfNecessary() {
+        assert phase.getClass() == GameplayUI.class;
         var commandType = ((GameplayUI) phase).getCommandType();
         if (commandType != null) {
             assert commandType != UserGameCommand.CommandType.CONNECT;
@@ -145,7 +162,7 @@ public class Client {
     }
 
     private boolean sendConnectCommand() {
-        println("sending CONNECT command...");
+//        println("sending CONNECT command...");
         try {
             ws.sendAndWait(new ConnectCommand(authToken, gameData.gameID()));
 //            println("connect command sent");

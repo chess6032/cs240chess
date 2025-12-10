@@ -2,10 +2,7 @@ package ui.phases;
 
 import client.ResponseException;
 import client.ServerFacade;
-import ui.CommandAndArgs;
-import ui.InvalidArgsFromUser;
-import ui.ReplResult;
-import ui.UnknownCommandFromUser;
+import ui.*;
 import ui.uidrawing.TextColor;
 import ui.uidrawing.UIDrawer;
 
@@ -67,7 +64,7 @@ public abstract class UiPhase {
         }
     }
 
-    public ReplResult readEvalPrint() {
+    public ReplResultFR readEvalPrint() {
         // single iteration of the REP loop
 
         UIDrawer.printPrompt();
@@ -95,12 +92,12 @@ public abstract class UiPhase {
         }
 
         // PRINT
-        if (printFunc != null) {
-            printFunc.run();
-        }
+//        if (printFunc != null) {
+//            printFunc.run();
+//        }
 
         // give client updated state (modified in eval)
-        return replResult;
+        return new ReplResultFR(printFunc, replResult);
     }
 
 
