@@ -84,10 +84,13 @@ public class Client {
 
             // BREAK: print here if result gave us nothing
             if (result == null) {
-//                printThatThang(printFunc);
                 UiPhase.replPrint(printFunc);
                 continue;
             }
+
+
+            // PRINT
+            UiPhase.replPrint(printFunc);
 
             // FIXME: if some state update happens before user inputs something...then what?
 
@@ -105,16 +108,6 @@ public class Client {
             }
 
             // TODO: do websocket here maybe?
-            if (state == GAMEPLAY) {
-                assert phase.getClass() == GameplayUI.class;
-                try {
-                    sendWsMessageIfNecessary();
-                } catch (Exception e) {
-                    UIDrawer.println(e.getMessage());
-                    state = EXIT;
-                    continue;
-                }
-            }
 
             // update client state/phase
             if (newState == PRELOGIN) {
@@ -126,16 +119,10 @@ public class Client {
                     phase = new PostLoginUI(server, new AuthData(authToken, username));
                 }
             }
-            else if (newState == GAMEPLAY && state != GAMEPLAY) {
-//                phase = new GameplayUI(server, gameData, teamColor);
-                phase = null;
-                sendConnectCommand();
-//                println("moving on from connect command");
+            else if (newState == GAMEPLAY) {
+                phase = new GameplayUI(server, gameData, teamColor);
             }
             state = newState;
-
-            // PRINT
-            UiPhase.replPrint(printFunc);
         }
     }
 

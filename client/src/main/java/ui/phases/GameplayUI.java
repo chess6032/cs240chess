@@ -68,7 +68,7 @@ public class GameplayUI extends UiPhase {
             case "highlight" -> highlightLegalMoves(cargs.args());
             case "move" -> updateMove(cargs.args());
             case "resign" -> resign();
-            case "leave" -> this::leave;
+            case "leave" -> leave();
             default -> {
                 setResult(new ReplResult(Client.State.EXIT));
                 yield() -> println("Erm... what the sigma??");
@@ -218,10 +218,12 @@ public class GameplayUI extends UiPhase {
         };
     }
 
-    private void leave() {
+    private Runnable leave() {
         setGameplayUiResult(UserGameCommand.CommandType.LEAVE, null);
         setResult(new ReplResult(Client.State.POSTLOGIN));
-        printlnItalics("Leaving game...");
+        return () -> {
+            printlnItalics("Leaving game...");
+        };
     }
 
     private boolean amObserving() {

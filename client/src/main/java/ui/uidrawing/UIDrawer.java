@@ -10,7 +10,7 @@ import static ui.uidrawing.EscapeSequences.*;
 public abstract class UIDrawer {
 
     // out stream
-    private static final PrintStream OUT = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private static final PrintStream OUT = new PrintStream(System.out, false, StandardCharsets.UTF_8);
 
     // vars to keep track of formatting
 
