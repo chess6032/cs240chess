@@ -13,7 +13,6 @@ import ui.phases.PostLoginUI;
 import ui.phases.PreLoginUI;
 import ui.phases.UiPhase;
 import ui.uidrawing.BoardDrawer;
-import ui.uidrawing.UIDrawer;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -36,7 +35,7 @@ public class Client {
 
 //    boolean readPortionInterruptedByWsMessage = false;
 
-    private boolean pauseRepl = false;
+    private boolean pauseReplForConectAndLoad = false;
 
     public enum State {
         PRELOGIN,
@@ -58,12 +57,16 @@ public class Client {
         phase = new PreLoginUI(server);
     }
 
+    private boolean replIsPaused() {
+        return pauseReplForConectAndLoad;
+    }
+
     public void run() {
         println(INTRO_MESSAGE);
         resetFormatting();
 
         while (state != EXIT) {
-            if (pauseRepl) { continue; }
+            if (replIsPaused()) { continue; }
             if (phase == null) {
                 continue;
             }
@@ -77,11 +80,11 @@ public class Client {
             try {
                 cargs = phase.read();
             } catch (UnknownCommandFromUser e) {
-                printFunc = UiPhase::printInvalidInputError;
+                UiPhase.replPrint(UiPhase::printInvalidInputError);
                 continue;
             }
 
-            if (pauseRepl) { continue; }
+            if (replIsPaused()) { continue; }
 
             // EVAL
             ReplResultFR funcAndResult = phase.eval(cargs);
@@ -94,7 +97,7 @@ public class Client {
                 continue;
             }
 
-            if (pauseRepl) { continue; }
+            if (replIsPaused()) { continue; }
 
             // PRINT
             UiPhase.replPrint(printFunc);
@@ -127,12 +130,8 @@ public class Client {
                 }
             }
             else if (newState == GAMEPLAY) {
-                sendConnectCommand();
-//                if (!loadGameReceivedAfterConnect) {
-//                    throw new RuntimeException("Server timed out I think");
-//                }
-//                phase = new GameplayUI(server, gameData, teamColor);
                 phase = null;
+                sendConnectCommand();
             }
             state = newState;
         }
@@ -140,31 +139,6 @@ public class Client {
 
     public String getWsURL() {
         return wsURL;
-    }
-
-    // WEBSOCKET HANDLERS
-
-    public void handleError(ErrorServerMessage msg) {
-        assert phase.getClass() == GameplayUI.class;
-        GameplayUI.printWsError(msg);
-    }
-
-    public void handleNotification(NotificationMessage msg) {
-        assert phase.getClass() == GameplayUI.class;
-        GameplayUI.evaluateWsNotifPrint(msg).run();
-    }
-
-    public void handleLoadGame(LoadGameMessage msg) {
-        pauseRepl = true;
-
-        var meta = msg.getGameMeta();
-        var game = msg.getChessGame();
-        gameData = new GameData(meta.gameID(), meta.whiteUsername(), meta.blackUsername(), meta.gameName(), game);
-
-        phase = new GameplayUI(server, gameData, teamColor);
-        ((GameplayUI) phase).drawBoard();
-
-        pauseRepl = false;
     }
 
     // SENDING USER GAME COMMANDS
@@ -184,16 +158,17 @@ public class Client {
     }
 
     private boolean sendConnectCommand() {
+        pauseReplForConectAndLoad = true;
 //        println("sending CONNECT command...");
         try {
             ws.sendAndWait(new ConnectCommand(authToken, gameData.gameID()));
 //            println("connect command sent");
         } catch (Exception e) {
             GameplayUI.printWsError(new ErrorServerMessage(e.getMessage()));
+            pauseReplForConectAndLoad = false;
             return false;
         }
         return true;
-
     }
 
     private void sendMakeMoveCommand(ChessMove move) {
@@ -201,10 +176,34 @@ public class Client {
     }
 
     private void sendLeaveCommand() throws WsConnectionAlreadyClosedException, IOException {
+
         ws.send(new LeaveCommand(authToken, gameData.gameID()));
     }
 
     private void sendResignCommand() {
         println("sending RESIGN command...");
+    }
+
+    // WEBSOCKET HANDLERS
+
+    public void handleError(ErrorServerMessage msg) {
+        assert phase.getClass() == GameplayUI.class;
+        GameplayUI.printWsError(msg);
+    }
+
+    public void handleNotification(NotificationMessage msg) {
+        assert phase.getClass() == GameplayUI.class;
+        GameplayUI.evaluateWsNotifPrint(msg).run();
+    }
+
+    public void handleLoadGame(LoadGameMessage msg) {
+        var meta = msg.getGameMeta();
+        var game = msg.getChessGame();
+        gameData = new GameData(meta.gameID(), meta.whiteUsername(), meta.blackUsername(), meta.gameName(), game);
+
+        phase = new GameplayUI(server, gameData, teamColor);
+        ((GameplayUI) phase).drawBoard();
+
+        pauseReplForConectAndLoad = false;
     }
 }
