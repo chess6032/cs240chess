@@ -32,7 +32,7 @@ public class PreLoginUI extends UiPhase{
             case "help" -> this::help;
             case "register" -> register(cargs.args());
             case "login" -> login(cargs.args());
-            case "quit" -> this::quit;
+            case "quit" -> quit();
             default -> {
                 setResult(new ReplResult(Client.State.EXIT));
                 yield () -> println("Sorry, I...pooped my pants. " + cargs.command());
@@ -93,11 +93,13 @@ public class PreLoginUI extends UiPhase{
         return () -> println("Logged in as " + user.username());
     }
 
-    private void quit() {
+    private Runnable quit() {
         setResult(new ReplResult(Client.State.EXIT));
 //        print(EscapeSequences.SET_TEXT_ITALIC);
 //        println("Exiting chess...");
 //        print(EscapeSequences.RESET_TEXT_ITALIC);
-        printlnItalics("Quitting chess...");
+        return () -> {
+            printlnItalics("Quitting chess...");
+        };
     }
 }
