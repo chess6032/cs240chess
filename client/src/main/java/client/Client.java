@@ -67,7 +67,7 @@ public class Client {
             }
 
             // READ
-            UiPhase.printPrompter(state.name()); // prints " >>> "
+            UiPhase.printPrompter(phase.getClass().toString()); // prints " >>> "
             Runnable printFunc = null;
             CommandAndArgs cargs;
             try {
@@ -107,7 +107,13 @@ public class Client {
             // TODO: do websocket here maybe?
             if (state == GAMEPLAY) {
                 assert phase.getClass() == GameplayUI.class;
-                sendWsMessageIfNecessary();
+                try {
+                    sendWsMessageIfNecessary();
+                } catch (Exception e) {
+                    UIDrawer.println(e.getMessage());
+                    state = EXIT;
+                    continue;
+                }
             }
 
             // update client state/phase
@@ -161,7 +167,7 @@ public class Client {
         ((GameplayUI) phase).drawBoard();
     }
 
-    private void sendWsMessageIfNecessary() {
+    private void sendWsMessageIfNecessary() throws WsConnectionAlreadyClosedException, IOException {
         assert phase.getClass() == GameplayUI.class;
         var commandType = ((GameplayUI) phase).getCommandType();
         if (commandType != null) {
@@ -191,8 +197,8 @@ public class Client {
         println("sending MAKE_MOVE command (" + move + ")...");
     }
 
-    private void sendLeaveCommand() {
-        println("sending LEAVE command...");
+    private void sendLeaveCommand() throws WsConnectionAlreadyClosedException, IOException {
+        ws.send(new LeaveCommand(authToken, gameData.gameID()));
     }
 
     private void sendResignCommand() {
