@@ -36,6 +36,8 @@ public class Client {
 
 //    boolean readPortionInterruptedByWsMessage = false;
 
+    private boolean pauseRepl = false;
+
     public enum State {
         PRELOGIN,
         POSTLOGIN,
@@ -61,10 +63,12 @@ public class Client {
         resetFormatting();
 
         while (state != EXIT) {
-            // run single iteration of REPL
+            if (pauseRepl) { continue; }
             if (phase == null) {
                 continue;
             }
+
+            // run single iteration of REPL
 
             // READ
             UiPhase.printPrompter(phase.getClass().toString()); // prints " >>> "
@@ -77,6 +81,8 @@ public class Client {
                 continue;
             }
 
+            if (pauseRepl) { continue; }
+
             // EVAL
             ReplResultFR funcAndResult = phase.eval(cargs);
             printFunc = funcAndResult.printFunc();
@@ -88,6 +94,7 @@ public class Client {
                 continue;
             }
 
+            if (pauseRepl) { continue; }
 
             // PRINT
             UiPhase.replPrint(printFunc);
@@ -120,7 +127,12 @@ public class Client {
                 }
             }
             else if (newState == GAMEPLAY) {
-                phase = new GameplayUI(server, gameData, teamColor);
+                sendConnectCommand();
+//                if (!loadGameReceivedAfterConnect) {
+//                    throw new RuntimeException("Server timed out I think");
+//                }
+//                phase = new GameplayUI(server, gameData, teamColor);
+                phase = null;
             }
             state = newState;
         }
@@ -143,18 +155,22 @@ public class Client {
     }
 
     public void handleLoadGame(LoadGameMessage msg) {
-//        assert phase.getClass() == GameplayUI.class;
+        pauseRepl = true;
 
         var meta = msg.getGameMeta();
         var game = msg.getChessGame();
-        var gameData = new GameData(meta.gameID(), meta.whiteUsername(), meta.blackUsername(), meta.gameName(), game);
+        gameData = new GameData(meta.gameID(), meta.whiteUsername(), meta.blackUsername(), meta.gameName(), game);
 
         phase = new GameplayUI(server, gameData, teamColor);
-        println();
         ((GameplayUI) phase).drawBoard();
+
+        pauseRepl = false;
     }
 
+    // SENDING USER GAME COMMANDS
+
     private void sendWsMessageIfNecessary() throws WsConnectionAlreadyClosedException, IOException {
+
         assert phase.getClass() == GameplayUI.class;
         var commandType = ((GameplayUI) phase).getCommandType();
         if (commandType != null) {

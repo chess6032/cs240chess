@@ -51,7 +51,6 @@ public class WebsocketFacade extends Endpoint {
                     case NOTIFICATION -> handleNotificationMessage((NotificationMessage) msg);
                     case null, default -> handleErrorMessage(new ErrorServerMessage("uhmm... I don't know how to handle this message..."));
                 }
-
             }
         });
     }
@@ -122,6 +121,7 @@ public class WebsocketFacade extends Endpoint {
     }
 
     private void handleLoadGameMessage(LoadGameMessage msg) {
+        ui.uidrawing.UIDrawer.println("LOADING GAME...");
         client.handleLoadGame(msg);
     }
 
