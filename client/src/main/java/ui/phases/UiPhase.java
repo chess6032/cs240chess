@@ -11,7 +11,7 @@ import java.util.*;
 public abstract class UiPhase {
 
 
-    private static final Scanner SCANNER = new Scanner(System.in);
+    protected static final Scanner SCANNER = new Scanner(System.in);
 
     protected final ServerFacade server;
     protected final List<String> commands;

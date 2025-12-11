@@ -18,6 +18,7 @@ import ui.InvalidArgsFromUser;
 import ui.ReplResult;
 import ui.uidrawing.BoardDrawer;
 import ui.uidrawing.TextColor;
+import ui.uidrawing.UIDrawer;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorServerMessage;
 import websocket.messages.NotificationMessage;
@@ -169,8 +170,17 @@ public class GameplayUI extends UiPhase {
             // FIXME: this will print "Invalid Input", whereas all other invalid commands print "Can't find command:"
             //  ...but this is just the quickest, easiest way I could think to implement this.
         }
+        UIDrawer.printPrompt("Are you sure you want to resign???");
+        String line = SCANNER.nextLine();
+
+        if (!line.equals("y")) {
+            return null;
+        }
+
         setGameplayUiResult(UserGameCommand.CommandType.RESIGN, null);
         setResult(new ReplResult(Client.State.POSTLOGIN));
+
+
         return () -> {
             println("Coward!");
         };
@@ -183,11 +193,11 @@ public class GameplayUI extends UiPhase {
         }
 
         validateInput(args, new int[]{2, 3});
-        if (gameData.game().getTeamTurn() != team) {
-            return () -> {
-                println("It's not your turn! Wait for the other player to make their move.");
-            };
-        }
+//        if (gameData.game().getTeamTurn() != team) {
+//            return () -> {
+//                println("It's not your turn! Wait for the other player to make their move.");
+//            };
+//        }
 
         // parse user input
         var startPos = inputPosToChessPos(args[0]);

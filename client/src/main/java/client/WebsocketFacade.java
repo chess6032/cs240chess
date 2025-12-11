@@ -121,7 +121,7 @@ public class WebsocketFacade extends Endpoint {
     }
 
     private void handleLoadGameMessage(LoadGameMessage msg) {
-        ui.uidrawing.UIDrawer.println("LOADING GAME...");
+//        ui.uidrawing.UIDrawer.println("LOADING GAME...");
         client.handleLoadGame(msg);
     }
 

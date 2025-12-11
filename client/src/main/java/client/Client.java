@@ -208,8 +208,8 @@ public class Client {
     private void sendResignCommand() throws WsConnectionAlreadyClosedException, IOException {
 //        println("sending RESIGN command...");
         ws.send(new ResignCommand(authToken, gameData.gameID()));
-        state = POSTLOGIN;
-        phase = new PostLoginUI(server, new AuthData(authToken, username));
+//        state = POSTLOGIN;
+//        phase = new PostLoginUI(server, new AuthData(authToken, username));
     }
 
     // WEBSOCKET HANDLERS
@@ -217,6 +217,8 @@ public class Client {
     public void handleError(ErrorServerMessage msg) {
         assert phase.getClass() == GameplayUI.class;
         GameplayUI.printWsError(msg);
+        phase = new GameplayUI(server, gameData, teamColor);
+
     }
 
     public void handleNotification(NotificationMessage msg) {
