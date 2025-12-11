@@ -40,6 +40,8 @@ public class WsConnectionManager {
             return false;
         }
         userAndSesh.session().close();
+
+        sessions.remove(userAndSesh);
         return true;
     }
 
@@ -71,9 +73,6 @@ public class WsConnectionManager {
             }
         }
 
-//        for (var uAS : uASes) {
-//            checkSession(gameID, uAS); // FIXME: error occurs here I think
-//        }
         return uASes;
     }
 

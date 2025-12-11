@@ -126,6 +126,9 @@ public abstract class UiPhase {
 
     public final CommandAndArgs read() throws UnknownCommandFromUser {
         String line = SCANNER.nextLine();
+        if (line == null || line.equals("")) {
+            return null;
+        }
         return parseInput(line);
     }
     public final ReplResultFR eval(CommandAndArgs cargs) {

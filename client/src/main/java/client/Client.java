@@ -58,8 +58,8 @@ public class Client {
     }
 
     private boolean restartRepl() {
-//        return pauseReplForConectAndLoad;
-        return false;
+        return pauseReplForConectAndLoad;
+//        return false;
     }
 
     public void run() {
@@ -85,9 +85,12 @@ public class Client {
             if (restartRepl()) { continue; }
 
             // EVAL
-            ReplResultFR funcAndResult = phase.eval(cargs);
-            printFunc = funcAndResult.printFunc();
-            ReplResult result = funcAndResult.result();
+            ReplResult result = null;
+            if (cargs != null) {
+                ReplResultFR funcAndResult = phase.eval(cargs);
+                printFunc = funcAndResult.printFunc();
+                result = funcAndResult.result();
+            }
 
             // BREAK: print here if result gave us nothing
             if (result == null) {
