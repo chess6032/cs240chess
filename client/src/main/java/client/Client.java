@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class Client {
     private final ServerFacade server;
-    private final WebsocketFacade ws;
+    private WebsocketFacade ws;
     private final String wsURL;
 
     private static final String INTRO_MESSAGE = "♕ 240 Chess Client";
@@ -36,6 +36,7 @@ public class Client {
 //    boolean readPortionInterruptedByWsMessage = false;
 
     private boolean pauseReplForConectAndLoad = false;
+    private boolean pauseReplForMakeMoveAndLoad = false;
 
     public enum State {
         PRELOGIN,
@@ -47,7 +48,7 @@ public class Client {
     public Client(String serverURL, boolean useUnicode) throws Exception {
         server = new ServerFacade("http://" + serverURL);
         wsURL = "ws://" + serverURL + "/ws";
-        ws = new WebsocketFacade(this);
+//        ws = new WebsocketFacade(this);
 
         if (useUnicode) {
             BoardDrawer.useUniPieces();
@@ -58,8 +59,8 @@ public class Client {
     }
 
     private boolean restartRepl() {
-        return pauseReplForConectAndLoad;
-//        return false;
+//        return pauseReplForConectAndLoad ;//|| pauseReplForMakeMoveAndLoad;
+        return false;
     }
 
     public void run() {
@@ -72,7 +73,9 @@ public class Client {
             // run single iteration of REPL
 
             // READ
-            UiPhase.printPrompter(phase.getClass().toString()); // prints " >>> "
+//            UiPhase.printPrompter(phase.getClass().toString()); // prints " >>> "
+//            UiPhase.printPrompter(""); // prints " >>> "
+            UiPhase.printPrompter(state.name());
             Runnable printFunc = null;
             CommandAndArgs cargs;
             try {
@@ -93,7 +96,22 @@ public class Client {
             }
 
             // BREAK: print here if result gave us nothing
-            if (result == null) {
+            if (state != GAMEPLAY && result == null) {
+                UiPhase.replPrint(printFunc);
+                continue;
+            }
+
+            // TODO: do websocket here maybe?
+            if (state == GAMEPLAY) {
+                assert phase.getClass() == GameplayUI.class;
+                try {
+                    sendWsMessageIfNecessary();
+                } catch (WsConnectionAlreadyClosedException | IOException e) {
+                    if (((GameplayUI) phase).getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
+                        pauseReplForMakeMoveAndLoad = false;
+                    }
+                    throw new RuntimeException(e);
+                }
                 UiPhase.replPrint(printFunc);
                 continue;
             }
@@ -117,8 +135,6 @@ public class Client {
                     teamColor = result.color();
                 }
             }
-
-            // TODO: do websocket here maybe?
 
             // update client state/phase
             if (newState == PRELOGIN) {
@@ -145,7 +161,8 @@ public class Client {
 
     private void sendWsMessageIfNecessary() throws WsConnectionAlreadyClosedException, IOException {
 
-        assert phase.getClass() == GameplayUI.class;
+//        assert phase.getClass() == GameplayUI.class;
+        if (phase.getClass() != GameplayUI.class);
         var commandType = ((GameplayUI) phase).getCommandType();
         if (commandType != null) {
             assert commandType != UserGameCommand.CommandType.CONNECT;
@@ -158,6 +175,11 @@ public class Client {
     }
 
     private boolean sendConnectCommand() {
+        try {
+            ws = new WebsocketFacade(this);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to instantiate websocket facade: " + e.getMessage());
+        }
         pauseReplForConectAndLoad = true;
 //        println("sending CONNECT command...");
         try {
@@ -171,16 +193,23 @@ public class Client {
         return true;
     }
 
-    private void sendMakeMoveCommand(ChessMove move) {
-        println("sending MAKE_MOVE command (" + move + ")...");
+    private void sendMakeMoveCommand(ChessMove move) throws WsConnectionAlreadyClosedException, IOException {
+        pauseReplForMakeMoveAndLoad = true;
+        ws.send(new MakeMoveCommand(authToken, gameData.gameID(), move));
+//        println("making move (" + move + ")...");
     }
 
     private void sendLeaveCommand() throws WsConnectionAlreadyClosedException, IOException {
         ws.send(new LeaveCommand(authToken, gameData.gameID()));
+        state = POSTLOGIN;
+        phase = new PostLoginUI(server, new AuthData(authToken, username));
     }
 
-    private void sendResignCommand() {
-        println("sending RESIGN command...");
+    private void sendResignCommand() throws WsConnectionAlreadyClosedException, IOException {
+//        println("sending RESIGN command...");
+        ws.send(new ResignCommand(authToken, gameData.gameID()));
+        state = POSTLOGIN;
+        phase = new PostLoginUI(server, new AuthData(authToken, username));
     }
 
     // WEBSOCKET HANDLERS
@@ -204,5 +233,6 @@ public class Client {
 //        ((GameplayUI) phase).drawBoard();
 
         pauseReplForConectAndLoad = false;
+        pauseReplForMakeMoveAndLoad = false;
     }
 }
