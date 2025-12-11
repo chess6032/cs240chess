@@ -57,8 +57,9 @@ public class Client {
         phase = new PreLoginUI(server);
     }
 
-    private boolean replIsPaused() {
-        return pauseReplForConectAndLoad;
+    private boolean restartRepl() {
+//        return pauseReplForConectAndLoad;
+        return false;
     }
 
     public void run() {
@@ -66,10 +67,7 @@ public class Client {
         resetFormatting();
 
         while (state != EXIT) {
-            if (replIsPaused()) { continue; }
-            if (phase == null) {
-                continue;
-            }
+            if (restartRepl()) { continue; }
 
             // run single iteration of REPL
 
@@ -84,7 +82,7 @@ public class Client {
                 continue;
             }
 
-            if (replIsPaused()) { continue; }
+            if (restartRepl()) { continue; }
 
             // EVAL
             ReplResultFR funcAndResult = phase.eval(cargs);
@@ -97,7 +95,7 @@ public class Client {
                 continue;
             }
 
-            if (replIsPaused()) { continue; }
+            if (restartRepl()) { continue; }
 
             // PRINT
             UiPhase.replPrint(printFunc);
@@ -130,7 +128,6 @@ public class Client {
                 }
             }
             else if (newState == GAMEPLAY) {
-                phase = null;
                 sendConnectCommand();
             }
             state = newState;
@@ -176,7 +173,6 @@ public class Client {
     }
 
     private void sendLeaveCommand() throws WsConnectionAlreadyClosedException, IOException {
-
         ws.send(new LeaveCommand(authToken, gameData.gameID()));
     }
 
@@ -202,7 +198,7 @@ public class Client {
         gameData = new GameData(meta.gameID(), meta.whiteUsername(), meta.blackUsername(), meta.gameName(), game);
 
         phase = new GameplayUI(server, gameData, teamColor);
-        ((GameplayUI) phase).drawBoard();
+//        ((GameplayUI) phase).drawBoard();
 
         pauseReplForConectAndLoad = false;
     }
