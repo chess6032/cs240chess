@@ -38,11 +38,11 @@ public class GameplayUiTests {
 
         var ui = new GameplayUI(null, new GameData(-1, null, null, null, game), ChessGame.TeamColor.WHITE);
     //        ui.drawBoard();
-            ui.eval(new CommandAndArgs("highlight", new String[]{"a7"})).run();
+            ui.phaseEval(new CommandAndArgs("highlight", new String[]{"a7"})).run();
 
         Runnable func = null;
             try {
-            func = ui.eval(new CommandAndArgs("move", new String[]{"a7", "a8", "q"}));
+            func = ui.phaseEval(new CommandAndArgs("move", new String[]{"a7", "a8", "q"}));
         } catch (
         InvalidArgsFromUser e) {
             System.out.println(e.getMessage());

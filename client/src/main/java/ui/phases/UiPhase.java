@@ -64,41 +64,41 @@ public abstract class UiPhase {
         }
     }
 
-    public ReplResultFR readEvalPrint() {
-        // single iteration of the REP loop
-
-        UIDrawer.printPrompt();
-        Runnable printFunc = null;
-        try {
-            // READ
-            String line = SCANNER.nextLine();
-            var cargs = parseInput(line);
-            try {
-                // EVAL
-                printFunc = eval(cargs);
-            } catch (InvalidArgsFromUser e) {
-                printFunc = () -> {
-                    UIDrawer.useTextColor(TextColor.RED);
-                    UIDrawer.println("Invalid input");
-                    UIDrawer.revertTextColor();
-                };
-            } catch (ResponseException e) {
-                // TODO: wtf do I do here
-                printFunc = () -> UIDrawer.print((e.getStatus() / 100 == 5 ? "[Server error]" : "[User error]")
-                        + " Sorry! Something went wrong...");
-            }
-        } catch (UnknownCommandFromUser e) {
-            printFunc = () -> UIDrawer.println(e.getMessage());
-        }
-
-        // PRINT
-//        if (printFunc != null) {
-//            printFunc.run();
+//    public ReplResultFR readEvalPrint() {
+//        // single iteration of the REP loop
+//
+////        UIDrawer.printPrompt();
+//        Runnable printFunc = null;
+//        try {
+//            // READ
+//            String line = SCANNER.nextLine();
+//            var cargs = parseInput(line);
+//            try {
+//                // EVAL
+//                printFunc = phaseEval(cargs);
+//            } catch (InvalidArgsFromUser e) {
+//                printFunc = () -> {
+//                    UIDrawer.useTextColor(TextColor.RED);
+//                    UIDrawer.println("Invalid input");
+//                    UIDrawer.revertTextColor();
+//                };
+//            } catch (ResponseException e) {
+//                // TODO: wtf do I do here
+//                printFunc = () -> UIDrawer.print((e.getStatus() / 100 == 5 ? "[Server error]" : "[User error]")
+//                        + " Sorry! Something went wrong...");
+//            }
+//        } catch (UnknownCommandFromUser e) {
+//            printFunc = () -> UIDrawer.println(e.getMessage());
 //        }
-
-        // give client updated state (modified in eval)
-        return new ReplResultFR(printFunc, replResult);
-    }
+//
+//        // PRINT
+////        if (printFunc != null) {
+////            printFunc.run();
+////        }
+//
+//        // give client updated state (modified in eval)
+//        return new ReplResultFR(printFunc, replResult);
+//    }
 
 
 
@@ -124,5 +124,39 @@ public abstract class UiPhase {
         return new CommandAndArgs(command, args);
     }
 
-    public abstract Runnable eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException;
+    public final CommandAndArgs read() throws UnknownCommandFromUser {
+        String line = SCANNER.nextLine();
+        return parseInput(line);
+    }
+    public final ReplResultFR eval(CommandAndArgs cargs) {
+        Runnable printFunc = null;
+        try {
+            printFunc = phaseEval(cargs);
+        } catch (InvalidArgsFromUser e) {
+            printFunc = UiPhase::printInvalidInputError;
+        } catch (ResponseException e) {
+            // TODO: wtf do I do here
+            printFunc = () -> UIDrawer.print((e.getStatus() / 100 == 5 ? "[Server error]" : "[User error]")
+                    + " Sorry! Something went wrong...");
+        }
+        return new ReplResultFR(printFunc, replResult);
+    }
+
+    protected abstract Runnable phaseEval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException;
+
+    public static void replPrint(Runnable func) {
+        if (func != null) {
+            func.run();
+        }
+    }
+
+    public static void printInvalidInputError() {
+        UIDrawer.useTextColor(TextColor.RED);
+        UIDrawer.println("Invalid input");
+        UIDrawer.revertTextColor();
+    }
+
+    public static void printPrompter(String prfx) {
+        UIDrawer.printPrompt(prfx);
+    }
 }

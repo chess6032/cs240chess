@@ -58,7 +58,7 @@ public class PostLoginUI extends UiPhase {
     }
 
     @Override
-    public Runnable eval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
+    public Runnable phaseEval(CommandAndArgs cargs) throws InvalidArgsFromUser, ResponseException {
         return switch (cargs.command()) {
             case "help" -> this::help;
             case "create" -> createGame(cargs.args());

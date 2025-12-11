@@ -13,6 +13,7 @@ import ui.phases.PostLoginUI;
 import ui.phases.PreLoginUI;
 import ui.phases.UiPhase;
 import ui.uidrawing.BoardDrawer;
+import ui.uidrawing.UIDrawer;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -33,7 +34,7 @@ public class Client {
 
     private UiPhase phase;
 
-    boolean readPortionInterruptedByWsMessage = false;
+//    boolean readPortionInterruptedByWsMessage = false;
 
     public enum State {
         PRELOGIN,
@@ -65,15 +66,26 @@ public class Client {
                 continue;
             }
 
-            ReplResultFR funcAndResult = phase.readEvalPrint();
-            if (readPortionInterruptedByWsMessage) {
-                readPortionInterruptedByWsMessage = false;
+            // READ
+            UiPhase.printPrompter(state.name()); // prints " >>> "
+            Runnable printFunc = null;
+            CommandAndArgs cargs;
+            try {
+                cargs = phase.read();
+            } catch (UnknownCommandFromUser e) {
+                printFunc = UiPhase::printInvalidInputError;
                 continue;
             }
-            Runnable printFunc = funcAndResult.printFunc();
+
+            // EVAL
+            ReplResultFR funcAndResult = phase.eval(cargs);
+            printFunc = funcAndResult.printFunc();
             ReplResult result = funcAndResult.result();
+
+            // BREAK: print here if result gave us nothing
             if (result == null) {
-                printThatThang(printFunc);
+//                printThatThang(printFunc);
+                UiPhase.replPrint(printFunc);
                 continue;
             }
 
@@ -116,13 +128,8 @@ public class Client {
             }
             state = newState;
 
-            printThatThang(printFunc);
-        }
-    }
-
-    private void printThatThang(Runnable printFunc) {
-        if (printFunc != null) {
-            printFunc.run();
+            // PRINT
+            UiPhase.replPrint(printFunc);
         }
     }
 
@@ -134,19 +141,16 @@ public class Client {
 
     public void handleError(ErrorServerMessage msg) {
         assert phase.getClass() == GameplayUI.class;
-        readPortionInterruptedByWsMessage = true;
         GameplayUI.printWsError(msg);
     }
 
     public void handleNotification(NotificationMessage msg) {
         assert phase.getClass() == GameplayUI.class;
-        readPortionInterruptedByWsMessage = true;
         GameplayUI.evaluateWsNotifPrint(msg).run();
     }
 
     public void handleLoadGame(LoadGameMessage msg) {
 //        assert phase.getClass() == GameplayUI.class;
-        readPortionInterruptedByWsMessage = true;
 
         var meta = msg.getGameMeta();
         var game = msg.getChessGame();
